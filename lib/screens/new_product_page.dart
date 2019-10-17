@@ -1,6 +1,8 @@
+import 'package:badiup/screens/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as Constants;
 import 'package:badiup/models/product_model.dart';
 
 class NewProductPage extends StatefulWidget {
@@ -13,7 +15,6 @@ class NewProductPage extends StatefulWidget {
 }
 
 class _NewProductPageState extends State<NewProductPage> {
-  final _newProductformKey = GlobalKey<FormState>();
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
   final _captionEditingController = TextEditingController();
@@ -28,13 +29,21 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 
+  @override
+  void dispose() {
+    _nameEditingController.dispose();
+    _priceEditingController.dispose();
+    _captionEditingController.dispose();
+    _descriptionEditingController.dispose();
+    super.dispose();
+  }
+
   Widget _buildNewProductForm(BuildContext context) {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Form(
-        key: _newProductformKey,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
@@ -55,7 +64,7 @@ class _NewProductPageState extends State<NewProductPage> {
       SizedBox(height: 16.0),
       _buildDescriptionFormField(),
       SizedBox(height: 16.0),
-      _buildSubmitButton(context),
+      _buildSubmitButton(),
     ];
   }
 
@@ -72,7 +81,7 @@ class _NewProductPageState extends State<NewProductPage> {
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Product name cannot be empty';
+          return 'Description cannot be empty';
         }
         return null;
       },
@@ -92,7 +101,7 @@ class _NewProductPageState extends State<NewProductPage> {
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Product name cannot be empty';
+          return 'Price cannot be empty';
         }
         return null;
       },
@@ -110,7 +119,7 @@ class _NewProductPageState extends State<NewProductPage> {
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Product name cannot be empty';
+          return 'Name cannot be empty';
         }
         return null;
       },
@@ -128,14 +137,14 @@ class _NewProductPageState extends State<NewProductPage> {
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Product caption cannot be empty';
+          return 'Caption cannot be empty';
         }
         return null;
       },
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
+  Widget _buildSubmitButton() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -145,16 +154,13 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           child: RaisedButton(
             onPressed: () {
-              if (_newProductformKey.currentState.validate()) {
-                Scaffold.of(context)
-                  .showSnackBar(
-                    SnackBar(
-                      content: Text('Processing Data'),
-                    )
-                  );
-                
-                _addProductToCatalog();
-              }
+              _submitForm();
+              Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => HomePage()
+                ),
+              );
             },
             child: Text('Submit'),
           ),
@@ -163,7 +169,7 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 
-  void _addProductToCatalog() {
+  void _submitForm() async {
     final _product = Product(
       name: _nameEditingController.text,
       caption: _captionEditingController.text,
@@ -172,6 +178,10 @@ class _NewProductPageState extends State<NewProductPage> {
         _priceEditingController.text,
       ),
     );
+
+    await Firestore.instance.collection(
+      Constants.PRODUCT_COLLECTION)
+      .add(_product.toMap());
   }
 
   Widget _buildAppBar() {
