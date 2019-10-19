@@ -5,12 +5,14 @@ class Product {
   final String caption;
   final String description;
   final double priceInYen;
+  final DateTime created;
 
   Product({
     this.name, 
     this.caption, 
     this.description, 
-    this.priceInYen
+    this.priceInYen,
+    this.created,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class Product {
       'caption' : caption,
       'description' : description,
       'priceInYen' : priceInYen,
+      'created' : created,
     };
   }
 
@@ -27,7 +30,8 @@ class Product {
       name = map['name'],
       caption = map['caption'],
       description = map['description'],
-      priceInYen = map['priceInYen'];
+      priceInYen = map['priceInYen'],
+      created = map['created'].toDate(); 
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
     : this.fromMap(snapshot.data);

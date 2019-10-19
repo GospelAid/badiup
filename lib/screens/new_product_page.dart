@@ -177,6 +177,7 @@ class _NewProductPageState extends State<NewProductPage> {
       priceInYen: double.parse(
         _priceEditingController.text,
       ),
+      created: DateTime.now().toUtc(),
     );
 
     await Firestore.instance.collection(

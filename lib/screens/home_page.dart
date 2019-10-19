@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
       child: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
           .collection(Constants.PRODUCT_COLLECTION)
+          .orderBy('created', descending: true)
           .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
