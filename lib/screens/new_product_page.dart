@@ -19,13 +19,16 @@ class _NewProductPageState extends State<NewProductPage> {
   final _priceEditingController = TextEditingController();
   final _captionEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
- 
+  bool _formSubmitInProgress = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(), 
       // Build a form to input new product details
-      body: _buildNewProductForm(context),
+      body: Stack(
+        children: _buildNewProductForm(context),
+      ),
     );
   }
 
@@ -38,8 +41,8 @@ class _NewProductPageState extends State<NewProductPage> {
     super.dispose();
   }
 
-  Widget _buildNewProductForm(BuildContext context) {
-    return GestureDetector(
+  List<Widget> _buildNewProductForm(BuildContext context) {
+    var form = GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
@@ -52,6 +55,25 @@ class _NewProductPageState extends State<NewProductPage> {
         ),
       ),
     );
+
+    var widgetList = List<Widget>();
+    if (_formSubmitInProgress) {
+      var modal = new Stack(
+        children: [
+          new Opacity(
+            opacity: 0.5,
+            child: const ModalBarrier(dismissible: false, color: Colors.black),
+          ),
+          new Center(
+            child: new CircularProgressIndicator(),
+          ),
+        ],
+      );
+
+      widgetList.add(modal);
+    }
+    widgetList.add(form);
+    return widgetList;
   }
 
   List<Widget> _buildFormFields(BuildContext context) {
@@ -70,6 +92,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildDescriptionFormField() {
     return TextFormField(
+      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_DESCRIPTION),
       controller: _descriptionEditingController,
       keyboardType: TextInputType.multiline,
       maxLines: 10,
@@ -90,6 +113,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildPriceFormField() {
     return TextFormField(
+      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_PRICE),
       controller: _priceEditingController,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
@@ -110,6 +134,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildNameFormField() {
     return TextFormField(
+      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_NAME),
       controller: _nameEditingController,
       decoration: InputDecoration(
         labelText: 'Name',
@@ -128,6 +153,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildCaptionFormField() {
     return TextFormField(
+      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_CAPTION),
       controller: _captionEditingController,
       decoration: InputDecoration(
         labelText: 'Caption',
@@ -153,14 +179,11 @@ class _NewProductPageState extends State<NewProductPage> {
             vertical: 16.0,
           ),
           child: RaisedButton(
-            onPressed: () {
-              _submitForm();
-              Navigator.pushReplacement(
-                context, 
-                MaterialPageRoute(
-                  builder: (context) => HomePage()
-                ),
-              );
+            key: Key(
+              Constants.TestKeys.NEW_PRODUCT_FORM_SUBMIT_BUTTON),
+            onPressed: () async {
+              await _submitForm();
+              Navigator.pop(context);
             },
             child: Text('Submit'),
           ),
@@ -169,7 +192,7 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     final _product = Product(
       name: _nameEditingController.text,
       caption: _captionEditingController.text,
@@ -180,9 +203,17 @@ class _NewProductPageState extends State<NewProductPage> {
       created: DateTime.now().toUtc(),
     );
 
+    setState(() {
+      _formSubmitInProgress = true;
+    });
+
     await Firestore.instance.collection(
-      Constants.PRODUCT_COLLECTION)
+      Constants.DBCollections.PRODUCTS)
       .add(_product.toMap());
+    
+    setState(() {
+      _formSubmitInProgress = false;
+    });
   }
 
   Widget _buildAppBar() {

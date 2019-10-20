@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(8.0),
       child: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
-          .collection(Constants.PRODUCT_COLLECTION)
+          .collection(Constants.DBCollections.PRODUCTS)
           .orderBy('created', descending: true)
           .snapshots(),
         builder: (context, snapshot) {
@@ -48,44 +48,54 @@ class _HomePageState extends State<HomePage> {
   Widget _buildProductListingItems(
     BuildContext context,
     List<DocumentSnapshot> snapshots) {
+    List<Widget> widgets = List<Widget>();
+    snapshots.asMap().forEach((index, data) => {
+      widgets.add(_buildProductListingItem(context, index, data))
+    });
+
     return ListView(
-      children: snapshots.map(
-        (data) => _buildProductListingItem(context, data)
-      ).toList(),
+      children: widgets,
     );
   }
 
   Widget _buildProductListingItem(
     BuildContext context, 
+    int index,
     DocumentSnapshot data) {
     final product = Product.fromSnapshot(data);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Container(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           border: Border.all(color: kPaletteDeepPurple),
           borderRadius: BorderRadius.circular(5.0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              product.name,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              product.caption,
-              style: TextStyle(color: Colors.black),
-            )
-          ],
+          children: _buildProductListingItemElements(product, index),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildProductListingItemElements(
+    Product product, 
+    int index) {
+    return <Widget>[
+        Text(
+          product.name,
+          key: index == 0 ? Key(
+            Constants.TestKeys.PRODUCT_LISTING_FIRST_NAME) : null,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8.0),
+        Text(
+          product.caption,
+          style: TextStyle(color: Colors.black),
+        )
+      ];
   }
 
   Widget _buildAppBar(BuildContext context) {
@@ -112,12 +122,13 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNewProductButton(BuildContext context) {
     return IconButton(
+      key: Key(Constants.TestKeys.NEW_PRODUCT_BUTTON),
       icon: Icon(
         Icons.add,
         semanticLabel: 'new_product',
       ),
       onPressed: () => {
-        Navigator.pushReplacement(
+        Navigator.push(
           context, 
           MaterialPageRoute(
             builder: (context) => NewProductPage()
