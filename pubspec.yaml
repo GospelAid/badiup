@@ -25,6 +25,14 @@ dependencies:
   cupertino_icons: ^0.1.2
   
   cloud_firestore: ^0.11.0+1
+  firebase_core: 0.4.0+8
+  firebase_storage: 3.0.4
+
+  image_cropper: 1.0.2
+  image_picker: 0.6.0+17
+  transparent_image: ^1.0.0
+  
+  uuid: any
 
 dev_dependencies:
   flutter_test:
@@ -32,7 +40,6 @@ dev_dependencies:
   flutter_driver:
     sdk: flutter
   test: any
-  uuid: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
