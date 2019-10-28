@@ -141,26 +141,38 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
+          title: Text(
+            'Confirm Delete',
+            style: getAlertStyle(),
+          ),
           content: Text('Once deleted, the data cannot be recovered. Are you sure you want to delete?'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            FlatButton(
-              child: Text('Delete'),
-              onPressed: () {
-                _deleteProduct(product);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+          actions: _buildConfirmDeleteDialogActions(
+            context, 
+            product
+          ),
         );
       },
     );
+  }
+
+  List<Widget> _buildConfirmDeleteDialogActions(
+    BuildContext context, 
+    Product product) {
+    return <Widget>[
+          FlatButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          FlatButton(
+            child: Text('Delete'),
+            onPressed: () {
+              _deleteProduct(product);
+              Navigator.pop(context);
+            },
+          ),
+        ];
   }
 
   Future<void> _deleteProduct(Product product) async {

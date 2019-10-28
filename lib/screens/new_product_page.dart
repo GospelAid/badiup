@@ -276,7 +276,36 @@ class _NewProductPageState extends State<NewProductPage> {
   }
 
   bool _formIsValid() {
+    if (_imageFile == null) {
+      _buildImageMandatoryDialog();
+      return false;
+    }
+
     return _formKey.currentState.validate();
+  }
+
+  void _buildImageMandatoryDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Image Required!', 
+            style: getAlertStyle(),
+          ),
+          content: Text('Please upload an image'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _submitForm() async {

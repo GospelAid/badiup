@@ -14,3 +14,10 @@ const kPaletteRed = Colors.red;
 const kPaletteBorderColor = const Color(0xFF8D99AE);
 const kPaletteDeleteIconColor = const Color(0xFFB22323);
 const kPaletteSpacerColor = const Color(0xFFBABABA);
+
+TextStyle getAlertStyle() {
+  return TextStyle(
+    color: kPaletteRed,
+    fontWeight: FontWeight.bold,
+  );
+}
