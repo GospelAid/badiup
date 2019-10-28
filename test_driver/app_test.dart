@@ -7,6 +7,9 @@ import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
+  // TODO: This test doesn't work because uploading image is now 
+  //       mandatory and this flow can't be tested by integration 
+  //       testing.
   group('Badi Up App', () {
     FlutterDriver driver;
 
