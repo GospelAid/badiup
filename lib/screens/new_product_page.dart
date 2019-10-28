@@ -192,8 +192,10 @@ class _NewProductPageState extends State<NewProductPage> {
       key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_PRICE),
       controller: _priceEditingController,
       keyboardType: TextInputType.number,
+      style: TextStyle(fontSize: 24.0),
       decoration: InputDecoration(
         labelText: 'Price',
+        labelStyle: TextStyle(fontSize: 16.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5.0)
         ),
@@ -218,6 +220,7 @@ class _NewProductPageState extends State<NewProductPage> {
           borderRadius: BorderRadius.circular(5.0)
         ),
       ),
+      maxLength: 10,
       validator: (value) {
         if (value.isEmpty) {
           return 'Name cannot be empty';
@@ -237,6 +240,7 @@ class _NewProductPageState extends State<NewProductPage> {
           borderRadius: BorderRadius.circular(5.0)
         ),
       ),
+      maxLength: 15,
       validator: (value) {
         if (value.isEmpty) {
           return 'Caption cannot be empty';
@@ -259,7 +263,7 @@ class _NewProductPageState extends State<NewProductPage> {
               Constants.TestKeys.NEW_PRODUCT_FORM_SUBMIT_BUTTON
             ),
             onPressed: () async {
-              if (_formKey.currentState.validate()) {
+              if (_formIsValid()) {
                 await _submitForm();
                 Navigator.pop(context);
               }
@@ -269,6 +273,10 @@ class _NewProductPageState extends State<NewProductPage> {
         ),
       ],
     );
+  }
+
+  bool _formIsValid() {
+    return _formKey.currentState.validate();
   }
 
   Future<void> _submitForm() async {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'package:badiup/constants.dart' as Constants;
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/new_product_page.dart';
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildProductListing(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
-        .collection(Constants.DBCollections.PRODUCTS)
+        .collection(constants.DBCollections.PRODUCTS)
         .orderBy('created', descending: true)
         .snapshots(),
       builder: (context, snapshot) {
@@ -171,15 +171,22 @@ class _HomePageState extends State<HomePage> {
     await ref.delete();
 
     await Firestore.instance.collection(
-      Constants.DBCollections.PRODUCTS)
+      constants.DBCollections.PRODUCTS)
       .document(product.documentId)
       .delete();
   }
 
   Widget _buildProductListingItemTileImage(Product product) {
+    if (product.imageUrl?.isEmpty ?? true) {
+      return Image.memory(
+        kTransparentImage, 
+        height: constants.imageHeight,
+      );
+    }
+
     return FadeInImage.memoryNetwork(
       placeholder: kTransparentImage,
-      height: 290,
+      height: constants.imageHeight,
       image: product.imageUrl,
     );
   }
@@ -203,7 +210,7 @@ class _HomePageState extends State<HomePage> {
     return Text(
       product.name,
       key: index == 0 ? Key(
-        Constants.TestKeys.PRODUCT_LISTING_FIRST_NAME
+        constants.TestKeys.PRODUCT_LISTING_FIRST_NAME
       ) : null,
       style: TextStyle(
         fontSize: 24.0,
@@ -236,7 +243,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNewProductButton(BuildContext context) {
     return IconButton(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_BUTTON),
+      key: Key(constants.TestKeys.NEW_PRODUCT_BUTTON),
       icon: Icon(
         Icons.add,
         semanticLabel: 'new_product',

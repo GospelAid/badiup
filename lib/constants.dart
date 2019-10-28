@@ -1,10 +1,11 @@
-library Constants;
+library constants;
+
+const double imageHeight = 290;
 
 // Database Collections
 class DBCollections {
   static const String PRODUCTS = "products";
 }
-
 
 // Keys
 class TestKeys {
