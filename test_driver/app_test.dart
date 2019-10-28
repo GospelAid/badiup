@@ -1,10 +1,10 @@
 import 'dart:math';
 
+import 'package:badiup/constants.dart' as Constants;
+
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
-
-import 'package:badiup/constants.dart' as Constants;
 
 void main() {
   group('Badi Up App', () {
@@ -24,8 +24,8 @@ void main() {
       // Tap on NEW_PRODUCT_BUTTON. 
       // This should open the New Product Form.
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_BUTTON));
-      print('Tapped ' + Constants.TestKeys.NEW_PRODUCT_BUTTON);
+        Constants.TestKeys.newProductButton));
+      print('Tapped ' + Constants.TestKeys.newProductButton);
 
       final _product_name = _getPrefixedString("test-pn");
       final _product_price = Random().nextInt(10000);
@@ -33,36 +33,36 @@ void main() {
       final _product_description = _getPrefixedString("test-pd");
       
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_FORM_NAME));
+        Constants.TestKeys.newProductFormName));
       await driver.enterText(_product_name);
       print('Entered ' + _product_name + ' in ' + 
-        Constants.TestKeys.NEW_PRODUCT_FORM_NAME);
+        Constants.TestKeys.newProductFormName);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_FORM_PRICE));
+        Constants.TestKeys.newProductFormPrice));
       await driver.enterText(_product_price.toString());
       print('Entered ' + _product_price.toString() + ' in ' + 
-        Constants.TestKeys.NEW_PRODUCT_FORM_PRICE);
+        Constants.TestKeys.newProductFormPrice);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_FORM_CAPTION));
+        Constants.TestKeys.newProductFormCaption));
       await driver.enterText(_product_caption);
       print('Entered ' + _product_caption + ' in ' + 
-        Constants.TestKeys.NEW_PRODUCT_FORM_CAPTION);
+        Constants.TestKeys.newProductFormCaption);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_FORM_DESCRIPTION));
+        Constants.TestKeys.newProductFormDescription));
       await driver.enterText(_product_description);
       print('Entered ' + _product_description + ' in ' + 
-        Constants.TestKeys.NEW_PRODUCT_FORM_DESCRIPTION);
+        Constants.TestKeys.newProductFormDescription);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.NEW_PRODUCT_FORM_SUBMIT_BUTTON));
+        Constants.TestKeys.newProductFormSubmitButton));
       print('Tapped ' + 
-        Constants.TestKeys.NEW_PRODUCT_FORM_SUBMIT_BUTTON);
+        Constants.TestKeys.newProductFormSubmitButton);
       
       var testText = await driver.getText(find.byValueKey(
-        Constants.TestKeys.PRODUCT_LISTING_FIRST_NAME));
+        Constants.TestKeys.productListingFirstName));
       expect(testText, _product_name);
       print('Found ' + _product_name + 
         ' at the top of the product listing');

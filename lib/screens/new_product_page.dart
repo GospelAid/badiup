@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as Constants;
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/models/product_model.dart';
 
@@ -158,6 +158,7 @@ class _NewProductPageState extends State<NewProductPage> {
           onPressed: () => _pickImage(ImageSource.camera),
         ),
         IconButton(
+          key: Key(constants.TestKeys.newProductFormImageGallery),
           icon: Icon(Icons.photo_library),
           iconSize: 48.0,
           onPressed: () => _pickImage(ImageSource.gallery),
@@ -168,7 +169,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildDescriptionFormField() {
     return TextFormField(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_DESCRIPTION),
+      key: Key(constants.TestKeys.newProductFormDescription),
       controller: _descriptionEditingController,
       keyboardType: TextInputType.multiline,
       maxLines: 10,
@@ -189,7 +190,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildPriceFormField() {
     return TextFormField(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_PRICE),
+      key: Key(constants.TestKeys.newProductFormPrice),
       controller: _priceEditingController,
       keyboardType: TextInputType.number,
       style: TextStyle(fontSize: 24.0),
@@ -212,7 +213,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildNameFormField() {
     return TextFormField(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_NAME),
+      key: Key(constants.TestKeys.newProductFormName),
       controller: _nameEditingController,
       decoration: InputDecoration(
         labelText: 'Name',
@@ -232,7 +233,7 @@ class _NewProductPageState extends State<NewProductPage> {
 
   Widget _buildCaptionFormField() {
     return TextFormField(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_FORM_CAPTION),
+      key: Key(constants.TestKeys.newProductFormCaption),
       controller: _captionEditingController,
       decoration: InputDecoration(
         labelText: 'Caption',
@@ -260,7 +261,7 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           child: RaisedButton(
             key: Key(
-              Constants.TestKeys.NEW_PRODUCT_FORM_SUBMIT_BUTTON
+              constants.TestKeys.newProductFormSubmitButton
             ),
             onPressed: () async {
               if (_formIsValid()) {
@@ -320,7 +321,7 @@ class _NewProductPageState extends State<NewProductPage> {
     Product _product = _buildProductModel(_imageUrl);
 
     await Firestore.instance.collection(
-      Constants.DBCollections.PRODUCTS)
+      constants.DBCollections.products)
       .add(_product.toMap());
     
     setState(() {

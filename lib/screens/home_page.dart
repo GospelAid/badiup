@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildProductListing(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
-        .collection(constants.DBCollections.PRODUCTS)
+        .collection(constants.DBCollections.products)
         .orderBy('created', descending: true)
         .snapshots(),
       builder: (context, snapshot) {
@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
     await ref.delete();
 
     await Firestore.instance.collection(
-      constants.DBCollections.PRODUCTS)
+      constants.DBCollections.products)
       .document(product.documentId)
       .delete();
   }
@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
     return Text(
       product.name,
       key: index == 0 ? Key(
-        constants.TestKeys.PRODUCT_LISTING_FIRST_NAME
+        constants.TestKeys.productListingFirstName
       ) : null,
       style: TextStyle(
         fontSize: 24.0,
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNewProductButton(BuildContext context) {
     return IconButton(
-      key: Key(constants.TestKeys.NEW_PRODUCT_BUTTON),
+      key: Key(constants.TestKeys.newProductButton),
       icon: Icon(
         Icons.add,
         semanticLabel: 'new_product',
