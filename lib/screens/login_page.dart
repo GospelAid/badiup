@@ -1,3 +1,4 @@
+import 'package:badiup/screens/fake_home_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
@@ -39,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
+                //return FakeHomePage();
                 return HomePage(title: 'Badi Up'); 
               },
             ),
