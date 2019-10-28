@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
-import 'screens/home_page.dart';
+import 'screens/login_page.dart';
 
 class BadiUpApp extends StatelessWidget {
   @override
@@ -9,7 +9,7 @@ class BadiUpApp extends StatelessWidget {
     return MaterialApp(
       title: 'Badi Up',
       theme: _kAppTheme,
-      home: HomePage(title: 'Badi Up'),
+      home: LoginPage(),
     );
   }
 }
