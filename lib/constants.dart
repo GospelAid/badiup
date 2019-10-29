@@ -3,7 +3,7 @@ library Constants;
 // Database Collections
 class DBCollections {
   static const String PRODUCTS = "products";
-  static const String USERS = 'users';
+  static const String customers = 'customers';
 }
 
 

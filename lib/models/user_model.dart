@@ -1,36 +1,41 @@
+import 'package:badiup/models/user_setting_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
   final String name;
-  final String email;
-  final bool isAdmin;
+  final RoleType role;
+  final UserSetting setting;
   final DateTime created;
 
   User({
     this.name,
-    this.email,
-    this.isAdmin,
+    this.role,
+    this.setting,
     this.created,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'name' : name,
-      'email': email,
-      'isAdmin': isAdmin,
+      'role': role,
+      'setting': setting,
       'created' : created,
     };
   }
 
   User.fromMap(Map<String, dynamic> map)
     : assert(map['name'] != null),
-      assert(map['email'] != null),
-      assert(map['isAdmin'] != null),
+      assert(map['role'] != null),
       name = map['name'],
-      email = map['email'],
-      isAdmin = map['isAdmin'],
+      role = map['role'],
+      setting = map['setting'],
       created = map['created'].toDate(); 
 
   User.fromSnapshot(DocumentSnapshot snapshot)
     : this.fromMap(snapshot.data);
+}
+
+enum RoleType {
+  customer,
+  admin,
 }

@@ -16,7 +16,7 @@ class _FakeHomePageState extends State<FakeHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( currentUserEmail ),
+        title: Text( currentSignedInUser.name ),
       ),
       body: Center(
         child: RaisedButton(

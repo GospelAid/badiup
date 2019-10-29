@@ -1,3 +1,6 @@
+import 'package:badiup/models/admin_model.dart';
+import 'package:badiup/models/customer_model.dart';
+import 'package:badiup/models/user_setting_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,13 +30,13 @@ Future<String> signInWithGoogle() async {
   assert(user.uid == currentUser.uid);
 
   // add user to DB, user email as document ID
-  currentSignedInUser = User(
+  currentSignedInUser = Customer(
       name: user.displayName,
-      email: user.email,
-      isAdmin: false,
+      //role: 0, //RoleType.customer,
+      //setting: UserSetting(pushNotifications: false),
       created: DateTime.now().toUtc(),
   );
-  Firestore.instance.collection(Constants.DBCollections.USERS).document(user.email).setData(
+  await Firestore.instance.collection(Constants.DBCollections.customers).document(user.email).setData(
     currentSignedInUser.toMap()
   );
 
