@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context), 
+      appBar: _buildAppBar(context),
       body: _buildProductListing(context),
     );
   }
@@ -30,24 +30,26 @@ class _HomePageState extends State<HomePage> {
   Widget _buildProductListing(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
-        .collection(constants.DBCollections.products)
-        .orderBy('created', descending: true)
-        .snapshots(),
+          .collection(constants.DBCollections.products)
+          .orderBy('created', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return LinearProgressIndicator();
         }
 
         return _buildProductListingItems(
-          context, 
-          snapshot.data.documents);
+          context,
+          snapshot.data.documents,
+        );
       },
     );
   }
 
   Widget _buildProductListingItems(
     BuildContext context,
-    List<DocumentSnapshot> snapshots) {
+    List<DocumentSnapshot> snapshots,
+  ) {
     List<Widget> widgets = List<Widget>();
     snapshots.asMap().forEach((index, data) {
       widgets.add(_buildProductListingItem(context, index, data));
@@ -58,17 +60,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductListingItem (
-    BuildContext context, 
+  Widget _buildProductListingItem(
+    BuildContext context,
     int index,
-    DocumentSnapshot data) {
+    DocumentSnapshot data,
+  ) {
     final product = Product.fromSnapshot(data);
 
     return Container(
       padding: const EdgeInsets.all(0.0),
       child: _buildProductListingItemTile(
-        context, 
-        product, 
+        context,
+        product,
         index,
       ),
     );
@@ -76,16 +79,17 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildProductListingItemTile(
     BuildContext context,
-    Product product, 
-    int index) {
+    Product product,
+    int index,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _buildProductListingItemTileImage(product),
         SizedBox(height: 8.0),
         _buildProductListingItemTileInfoPane(
-          context, 
-          product, 
+          context,
+          product,
           index,
         ),
         Container(
@@ -98,8 +102,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildProductListingItemTileInfoPane(
     BuildContext context,
-    Product product, 
-    int index) {
+    Product product,
+    int index,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
@@ -123,10 +128,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildProductListingItemTileInfoPaneDeleteButton(
     BuildContext context,
-    Product product) {
+    Product product,
+  ) {
     return IconButton(
       icon: Icon(
-        Icons.delete, 
+        Icons.delete,
         color: kPaletteDeleteIconColor,
       ),
       onPressed: () => _buildConfirmDeleteDialog(context, product),
@@ -134,8 +140,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _buildConfirmDeleteDialog(
-    BuildContext context, 
-    Product product) {
+    BuildContext context,
+    Product product,
+  ) {
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -145,10 +152,11 @@ class _HomePageState extends State<HomePage> {
             'Confirm Delete',
             style: getAlertStyle(),
           ),
-          content: Text('Once deleted, the data cannot be recovered. Are you sure you want to delete?'),
+          content: Text(
+              'Once deleted, the data cannot be recovered. Are you sure you want to delete?'),
           actions: _buildConfirmDeleteDialogActions(
-            context, 
-            product
+            context,
+            product,
           ),
         );
       },
@@ -156,42 +164,47 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Widget> _buildConfirmDeleteDialogActions(
-    BuildContext context, 
-    Product product) {
+    BuildContext context,
+    Product product,
+  ) {
     return <Widget>[
-          FlatButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          FlatButton(
-            child: Text('Delete'),
-            onPressed: () {
-              _deleteProduct(product);
-              Navigator.pop(context);
-            },
-          ),
-        ];
+      FlatButton(
+        child: Text('Cancel'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Delete'),
+        onPressed: () {
+          _deleteProduct(product);
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 
   Future<void> _deleteProduct(Product product) async {
-    final FirebaseStorage _storage = 
-      FirebaseStorage(storageBucket: config.FIREBASE_STORAGE_URI);
-    
-    var ref = await _storage.getReferenceFromUrl(product.imageUrl);
-    await ref.delete();
+    if (!(product.imageUrl?.isEmpty ?? true)) {
+      final FirebaseStorage _storage = FirebaseStorage(
+        storageBucket: config.firebaseStorageUri,
+      );
+      var ref = await _storage.getReferenceFromUrl(
+        product.imageUrl,
+      );
+      await ref.delete();
+    }
 
-    await Firestore.instance.collection(
-      constants.DBCollections.products)
-      .document(product.documentId)
-      .delete();
+    await Firestore.instance
+        .collection(constants.DBCollections.products)
+        .document(product.documentId)
+        .delete();
   }
 
   Widget _buildProductListingItemTileImage(Product product) {
     if (product.imageUrl?.isEmpty ?? true) {
       return Image.memory(
-        kTransparentImage, 
+        kTransparentImage,
         height: constants.imageHeight,
       );
     }
@@ -203,9 +216,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 
+  //
   Widget _buildProductListingItemTileInfoPaneCaption(
-    Product product) {
+    Product product,
+  ) {
     return Text(
       product.caption,
       style: TextStyle(
@@ -217,13 +231,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductListItemTileInfoPaneName(
-    Product product, 
-    int index) {
+    Product product,
+    int index,
+  ) {
     return Text(
       product.name,
-      key: index == 0 ? Key(
-        constants.TestKeys.productListingFirstName
-      ) : null,
+      key: index == 0
+          ? Key(
+              constants.TestKeys.productListingFirstName,
+            )
+          : null,
       style: TextStyle(
         fontSize: 24.0,
         fontWeight: FontWeight.w700,
@@ -262,10 +279,8 @@ class _HomePageState extends State<HomePage> {
       ),
       onPressed: () => {
         Navigator.push(
-          context, 
-          MaterialPageRoute(
-            builder: (context) => NewProductPage()
-          ),
+          context,
+          MaterialPageRoute(builder: (context) => NewProductPage()),
         )
       },
     );

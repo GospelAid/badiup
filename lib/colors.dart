@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// 25/10/2019 Yamaguchi san and Ishikawa san agreed upon 
+// 25/10/2019 Yamaguchi san and Ishikawa san agreed upon
 // - 0xFF386150 for text color
 // - 0xFF231F20 for primary color
 // - 0xFFB22323 for delete icon color

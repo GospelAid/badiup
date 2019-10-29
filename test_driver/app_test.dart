@@ -7,8 +7,8 @@ import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
-  // TODO: This test doesn't work because uploading image is now 
-  //       mandatory and this flow can't be tested by integration 
+  // TODO: This test doesn't work because uploading image is now
+  //       mandatory and this flow can't be tested by integration
   //       testing.
   group('Badi Up App', () {
     FlutterDriver driver;
@@ -24,55 +24,70 @@ void main() {
     });
 
     test('new product appears in listing', () async {
-      // Tap on NEW_PRODUCT_BUTTON. 
+      // Tap on NEW_PRODUCT_BUTTON.
       // This should open the New Product Form.
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductButton));
+        Constants.TestKeys.newProductButton,
+      ));
       print('Tapped ' + Constants.TestKeys.newProductButton);
 
       final _product_name = _getPrefixedString("test-pn");
       final _product_price = Random().nextInt(10000);
       final _product_caption = _getPrefixedString("test-pc");
       final _product_description = _getPrefixedString("test-pd");
-      
+
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductFormName));
+        Constants.TestKeys.newProductFormName,
+      ));
       await driver.enterText(_product_name);
-      print('Entered ' + _product_name + ' in ' + 
-        Constants.TestKeys.newProductFormName);
+      print('Entered ' +
+          _product_name +
+          ' in ' +
+          Constants.TestKeys.newProductFormName);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductFormPrice));
+        Constants.TestKeys.newProductFormPrice,
+      ));
       await driver.enterText(_product_price.toString());
-      print('Entered ' + _product_price.toString() + ' in ' + 
-        Constants.TestKeys.newProductFormPrice);
+      print('Entered ' +
+          _product_price.toString() +
+          ' in ' +
+          Constants.TestKeys.newProductFormPrice);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductFormCaption));
+        Constants.TestKeys.newProductFormCaption,
+      ));
       await driver.enterText(_product_caption);
-      print('Entered ' + _product_caption + ' in ' + 
-        Constants.TestKeys.newProductFormCaption);
+      print('Entered ' +
+          _product_caption +
+          ' in ' +
+          Constants.TestKeys.newProductFormCaption);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductFormDescription));
+        Constants.TestKeys.newProductFormDescription,
+      ));
       await driver.enterText(_product_description);
-      print('Entered ' + _product_description + ' in ' + 
-        Constants.TestKeys.newProductFormDescription);
+      print('Entered ' +
+          _product_description +
+          ' in ' +
+          Constants.TestKeys.newProductFormDescription);
 
       await driver.tap(find.byValueKey(
-        Constants.TestKeys.newProductFormSubmitButton));
-      print('Tapped ' + 
-        Constants.TestKeys.newProductFormSubmitButton);
-      
+        Constants.TestKeys.newProductFormSubmitButton,
+      ));
+      print(
+        'Tapped ' + Constants.TestKeys.newProductFormSubmitButton,
+      );
+
       var testText = await driver.getText(find.byValueKey(
-        Constants.TestKeys.productListingFirstName));
+        Constants.TestKeys.productListingFirstName,
+      ));
       expect(testText, _product_name);
-      print('Found ' + _product_name + 
-        ' at the top of the product listing');
+      print('Found ' + _product_name + ' at the top of the product listing');
     });
   });
 }
 
 String _getPrefixedString(String suffix) {
-  return suffix + Uuid().v4().substring(0, 6).toLowerCase();    
+  return suffix + Uuid().v4().substring(0, 6).toLowerCase();
 }

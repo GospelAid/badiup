@@ -38,7 +38,7 @@ class _NewProductPageState extends State<NewProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(), 
+      appBar: _buildAppBar(),
       // Build a form to input new product details
       body: Stack(
         children: _buildNewProductForm(context),
@@ -85,8 +85,8 @@ class _NewProductPageState extends State<NewProductPage> {
         new Opacity(
           opacity: 0.5,
           child: const ModalBarrier(
-            dismissible: false, 
-            color: Colors.black
+            dismissible: false,
+            color: Colors.black,
           ),
         ),
         new Center(
@@ -124,17 +124,17 @@ class _NewProductPageState extends State<NewProductPage> {
         maxHeight: 512,
         toolbarColor: kPaletteDeepPurple,
         toolbarWidgetColor: kPaletteWhite,
-        toolbarTitle: 'Crop Image'
+        toolbarTitle: 'Crop Image',
       );
     }
-    
+
     setState(() {
       _imageFile = cropped ?? selected ?? _imageFile;
     });
   }
 
   Widget _buildImageUploadField() {
-    var widgetList = <Widget> [];
+    var widgetList = <Widget>[];
 
     if (_imageFile != null) {
       widgetList.add(Image.file(_imageFile));
@@ -176,7 +176,7 @@ class _NewProductPageState extends State<NewProductPage> {
       decoration: InputDecoration(
         labelText: 'Description',
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0)
+          borderRadius: BorderRadius.circular(5.0),
         ),
       ),
       validator: (value) {
@@ -198,7 +198,7 @@ class _NewProductPageState extends State<NewProductPage> {
         labelText: 'Price',
         labelStyle: TextStyle(fontSize: 16.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0)
+          borderRadius: BorderRadius.circular(5.0),
         ),
         suffixText: '¥',
       ),
@@ -218,7 +218,7 @@ class _NewProductPageState extends State<NewProductPage> {
       decoration: InputDecoration(
         labelText: 'Name',
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0)
+          borderRadius: BorderRadius.circular(5.0),
         ),
       ),
       maxLength: 10,
@@ -238,7 +238,7 @@ class _NewProductPageState extends State<NewProductPage> {
       decoration: InputDecoration(
         labelText: 'Caption',
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0)
+          borderRadius: BorderRadius.circular(5.0),
         ),
       ),
       maxLength: 15,
@@ -260,9 +260,7 @@ class _NewProductPageState extends State<NewProductPage> {
             vertical: 16.0,
           ),
           child: RaisedButton(
-            key: Key(
-              constants.TestKeys.newProductFormSubmitButton
-            ),
+            key: Key(constants.TestKeys.newProductFormSubmitButton),
             onPressed: () async {
               if (_formIsValid()) {
                 await _submitForm();
@@ -292,7 +290,7 @@ class _NewProductPageState extends State<NewProductPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Image Required!', 
+            'Image Required!',
             style: getAlertStyle(),
           ),
           content: Text('Please upload an image'),
@@ -320,30 +318,26 @@ class _NewProductPageState extends State<NewProductPage> {
     }
     Product _product = _buildProductModel(_imageUrl);
 
-    await Firestore.instance.collection(
-      constants.DBCollections.products)
-      .add(_product.toMap());
-    
+    await Firestore.instance
+        .collection(constants.DBCollections.products)
+        .add(_product.toMap());
+
     setState(() {
       _formSubmitInProgress = false;
     });
   }
 
   Future<String> _uploadImageToStorage() async {
-    final FirebaseStorage _storage = 
-      FirebaseStorage(storageBucket: config.FIREBASE_STORAGE_URI);
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: config.firebaseStorageUri);
 
     final String uuid = Uuid().v1();
 
-    final StorageReference ref = _storage
-      .ref()
-      .child('images')
-      .child('products')
-      .child('$uuid.png');
-    
+    final StorageReference ref =
+        _storage.ref().child('images').child('products').child('$uuid.png');
+
     final StorageUploadTask uploadTask = ref.putFile(_imageFile);
-    final StorageTaskSnapshot snapshot = 
-      await uploadTask.onComplete;
+    final StorageTaskSnapshot snapshot = await uploadTask.onComplete;
     return await snapshot.ref.getDownloadURL() as String;
   }
 
