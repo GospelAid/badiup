@@ -5,14 +5,18 @@ class Product {
   final String caption;
   final String description;
   final double priceInYen;
+  final String imageUrl;
   final DateTime created;
+  final String documentId;
 
   Product({
     this.name, 
     this.caption, 
     this.description, 
     this.priceInYen,
+    this.imageUrl,
     this.created,
+    this.documentId,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,18 +25,21 @@ class Product {
       'caption' : caption,
       'description' : description,
       'priceInYen' : priceInYen,
+      'imageUrl' : imageUrl,
       'created' : created,
     };
   }
 
-  Product.fromMap(Map<String, dynamic> map)
+  Product.fromMap(Map<String, dynamic> map, String documentId)
     : assert(map['name'] != null),
       name = map['name'],
       caption = map['caption'],
       description = map['description'],
       priceInYen = map['priceInYen'],
-      created = map['created'].toDate(); 
+      imageUrl = map['imageUrl'],
+      created = map['created'].toDate(),
+      documentId = documentId; 
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
-    : this.fromMap(snapshot.data);
+    : this.fromMap(snapshot.data, snapshot.documentID);
 }
