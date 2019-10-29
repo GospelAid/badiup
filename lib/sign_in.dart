@@ -30,7 +30,7 @@ Future<String> signInWithGoogle() async {
   currentSignedInUser = User(
       name: user.displayName,
       email: user.email,
-      //isAdmin: false,
+      isAdmin: false,
       created: DateTime.now().toUtc(),
   );
   Firestore.instance.collection(Constants.DBCollections.USERS).document(user.email).setData(
