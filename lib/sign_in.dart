@@ -10,6 +10,7 @@ import 'package:badiup/constants.dart' as Constants;
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 User currentSignedInUser;
+final db = Firestore.instance;
 
 Future<String> signInWithGoogle() async {
   final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
@@ -29,16 +30,8 @@ Future<String> signInWithGoogle() async {
   final FirebaseUser currentUser = await _auth.currentUser();
   assert(user.uid == currentUser.uid);
 
-  // add user to DB, user email as document ID
-  currentSignedInUser = Customer(
-      name: user.displayName,
-      //role: 0, //RoleType.customer,
-      //setting: UserSetting(pushNotifications: false),
-      created: DateTime.now().toUtc(),
-  );
-  await Firestore.instance.collection(Constants.DBCollections.customers).document(user.email).setData(
-    currentSignedInUser.toMap()
-  );
+  // add user to firestore, email as document ID
+  await addUserToFireStore();
 
   return 'signInWithGoogle succeeded: $user';
 }
@@ -47,4 +40,33 @@ void signOutGoogle() async{
   final FirebaseUser currentUser = await _auth.currentUser();
   await googleSignIn.signOut();
   print('$currentUser signed out');
+}
+
+// add user to firestore, email as document ID
+Future<String> addUserToFireStore() async{
+  final FirebaseUser user = await _auth.currentUser();
+  DocumentSnapshot userSnapshot = await db.collection(Constants.DBCollections.customers).document(user.email).get();
+  // skip if user already exists
+  if ( userSnapshot.exists ) {
+    return 'user existed: $user';
+  }
+
+  // add one usersetting
+  final DocumentReference userSettingReference = 
+    await db.collection(Constants.DBCollections.userSettings).add( 
+      UserSetting(pushNotifications: true).toMap()
+    );
+
+  // add user to firestore, email as document ID
+  currentSignedInUser = Customer(
+    name: user.displayName,
+    //role: 0, //RoleType.customer,
+    setting: userSettingReference,
+    created: DateTime.now().toUtc(),
+  );
+  await db.collection(Constants.DBCollections.customers).document(user.email).setData(
+    currentSignedInUser.toMap()
+  );
+
+  return 'user created: $user';
 }

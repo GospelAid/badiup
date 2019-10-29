@@ -9,7 +9,7 @@ class Customer extends User {
   Customer({
     String name,
     RoleType role,
-    UserSetting setting,
+    DocumentReference setting,
     DateTime created,
     this.shippingAddress
   }) : super(name: name, role: role, setting: setting, created: created);

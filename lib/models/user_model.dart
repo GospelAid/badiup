@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class User {
   final String name;
   final RoleType role;
-  final UserSetting setting;
+  final DocumentReference setting;
   final DateTime created;
 
   User({
