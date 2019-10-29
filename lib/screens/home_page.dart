@@ -1,8 +1,11 @@
 import 'package:badiup/colors.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:transparent_image/transparent_image.dart';
 
-import 'package:badiup/constants.dart' as Constants;
+import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/config.dart' as config;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/new_product_page.dart';
 
@@ -19,38 +22,37 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context), 
+      appBar: _buildAppBar(context),
       body: _buildProductListing(context),
     );
   }
 
   Widget _buildProductListing(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance
-          .collection(Constants.DBCollections.PRODUCTS)
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.products)
           .orderBy('created', descending: true)
           .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return LinearProgressIndicator();
-          }
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
 
-          return _buildProductListingItems(
-            context, 
-            snapshot.data.documents);
-        },
-      ),
+        return _buildProductListingItems(
+          context,
+          snapshot.data.documents,
+        );
+      },
     );
   }
 
   Widget _buildProductListingItems(
     BuildContext context,
-    List<DocumentSnapshot> snapshots) {
+    List<DocumentSnapshot> snapshots,
+  ) {
     List<Widget> widgets = List<Widget>();
-    snapshots.asMap().forEach((index, data) => {
-      widgets.add(_buildProductListingItem(context, index, data))
+    snapshots.asMap().forEach((index, data) {
+      widgets.add(_buildProductListingItem(context, index, data));
     });
 
     return ListView(
@@ -59,53 +61,201 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductListingItem(
-    BuildContext context, 
+    BuildContext context,
     int index,
-    DocumentSnapshot data) {
+    DocumentSnapshot data,
+  ) {
     final product = Product.fromSnapshot(data);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: kPaletteDeepPurple),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildProductListingItemElements(product, index),
-        ),
+    return Container(
+      padding: const EdgeInsets.all(0.0),
+      child: _buildProductListingItemTile(
+        context,
+        product,
+        index,
       ),
     );
   }
 
-  List<Widget> _buildProductListingItemElements(
-    Product product, 
-    int index) {
-    return <Widget>[
-        Text(
-          product.name,
-          key: index == 0 ? Key(
-            Constants.TestKeys.PRODUCT_LISTING_FIRST_NAME) : null,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+  Widget _buildProductListingItemTile(
+    BuildContext context,
+    Product product,
+    int index,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _buildProductListingItemTileImage(product),
         SizedBox(height: 8.0),
-        Text(
-          product.caption,
-          style: TextStyle(color: Colors.black),
-        )
-      ];
+        _buildProductListingItemTileInfoPane(
+          context,
+          product,
+          index,
+        ),
+        Container(
+          height: 12.0,
+          color: kPaletteSpacerColor,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProductListingItemTileInfoPane(
+    BuildContext context,
+    Product product,
+    int index,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildProductListItemTileInfoPaneName(product, index),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _buildProductListingItemTileInfoPaneCaption(product),
+              _buildProductListingItemTileInfoPaneDeleteButton(
+                context,
+                product,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductListingItemTileInfoPaneDeleteButton(
+    BuildContext context,
+    Product product,
+  ) {
+    return IconButton(
+      icon: Icon(
+        Icons.delete,
+        color: kPaletteDeleteIconColor,
+      ),
+      onPressed: () => _buildConfirmDeleteDialog(context, product),
+    );
+  }
+
+  Future<void> _buildConfirmDeleteDialog(
+    BuildContext context,
+    Product product,
+  ) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm Delete',
+            style: getAlertStyle(),
+          ),
+          content: Text(
+              'Once deleted, the data cannot be recovered. Are you sure you want to delete?'),
+          actions: _buildConfirmDeleteDialogActions(
+            context,
+            product,
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildConfirmDeleteDialogActions(
+    BuildContext context,
+    Product product,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('Cancel'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Delete'),
+        onPressed: () {
+          _deleteProduct(product);
+          Navigator.pop(context);
+        },
+      ),
+    ];
+  }
+
+  Future<void> _deleteProduct(Product product) async {
+    if (!(product.imageUrl?.isEmpty ?? true)) {
+      final FirebaseStorage _storage = FirebaseStorage(
+        storageBucket: config.firebaseStorageUri,
+      );
+      var ref = await _storage.getReferenceFromUrl(
+        product.imageUrl,
+      );
+      await ref.delete();
+    }
+
+    await Firestore.instance
+        .collection(constants.DBCollections.products)
+        .document(product.documentId)
+        .delete();
+  }
+
+  Widget _buildProductListingItemTileImage(Product product) {
+    if (product.imageUrl?.isEmpty ?? true) {
+      return Image.memory(
+        kTransparentImage,
+        height: constants.imageHeight,
+      );
+    }
+
+    return FadeInImage.memoryNetwork(
+      placeholder: kTransparentImage,
+      height: constants.imageHeight,
+      image: product.imageUrl,
+    );
+  }
+
+  //
+  Widget _buildProductListingItemTileInfoPaneCaption(
+    Product product,
+  ) {
+    return Text(
+      product.caption,
+      style: TextStyle(
+        fontSize: 17.0,
+        fontWeight: FontWeight.w600,
+        color: Colors.black,
+      ),
+    );
+  }
+
+  Widget _buildProductListItemTileInfoPaneName(
+    Product product,
+    int index,
+  ) {
+    return Text(
+      product.name,
+      key: index == 0
+          ? Key(
+              constants.TestKeys.productListingFirstName,
+            )
+          : null,
+      style: TextStyle(
+        fontSize: 24.0,
+        fontWeight: FontWeight.w700,
+      ),
+      textAlign: TextAlign.center,
+    );
   }
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("Badi Up"),
+      title: Text("BADI UP"),
       centerTitle: true,
       leading: _buildMenuButton(context),
       actions: <Widget>[
         _buildNewProductButton(context),
-        _buildCartButton(context),
       ],
     );
   }
@@ -122,29 +272,17 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNewProductButton(BuildContext context) {
     return IconButton(
-      key: Key(Constants.TestKeys.NEW_PRODUCT_BUTTON),
+      key: Key(constants.TestKeys.newProductButton),
       icon: Icon(
         Icons.add,
         semanticLabel: 'new_product',
       ),
       onPressed: () => {
         Navigator.push(
-          context, 
-          MaterialPageRoute(
-            builder: (context) => NewProductPage()
-          ),
+          context,
+          MaterialPageRoute(builder: (context) => NewProductPage()),
         )
       },
-    );
-  }
-
-  Widget _buildCartButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.shopping_cart,
-        semanticLabel: 'cart',
-      ),
-      onPressed: () => {},
     );
   }
 }

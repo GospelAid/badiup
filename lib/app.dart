@@ -30,9 +30,7 @@ ThemeData _buildAppTheme() {
       buttonColor: kPalettePurple,
       textTheme: ButtonTextTheme.primary,
     ),
-    primaryIconTheme: base.iconTheme.copyWith(
-        color: kPaletteWhite
-    ),
+    primaryIconTheme: base.iconTheme.copyWith(color: kPaletteWhite),
     textTheme: _buildAppTextTheme(base.textTheme),
     primaryTextTheme: _buildAppTextTheme(base.primaryTextTheme),
     accentTextTheme: _buildAppTextTheme(base.accentTextTheme),
@@ -40,31 +38,33 @@ ThemeData _buildAppTheme() {
 }
 
 TextTheme _buildAppTextTheme(TextTheme base) {
-  return base.copyWith(
-    headline: base.headline.copyWith(
-      fontWeight: FontWeight.w500,
-      color: kPaletteWhite,
-    ),
-    title: base.title.copyWith(
-      fontSize: 18.0,
-      color: kPaletteWhite,
-    ),
-    caption: base.caption.copyWith(
-      fontWeight: FontWeight.w400,
-      fontSize: 14.0,
-      color: kPaletteWhite,
-    ),
-    body1: base.body1.copyWith(
-      fontWeight: FontWeight.w500,
-      fontSize: 16.0,
-      color: kPalettePurple,
-    ),
-    body2: base.body2.copyWith(
-      fontWeight: FontWeight.w500,
-      fontSize: 16.0,
-      color: kPalettePurple,
-    ),
-  ).apply(
-    fontFamily: 'Rubik',
-  );
+  return base
+      .copyWith(
+        headline: base.headline.copyWith(
+          fontWeight: FontWeight.w500,
+          color: kPaletteWhite,
+        ),
+        title: base.title.copyWith(
+          fontSize: 18.0,
+          color: kPaletteWhite,
+        ),
+        caption: base.caption.copyWith(
+          fontWeight: FontWeight.w400,
+          fontSize: 14.0,
+          color: kPaletteWhite,
+        ),
+        body1: base.body1.copyWith(
+          fontWeight: FontWeight.w500,
+          fontSize: 16.0,
+          color: kPalettePurple,
+        ),
+        body2: base.body2.copyWith(
+          fontWeight: FontWeight.w500,
+          fontSize: 16.0,
+          color: kPalettePurple,
+        ),
+      )
+      .apply(
+        fontFamily: 'Rubik',
+      );
 }
