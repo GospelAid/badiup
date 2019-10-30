@@ -1,6 +1,7 @@
+import 'package:badiup/constants.dart' as Constants;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_model.dart';
 
 class Customer extends User {
@@ -21,6 +22,11 @@ class Customer extends User {
       'shippingAddress': shippingAddress
     });
     return userMap;
+  }
+
+  Future<UserSetting> getUserSetting() async {
+    DocumentSnapshot snapshot = await this.setting.get();
+    return UserSetting.fromSnapshot( snapshot );
   }
 
   Customer.fromMap(Map<String, dynamic> map)

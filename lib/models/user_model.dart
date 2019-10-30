@@ -17,17 +17,21 @@ class User {
   Map<String, dynamic> toMap() {
     return {
       'name' : name,
-      'role': role,
+      'role': role.index,
       'setting': setting,
       'created' : created,
     };
+  }
+
+  bool isAdmin() {
+    return ( role == RoleType.admin );
   }
 
   User.fromMap(Map<String, dynamic> map)
     : assert(map['name'] != null),
       assert(map['role'] != null),
       name = map['name'],
-      role = map['role'],
+      role = RoleType.values[ map['role'] ],
       setting = map['setting'],
       created = map['created'].toDate(); 
 
@@ -36,6 +40,6 @@ class User {
 }
 
 enum RoleType {
-  customer,
-  admin,
+  admin,    // 0
+  customer, // 1
 }

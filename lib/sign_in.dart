@@ -1,4 +1,3 @@
-import 'package:badiup/models/admin_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +8,8 @@ import 'package:badiup/constants.dart' as Constants;
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
-User currentSignedInUser;
 final db = Firestore.instance;
+Customer currentSignedInUser;
 
 Future<String> signInWithGoogle() async {
   final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
@@ -30,43 +29,45 @@ Future<String> signInWithGoogle() async {
   final FirebaseUser currentUser = await _auth.currentUser();
   assert(user.uid == currentUser.uid);
 
+  // check if user already exists
+  DocumentSnapshot userSnapshot = await db.collection(Constants.DBCollections.customers).document(user.email).get();
+  if ( userSnapshot.exists ) {
+    // user exists, retrieve user data from firestore
+    currentSignedInUser = Customer.fromSnapshot(userSnapshot);
+  } else {
+    // user not exists, create a new user
+    await addUserToFirestore( user: user );
+  }
   // add user to firestore, email as document ID
-  await addUserToFireStore();
+  
 
   return 'signInWithGoogle succeeded: $user';
 }
 
 void signOutGoogle() async{
-  final FirebaseUser currentUser = await _auth.currentUser();
   await googleSignIn.signOut();
-  print('$currentUser signed out');
+  print('user signed out');
 }
 
-// add user to firestore, email as document ID
-Future<String> addUserToFireStore() async{
-  final FirebaseUser user = await _auth.currentUser();
-  DocumentSnapshot userSnapshot = await db.collection(Constants.DBCollections.customers).document(user.email).get();
-  // skip if user already exists
-  if ( userSnapshot.exists ) {
-    return 'user existed: $user';
-  }
 
+// add user to firestore, email as document ID
+Future<void> addUserToFirestore({ FirebaseUser user }) async {
   // add one usersetting
   final DocumentReference userSettingReference = 
     await db.collection(Constants.DBCollections.userSettings).add( 
       UserSetting(pushNotifications: true).toMap()
     );
+  // TODO: add one default shipping address ?
+  // TODO: add addresses list ?
 
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
     name: user.displayName,
-    //role: 0, //RoleType.customer,
+    role: RoleType.customer, // add user as customer by default
     setting: userSettingReference,
     created: DateTime.now().toUtc(),
   );
   await db.collection(Constants.DBCollections.customers).document(user.email).setData(
     currentSignedInUser.toMap()
   );
-
-  return 'user created: $user';
 }
