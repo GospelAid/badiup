@@ -45,6 +45,7 @@ Future<String> signInWithGoogle() async {
 }
 
 void signOutGoogle() async{
+  currentSignedInUser = Customer();
   await googleSignIn.signOut();
   print('user signed out');
 }
@@ -62,6 +63,7 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
 
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
+    email: user.email,
     name: user.displayName,
     role: RoleType.customer, // add user as customer by default
     setting: userSettingReference,

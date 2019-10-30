@@ -8,12 +8,13 @@ class Customer extends User {
   final Address shippingAddress;
 
   Customer({
+    String email,
     String name,
     RoleType role,
     DocumentReference setting,
     DateTime created,
     this.shippingAddress
-  }) : super(name: name, role: role, setting: setting, created: created);
+  }) : super(email: email, name: name, role: role, setting: setting, created: created);
 
   @override
   Map<String, dynamic> toMap() {

@@ -2,12 +2,14 @@ import 'package:badiup/models/user_setting_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
+  final String email;
   final String name;
   final RoleType role;
   final DocumentReference setting;
   final DateTime created;
 
   User({
+    this.email,
     this.name,
     this.role,
     this.setting,
@@ -16,6 +18,7 @@ class User {
 
   Map<String, dynamic> toMap() {
     return {
+      'email': email,
       'name' : name,
       'role': role.index,
       'setting': setting,
@@ -28,8 +31,10 @@ class User {
   }
 
   User.fromMap(Map<String, dynamic> map)
-    : assert(map['name'] != null),
+    : assert(map['email'] != null),
+      assert(map['name'] != null),
       assert(map['role'] != null),
+      email = map['email'],
       name = map['name'],
       role = RoleType.values[ map['role'] ],
       setting = map['setting'],

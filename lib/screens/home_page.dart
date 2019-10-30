@@ -1,4 +1,8 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/models/user_model.dart';
+import 'package:badiup/screens/admin_main_menu.dart';
+import 'package:badiup/screens/customer_main_menu.dart';
+import 'package:badiup/sign_in.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,9 +23,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildAppDrawer(context),
       appBar: _buildAppBar(context),
       body: _buildProductListing(context),
     );
@@ -260,13 +268,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildAppDrawer(BuildContext context) {
+    return Drawer(
+      child: currentSignedInUser.isAdmin() ?  AdminMainMenu() : CustomerMainMenu(),
+    );
+  }
+
   Widget _buildMenuButton(BuildContext context) {
     return IconButton(
       icon: Icon(
         Icons.menu,
         semanticLabel: 'menu',
       ),
-      onPressed: () => {},
+      onPressed: () => _scaffoldKey.currentState.openDrawer()
     );
   }
 
