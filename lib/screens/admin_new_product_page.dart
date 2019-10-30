@@ -1,29 +1,27 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/config.dart' as config;
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 
-class NewProductPage extends StatefulWidget {
-  NewProductPage({Key key, this.title}) : super(key: key);
+class AdminNewProductPage extends StatefulWidget {
+  AdminNewProductPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _NewProductPageState createState() => _NewProductPageState();
+  _AdminNewProductPageState createState() => _AdminNewProductPageState();
 }
 
-class _NewProductPageState extends State<NewProductPage> {
+class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _formKey = new GlobalKey<FormState>();
 
   File _imageFile;
