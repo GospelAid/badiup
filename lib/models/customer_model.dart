@@ -1,11 +1,10 @@
-import 'package:badiup/constants.dart' as Constants;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:badiup/models/address_model.dart';
+
 import 'package:badiup/models/user_setting_model.dart';
-import 'user_model.dart';
+import 'package:badiup/models/user_model.dart';
 
 class Customer extends User {
-  final Address shippingAddress;
+  final List<DocumentReference> shippingAddresses;
 
   Customer({
     String email,
@@ -13,14 +12,20 @@ class Customer extends User {
     RoleType role,
     DocumentReference setting,
     DateTime created,
-    this.shippingAddress
-  }) : super(email: email, name: name, role: role, setting: setting, created: created);
+    this.shippingAddresses
+  }) : super(
+    email: email,
+    name: name,
+    role: role,
+    setting: setting,
+    created: created
+  );
 
   @override
   Map<String, dynamic> toMap() {
     Map<String, dynamic> userMap = super.toMap();
     userMap.addAll({
-      'shippingAddress': shippingAddress
+      'shippingAddresses': shippingAddresses
     });
     return userMap;
   }
@@ -31,7 +36,7 @@ class Customer extends User {
   }
 
   Customer.fromMap(Map<String, dynamic> map)
-    : shippingAddress = map['shippingAddress'],
+    : shippingAddresses = map['shippingAddresses'],
     super.fromMap(map);
   
   Customer.fromSnapshot(DocumentSnapshot snapshot)

@@ -1,6 +1,7 @@
-import 'package:badiup/sign_in.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+
+import 'package:badiup/sign_in.dart';
+import 'package:badiup/screens/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -19,11 +20,11 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Badi up', 
+                'BADI UP', 
                 style: TextStyle(fontSize: 30.0),
               ),
               SizedBox(height: 50),
-              _loginButton(),
+              _buildLoginButton(),
             ],
           ),
         ),
@@ -31,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _loginButton() {
+  Widget _buildLoginButton() {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () {
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return HomePage(title: 'Badi Up'); 
+                return HomePage(title: 'BADI UP'); 
               },
             ),
           );

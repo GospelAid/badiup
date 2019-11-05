@@ -1,10 +1,11 @@
-import 'package:badiup/models/customer_model.dart';
-import 'package:badiup/models/user_setting_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/user_model.dart';
-import 'package:badiup/constants.dart' as Constants;
+import 'package:badiup/models/user_setting_model.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -30,7 +31,11 @@ Future<String> signInWithGoogle() async {
   assert(user.uid == currentUser.uid);
 
   // check if user already exists
-  DocumentSnapshot userSnapshot = await db.collection(Constants.DBCollections.customers).document(user.email).get();
+  final DocumentSnapshot userSnapshot =
+    await db.collection(constants.DBCollections.customers)
+            .document(user.email)
+            .get();
+
   if ( userSnapshot.exists ) {
     // user exists, retrieve user data from firestore
     currentSignedInUser = Customer.fromSnapshot(userSnapshot);
@@ -38,8 +43,6 @@ Future<String> signInWithGoogle() async {
     // user not exists, create a new user
     await addUserToFirestore( user: user );
   }
-  // add user to firestore, email as document ID
-  
 
   return 'signInWithGoogle succeeded: $user';
 }
@@ -54,11 +57,10 @@ void signOutGoogle() async{
 // add user to firestore, email as document ID
 Future<void> addUserToFirestore({ FirebaseUser user }) async {
   // add one usersetting
-  final DocumentReference userSettingReference = 
-    await db.collection(Constants.DBCollections.userSettings).add( 
-      UserSetting(pushNotifications: true).toMap()
-    );
-  // TODO: add one default shipping address ?
+  final DocumentReference userSettingReference =
+    await db.collection( constants.DBCollections.userSettings )
+            .add( UserSetting(pushNotifications: true).toMap() );
+
   // TODO: add addresses list ?
 
   // add user to firestore, email as document ID
@@ -69,7 +71,7 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
     setting: userSettingReference,
     created: DateTime.now().toUtc(),
   );
-  await db.collection(Constants.DBCollections.customers).document(user.email).setData(
-    currentSignedInUser.toMap()
-  );
+  await db.collection( constants.DBCollections.customers )
+          .document( user.email )
+          .setData( currentSignedInUser.toMap() );
 }

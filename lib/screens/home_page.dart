@@ -1,5 +1,4 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/models/user_model.dart';
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/customer_main_menu.dart';
 import 'package:badiup/sign_in.dart';
