@@ -1,4 +1,5 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/models/user_model.dart';
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/customer_main_menu.dart';
 import 'package:badiup/sign_in.dart';
@@ -262,14 +263,14 @@ class _HomePageState extends State<HomePage> {
       centerTitle: true,
       leading: _buildMenuButton(context),
       actions: <Widget>[
-        _buildNewProductButton(context),
+        currentSignedInUser.isAdmin() ? _buildNewProductButton(context) : Container(),
       ],
     );
   }
 
   Widget _buildAppDrawer(BuildContext context) {
     return Drawer(
-      child: currentSignedInUser.isAdmin() ?  AdminMainMenu() : CustomerMainMenu(),
+      child: currentSignedInUser.isAdmin() ? AdminMainMenu() : CustomerMainMenu(),
     );
   }
 

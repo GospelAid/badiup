@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:badiup/models/user_model.dart';
+import 'package:badiup/models/address_model.dart';
 
 class Customer extends User {
   final List<DocumentReference> shippingAddresses;
@@ -19,6 +20,17 @@ class Customer extends User {
     setting: setting,
     created: created
   );
+
+  Future<List<Address>> getShippingAddresses() async {
+    List<Address> addresses = List<Address>();
+    shippingAddresses.forEach(
+      (reference) async {
+        DocumentSnapshot snapshot = await reference.get();
+        addresses.add( Address.fromSnapshot(snapshot) );
+      }
+    );
+    return addresses;
+  }
 
   @override
   Map<String, dynamic> toMap() {
