@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:badiup/models/user_setting_model.dart';
+
 class User {
   final String email;
   final String name;
@@ -27,6 +29,11 @@ class User {
 
   bool isAdmin() {
     return ( role == RoleType.admin );
+  }
+
+  Future<UserSetting> getUserSetting() async {
+    DocumentSnapshot snapshot = await this.setting.get();
+    return UserSetting.fromSnapshot( snapshot );
   }
 
   User.fromMap(Map<String, dynamic> map)

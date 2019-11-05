@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:badiup/models/user_setting_model.dart';
 import 'package:badiup/models/user_model.dart';
 
 class Customer extends User {
@@ -30,13 +29,8 @@ class Customer extends User {
     return userMap;
   }
 
-  Future<UserSetting> getUserSetting() async {
-    DocumentSnapshot snapshot = await this.setting.get();
-    return UserSetting.fromSnapshot( snapshot );
-  }
-
   Customer.fromMap(Map<String, dynamic> map)
-    : shippingAddresses = map['shippingAddresses'],
+    : shippingAddresses = map['shippingAddresses'].cast<DocumentReference>(),
     super.fromMap(map);
   
   Customer.fromSnapshot(DocumentSnapshot snapshot)

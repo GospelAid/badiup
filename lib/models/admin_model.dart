@@ -16,6 +16,10 @@ class Admin extends User {
     setting: setting,
     created: created
   );
-  Admin.fromMap(Map<String, dynamic> map) : super.fromMap(map);
-  Admin.fromSnapShot(DocumentSnapshot snapshot) : super.fromSnapshot(snapshot);
+
+  Admin.fromMap(Map<String, dynamic> map)
+    : super.fromMap(map);
+
+  Admin.fromSnapshot(DocumentSnapshot snapshot)
+    : super.fromMap(snapshot.data);
 }

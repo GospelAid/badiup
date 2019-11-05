@@ -1,3 +1,4 @@
+import 'package:badiup/models/admin_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,7 +11,7 @@ import 'package:badiup/models/user_setting_model.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final db = Firestore.instance;
-Customer currentSignedInUser;
+User currentSignedInUser = User();
 
 Future<String> signInWithGoogle() async {
   final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
@@ -38,7 +39,7 @@ Future<String> signInWithGoogle() async {
 
   if ( userSnapshot.exists ) {
     // user exists, retrieve user data from firestore
-    currentSignedInUser = Customer.fromSnapshot(userSnapshot);
+    retrieveUserFromFirestore( userSnapshot: userSnapshot );
   } else {
     // user not exists, create a new user
     await addUserToFirestore( user: user );
@@ -48,11 +49,25 @@ Future<String> signInWithGoogle() async {
 }
 
 void signOutGoogle() async{
-  currentSignedInUser = Customer();
+  currentSignedInUser = User();
   await googleSignIn.signOut();
   print('user signed out');
 }
 
+
+// retrieve user data from Firestore
+void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
+  switch ( User.fromSnapshot(userSnapshot).role ) {
+    case RoleType.admin:
+      currentSignedInUser = Admin.fromSnapshot(userSnapshot);
+      break;
+    case RoleType.customer:
+      currentSignedInUser = Customer.fromSnapshot(userSnapshot);
+      break;
+    default:
+      break;
+  }
+}
 
 // add user to firestore, email as document ID
 Future<void> addUserToFirestore({ FirebaseUser user }) async {
@@ -61,14 +76,13 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
     await db.collection( constants.DBCollections.userSettings )
             .add( UserSetting(pushNotifications: true).toMap() );
 
-  // TODO: add addresses list ?
-
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
     email: user.email,
     name: user.displayName,
     role: RoleType.customer, // add user as customer by default
     setting: userSettingReference,
+    shippingAddresses: List<DocumentReference>(),
     created: DateTime.now().toUtc(),
   );
   await db.collection( constants.DBCollections.customers )
