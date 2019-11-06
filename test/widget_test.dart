@@ -5,11 +5,12 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
+import 'package:badiup/app.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:badiup/main.dart';
-
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {});
+  testWidgets('App title test', (WidgetTester tester) async {    
+    await tester.pumpWidget(BadiUpApp());
+    expect(find.text('BADI UP'), findsOneWidget);
+  });
 }

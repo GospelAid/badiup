@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:badiup/sign_in.dart';
-import 'package:badiup/screens/home_page.dart';
+import 'package:badiup/screens/admin_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return HomePage(title: 'BADI UP'); 
+                return AdminHomePage(title: 'BADI UP'); 
               },
             ),
           );
