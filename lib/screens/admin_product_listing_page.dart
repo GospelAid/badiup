@@ -1,24 +1,25 @@
-import 'package:badiup/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
-import 'package:badiup/screens/new_product_page.dart';
+import 'package:badiup/screens/admin_new_product_page.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class AdminProductListingPage extends StatefulWidget {
+  AdminProductListingPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _AdminProductListingPageState createState() =>
+      _AdminProductListingPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _AdminProductListingPageState extends State<AdminProductListingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,22 +252,12 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("BADI UP"),
+      title: Text("PRODUCTS"),
       centerTitle: true,
-      leading: _buildMenuButton(context),
+      //leading: _buildMenuButton(context),
       actions: <Widget>[
         _buildNewProductButton(context),
       ],
-    );
-  }
-
-  Widget _buildMenuButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.menu,
-        semanticLabel: 'menu',
-      ),
-      onPressed: () => {},
     );
   }
 
@@ -280,8 +271,10 @@ class _HomePageState extends State<HomePage> {
       onPressed: () => {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => NewProductPage()),
-        )
+          MaterialPageRoute(
+            builder: (context) => AdminNewProductPage(),
+          ),
+        ),
       },
     );
   }
