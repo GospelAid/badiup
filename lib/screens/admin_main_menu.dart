@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/login_page.dart';
 import 'package:badiup/sign_in.dart';
 
@@ -14,21 +15,36 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
     return ListView(
       children: <Widget>[
         _buildAccountsDrawerHeader(context),
-        FlatButton(
-          onPressed: () {},
-          child: Text('Products'),
-        ),
-        FlatButton(
-          onPressed: () {},
-          child: Text('Settings'),
-        ),
+        _buildDrawerProductsButton(context),
+        _buildDrawerSettingsButton(context),
         Divider(),
-        _buildLogoutButton(context),
+        _buildDrawerLogoutButton(context),
       ],
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildDrawerSettingsButton(BuildContext context) {
+    return FlatButton(
+      onPressed: () {},
+      child: Text('Settings'),
+    );
+  }
+
+  Widget _buildDrawerProductsButton(BuildContext context) {
+    return FlatButton (
+      child: Text('Products'),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminProductListingPage(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawerLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric( horizontal: 16.0, ),
       child: RaisedButton(

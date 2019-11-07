@@ -8,21 +8,29 @@ class CustomerMainMenu extends StatelessWidget {
     return ListView(
         children: <Widget>[
           _buildAccountsDrawerHeader(context),
-          FlatButton(
-            onPressed: () {},
-            child: Text('My Orders'),
-          ),
-          FlatButton(
-            onPressed: () {},
-            child: Text('Settings'),
-          ),
+          _buildDrawerOrdersButton(context),
+          _buildDrawerSettingsButton(context),
           Divider(),
-          _buildLogoutButton(context),
+          _buildDrawerLogoutButton(context),
         ],
       );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildDrawerOrdersButton(BuildContext context) {
+    return FlatButton(
+      onPressed: () {},
+      child: Text('My Orders'),
+    );
+  }
+
+  Widget _buildDrawerSettingsButton(BuildContext context) {
+    return FlatButton(
+      onPressed: () {},
+      child: Text('Settings'),
+    );
+  }
+
+  Widget _buildDrawerLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric( horizontal: 16.0, ),
       child: RaisedButton(

@@ -1,6 +1,3 @@
-import 'package:badiup/screens/admin_main_menu.dart';
-import 'package:badiup/screens/customer_main_menu.dart';
-import 'package:badiup/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +20,10 @@ class AdminProductListingPage extends StatefulWidget {
 }
 
 class _AdminProductListingPageState extends State<AdminProductListingPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: _buildAppDrawer(context),
       appBar: _buildAppBar(context),
       body: _buildProductListing(context),
     );
@@ -263,24 +257,8 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
       centerTitle: true,
       //leading: _buildMenuButton(context),
       actions: <Widget>[
-        currentSignedInUser.isAdmin() ? _buildNewProductButton(context) : Container(),
+        _buildNewProductButton(context),
       ],
-    );
-  }
-
-  Widget _buildAppDrawer(BuildContext context) {
-    return Drawer(
-      child: currentSignedInUser.isAdmin() ? AdminMainMenu() : CustomerMainMenu(),
-    );
-  }
-
-  Widget _buildMenuButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.menu,
-        semanticLabel: 'menu',
-      ),
-      onPressed: () => _scaffoldKey.currentState.openDrawer()
     );
   }
 

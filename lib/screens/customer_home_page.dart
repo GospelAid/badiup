@@ -1,16 +1,16 @@
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:flutter/material.dart';
 
-class AdminHomePage extends StatefulWidget {
-  AdminHomePage({Key key, this.title}) : super(key: key);
+class CustomerHomePage extends StatefulWidget {
+  CustomerHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _AdminHomePageState createState() => _AdminHomePageState();
+  _CustomerHomePageState createState() => _CustomerHomePageState();
 }
 
-class _AdminHomePageState extends State<AdminHomePage> {
+class _CustomerHomePageState extends State<CustomerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
