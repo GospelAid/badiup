@@ -1,4 +1,4 @@
-import 'package:badiup/screens/admin_main_menu.dart';
+import 'package:badiup/screens/customer_main_menu.dart';
 import 'package:flutter/material.dart';
 
 class CustomerHomePage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: Center(
-        child: Text('ADMIN HOME PAGE : ORDERS'),
+        child: Text('CUSTOMER HOME PAGE : Product list'),
       ),
       drawer: _buildDrawer(),
     );
@@ -26,7 +26,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     return Drawer(
       key: scaffoldKey,
-      child: AdminMainMenu(),
+      child: CustomerMainMenu(),
     );
   }
 

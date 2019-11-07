@@ -1,3 +1,4 @@
+import 'package:badiup/screens/customer_home_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:badiup/sign_in.dart';
@@ -40,7 +41,8 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return AdminHomePage(title: 'BADI UP'); 
+                return currentSignedInUser.isAdmin() ?
+                  AdminHomePage(title: 'BADI UP'): CustomerHomePage(title: 'BADI UP');
               },
             ),
           );
