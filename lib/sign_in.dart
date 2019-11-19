@@ -39,7 +39,7 @@ Future<String> signInWithGoogle() async {
 
   if ( userSnapshot.exists ) {
     // user exists, retrieve user data from firestore
-    retrieveUserFromFirestore( userSnapshot: userSnapshot );
+    await retrieveUserFromFirestore( userSnapshot: userSnapshot );
   } else {
     // user not exists, create a new user
     await addUserToFirestore( user: user );
@@ -56,13 +56,14 @@ void signOutGoogle() async{
 
 
 // retrieve user data from Firestore
-void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
+void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) async {
   switch ( User.fromSnapshot(userSnapshot).role ) {
     case RoleType.admin:
       currentSignedInUser = Admin.fromSnapshot(userSnapshot);
       break;
     case RoleType.customer:
       currentSignedInUser = Customer.fromSnapshot(userSnapshot);
+      await ( currentSignedInUser as Customer ).setShippingAddresses();
       break;
     default:
       break;
@@ -71,21 +72,21 @@ void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
 
 // add user to firestore, email as document ID
 Future<void> addUserToFirestore({ FirebaseUser user }) async {
-  // add one usersetting
-  final DocumentReference userSettingReference =
-    await db.collection( constants.DBCollections.userSettings )
-            .add( UserSetting(pushNotifications: true).toMap() );
-
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
     email: user.email,
     name: user.displayName,
     role: RoleType.customer, // add user as customer by default
-    setting: userSettingReference,
-    shippingAddresses: List<DocumentReference>(),
+    setting: UserSetting(pushNotifications: true),
     created: DateTime.now().toUtc(),
   );
   await db.collection( constants.DBCollections.customers )
           .document( user.email )
           .setData( currentSignedInUser.toMap() );
+  // initialize customer's addresses collection
+  await db.collection( constants.DBCollections.customers )
+          .document( user.email )
+          .collection( constants.DBCollections.addresses )
+          .document( 'default-address' )
+          .setData({});
 }

@@ -7,6 +7,7 @@ class Address {
   final String prefecture;
   final String postcode;
   final String phoneNumber;
+  final String documentId;
 
   Address({
     this.line1,
@@ -15,6 +16,7 @@ class Address {
     this.prefecture,
     this.postcode,
     this.phoneNumber,
+    this.documentId,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,15 +30,15 @@ class Address {
     };
   }
 
-  Address.fromMap(Map<String, dynamic> map)
-    : assert(map['line1'] != null),
-    line1 = map['line1'],
-    line2 = map['line2'],
-    city = map['city'],
-    prefecture = map['prefecture'],
-    postcode = map['postcode'],
-    phoneNumber = map['phoneNumber'];
+  Address.fromMap(Map<String, dynamic> map, String documentId)
+    : line1 = map['line1'],
+      line2 = map['line2'],
+      city = map['city'],
+      prefecture = map['prefecture'],
+      postcode = map['postcode'],
+      phoneNumber = map['phoneNumber'],
+      documentId = documentId;
   
   Address.fromSnapshot(DocumentSnapshot snapshot)
-    : this.fromMap(snapshot.data);
+    : this.fromMap(snapshot.data, snapshot.documentID);
 }

@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:badiup/models/user_model.dart';
+import 'package:badiup/models/user_setting_model.dart';
 
 class Admin extends User {
   Admin({
     String email,
     String name,
     RoleType role,
-    DocumentReference setting,
+    UserSetting setting,
     DateTime created
   }) : super(
     email: email,

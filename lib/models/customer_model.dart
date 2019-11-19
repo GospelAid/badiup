@@ -1,16 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/user_model.dart';
+import 'package:badiup/models/user_setting_model.dart';
 import 'package:badiup/models/address_model.dart';
 
 class Customer extends User {
-  final List<DocumentReference> shippingAddresses;
+  List<Address> shippingAddresses;
 
   Customer({
     String email,
     String name,
     RoleType role,
-    DocumentReference setting,
+    UserSetting setting,
     DateTime created,
     this.shippingAddresses
   }) : super(
@@ -21,30 +23,22 @@ class Customer extends User {
     created: created
   );
 
-  Future<List<Address>> getShippingAddresses() async {
-    List<Address> addresses = List<Address>();
-    shippingAddresses.forEach(
-      (reference) async {
-        DocumentSnapshot snapshot = await reference.get();
-        addresses.add( Address.fromSnapshot(snapshot) );
-      }
-    );
-    return addresses;
-  }
+  Future<void> setShippingAddresses() async {
+    QuerySnapshot qsnapshot =
+      await Firestore.instance
+        .collection( constants.DBCollections.customers )
+        .document( this.email )
+        .collection( constants.DBCollections.addresses )
+        .getDocuments();
 
-  @override
-  Map<String, dynamic> toMap() {
-    Map<String, dynamic> userMap = super.toMap();
-    userMap.addAll({
-      'shippingAddresses': shippingAddresses
-    });
-    return userMap;
+    this.shippingAddresses = qsnapshot.documents.map(
+      (snapshot) => Address.fromSnapshot(snapshot)
+    ).toList();
   }
 
   Customer.fromMap(Map<String, dynamic> map)
-    : shippingAddresses = map['shippingAddresses'].cast<DocumentReference>(),
-    super.fromMap(map);
-  
+    : super.fromMap(map);
+
   Customer.fromSnapshot(DocumentSnapshot snapshot)
     : this.fromMap(snapshot.data);
 }
