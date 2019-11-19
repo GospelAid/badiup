@@ -8,6 +8,7 @@ import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
+import 'package:badiup/screens/admin_product_detail_page.dart';
 
 class AdminProductListingPage extends StatefulWidget {
   AdminProductListingPage({Key key, this.title}) : super(key: key);
@@ -204,17 +205,32 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Widget _buildProductListingItemTileImage(Product product) {
+    Widget productImage;
     if (product.imageUrl?.isEmpty ?? true) {
-      return Image.memory(
+      productImage = Image.memory(
         kTransparentImage,
         height: constants.imageHeight,
       );
     }
 
-    return FadeInImage.memoryNetwork(
+    productImage = FadeInImage.memoryNetwork(
       placeholder: kTransparentImage,
       height: constants.imageHeight,
       image: product.imageUrl,
+    );
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminProductDetailPage(
+              product: product,
+            ),
+          ),
+        );
+      },
+      child: productImage,
     );
   }
 
@@ -253,7 +269,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("PRODUCTS"),
+      title: Text("商品リスト"),
       centerTitle: true,
       //leading: _buildMenuButton(context),
       actions: <Widget>[
