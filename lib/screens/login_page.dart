@@ -1,8 +1,8 @@
-import 'package:badiup/screens/customer_home_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/screens/admin_home_page.dart';
+import 'package:badiup/screens/customer_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,29 +13,32 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        child: Center(
-          child: Column(
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/login_background.jpeg'),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(
-                'BADI UP', 
-                style: TextStyle(fontSize: 30.0),
-              ),
-              SizedBox(height: 50),
+              SizedBox(height: 150),
               _buildLoginButton(),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildLoginButton() {
-    return OutlineButton(
-      splashColor: Colors.grey,
+    return RaisedButton(
       onPressed: () {
         signInWithGoogle().whenComplete(() {
           Navigator.of(context).push(
@@ -48,9 +51,9 @@ class _LoginPageState extends State<LoginPage> {
           );
         });
       },
+      color: Colors.black,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
-      borderSide: BorderSide(color: Colors.grey),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Row(
