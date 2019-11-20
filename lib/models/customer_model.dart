@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/user_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
 import 'package:badiup/models/address_model.dart';
@@ -14,31 +13,32 @@ class Customer extends User {
     RoleType role,
     UserSetting setting,
     DateTime created,
-    this.shippingAddresses
+    this.shippingAddresses,
   }) : super(
     email: email,
     name: name,
     role: role,
     setting: setting,
-    created: created
+    created: created,
   );
 
-  Future<void> setShippingAddresses() async {
-    QuerySnapshot qsnapshot =
-      await Firestore.instance
-        .collection( constants.DBCollections.customers )
-        .document( this.email )
-        .collection( constants.DBCollections.addresses )
-        .getDocuments();
+  @override
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> customerMap = super.toMap();
+    customerMap['shippingAddresses'] = shippingAddresses.map(
+        (address) => address.toMap()
+    ).toList();
+    return customerMap;
+  }
 
-    this.shippingAddresses = qsnapshot.documents.map(
-      (snapshot) => Address.fromSnapshot(snapshot)
+  @override
+  Customer.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
+    shippingAddresses = map['shippingAddresses'].map<Address>(
+      (address) => Address.fromMap(address.cast<String, Address>())
     ).toList();
   }
 
-  Customer.fromMap(Map<String, dynamic> map)
-    : super.fromMap(map);
-
+  @override
   Customer.fromSnapshot(DocumentSnapshot snapshot)
     : this.fromMap(snapshot.data);
 }

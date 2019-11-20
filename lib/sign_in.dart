@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/user_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
@@ -39,7 +40,7 @@ Future<String> signInWithGoogle() async {
 
   if ( userSnapshot.exists ) {
     // user exists, retrieve user data from firestore
-    await retrieveUserFromFirestore( userSnapshot: userSnapshot );
+    retrieveUserFromFirestore( userSnapshot: userSnapshot );
   } else {
     // user not exists, create a new user
     await addUserToFirestore( user: user );
@@ -56,14 +57,13 @@ void signOutGoogle() async{
 
 
 // retrieve user data from Firestore
-void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) async {
+void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
   switch ( User.fromSnapshot(userSnapshot).role ) {
     case RoleType.admin:
       currentSignedInUser = Admin.fromSnapshot(userSnapshot);
       break;
     case RoleType.customer:
       currentSignedInUser = Customer.fromSnapshot(userSnapshot);
-      await ( currentSignedInUser as Customer ).setShippingAddresses();
       break;
     default:
       break;
@@ -78,15 +78,10 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
     name: user.displayName,
     role: RoleType.customer, // add user as customer by default
     setting: UserSetting(pushNotifications: true),
+    shippingAddresses: List<Address>(),
     created: DateTime.now().toUtc(),
   );
   await db.collection( constants.DBCollections.customers )
           .document( user.email )
           .setData( currentSignedInUser.toMap() );
-  // initialize customer's addresses collection
-  await db.collection( constants.DBCollections.customers )
-          .document( user.email )
-          .collection( constants.DBCollections.addresses )
-          .document( 'default-address' )
-          .setData({});
 }
