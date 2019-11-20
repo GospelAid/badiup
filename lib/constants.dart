@@ -6,7 +6,6 @@ const double imageHeight = 290;
 class DBCollections {
   static const String customers = 'customers';
   static const String products = "products";
-  static const String addresses = 'shippingAddresses';
 }
 
 // Keys
