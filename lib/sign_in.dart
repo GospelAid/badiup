@@ -34,7 +34,7 @@ Future<String> signInWithGoogle() async {
 
   // check if user already exists
   final DocumentSnapshot userSnapshot =
-    await db.collection(constants.DBCollections.customers)
+    await db.collection(constants.DBCollections.users)
             .document(user.email)
             .get();
 
@@ -81,7 +81,7 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
     shippingAddresses: List<Address>(),
     created: DateTime.now().toUtc(),
   );
-  await db.collection( constants.DBCollections.customers )
+  await db.collection( constants.DBCollections.users )
           .document( user.email )
           .setData( currentSignedInUser.toMap() );
 }
