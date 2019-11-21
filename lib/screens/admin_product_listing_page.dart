@@ -117,7 +117,6 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _buildProductListingItemTileInfoPaneCaption(product),
               _buildProductListingItemTileInfoPaneDeleteButton(
                 context,
                 product,
@@ -188,12 +187,12 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Future<void> _deleteProduct(Product product) async {
-    if (!(product.imageUrl?.isEmpty ?? true)) {
+    if (!(product.imageUrls?.isEmpty ?? true)) {
       final FirebaseStorage _storage = FirebaseStorage(
         storageBucket: config.firebaseStorageUri,
       );
       var ref = await _storage.getReferenceFromUrl(
-        product.imageUrl,
+        product.imageUrls.first,
       );
       await ref.delete();
     }
@@ -206,7 +205,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildProductListingItemTileImage(Product product) {
     Widget productImage;
-    if (product.imageUrl?.isEmpty ?? true) {
+    if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
         kTransparentImage,
         height: constants.imageHeight,
@@ -216,7 +215,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     productImage = FadeInImage.memoryNetwork(
       placeholder: kTransparentImage,
       height: constants.imageHeight,
-      image: product.imageUrl,
+      image: product.imageUrls.first,
     );
 
     return GestureDetector(
@@ -231,20 +230,6 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
         );
       },
       child: productImage,
-    );
-  }
-
-  //
-  Widget _buildProductListingItemTileInfoPaneCaption(
-    Product product,
-  ) {
-    return Text(
-      product.caption,
-      style: TextStyle(
-        fontSize: 17.0,
-        fontWeight: FontWeight.w600,
-        color: Colors.black,
-      ),
     );
   }
 

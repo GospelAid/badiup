@@ -2,42 +2,42 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Product {
   final String name;
-  final String caption;
   final String description;
   final double priceInYen;
-  final String imageUrl;
+  final List<String> imageUrls;
   final DateTime created;
   final String documentId;
+  final bool isPublished;
 
   Product({
     this.name, 
-    this.caption, 
     this.description, 
     this.priceInYen,
-    this.imageUrl,
+    this.imageUrls,
     this.created,
     this.documentId,
+    this.isPublished,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'name' : name,
-      'caption' : caption,
       'description' : description,
       'priceInYen' : priceInYen,
-      'imageUrl' : imageUrl,
+      'imageUrls' : imageUrls,
       'created' : created,
+      'isPublished' : isPublished,
     };
   }
 
   Product.fromMap(Map<String, dynamic> map, String documentId)
     : assert(map['name'] != null),
       name = map['name'],
-      caption = map['caption'],
       description = map['description'],
       priceInYen = map['priceInYen'],
-      imageUrl = map['imageUrl'],
+      imageUrls = map['imageUrls'].cast<String>(),
       created = map['created'].toDate(),
+      isPublished = map['isPublished'],
       documentId = documentId; 
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
