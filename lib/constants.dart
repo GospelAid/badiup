@@ -4,6 +4,7 @@ const double imageHeight = 290;
 
 // Database Collections
 class DBCollections {
+  static const String users = 'users';
   static const String products = "products";
 }
 
