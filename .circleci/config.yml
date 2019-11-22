@@ -11,6 +11,6 @@ jobs:
       # - run:
       #     name: Build the Android version
       #     command: flutter build apk
-      - run:
-          name: Build the iOS version
-          command: flutter build ios
+      # - run:
+      #     name: Build the iOS version
+      #     command: flutter build ios
