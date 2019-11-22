@@ -35,7 +35,7 @@ class Product {
       name = map['name'],
       description = map['description'],
       priceInYen = map['priceInYen'],
-      imageUrls = map['imageUrls'].cast<String>(),
+      imageUrls = map['imageUrls']?.cast<String>(),
       created = map['created'].toDate(),
       isPublished = map['isPublished'],
       documentId = documentId; 

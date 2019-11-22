@@ -13,6 +13,16 @@ import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 
+class PopupMenuChoice {
+  PopupMenuChoice({
+    this.title,
+    this.action,
+  });
+
+  final String title;
+  final Function action;
+}
+
 class AdminNewProductPage extends StatefulWidget {
   AdminNewProductPage({Key key, this.title}) : super(key: key);
 
@@ -34,13 +44,58 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   bool _formSubmitInProgress = false;
 
+  Future<bool> _displayConfirmExitDialog() async {
+    await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Save Draft?',
+            style: getAlertStyle(),
+          ),
+          content: Text(
+              'Would you like to save a draft so that you can continue editing later?'),
+          actions: _buildConfirmExitDialogActions(
+            context,
+          ),
+        );
+      },
+    );
+
+    return true;
+  }
+
+  List<Widget> _buildConfirmExitDialogActions(
+    BuildContext context,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('Discard'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Save Draft'),
+        onPressed: () async {
+          await _submitForm(false);
+          Navigator.pop(context);
+        },
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      // Build a form to input new product details
-      body: Stack(
-        children: _buildNewProductForm(context),
+    return WillPopScope(
+      onWillPop: _displayConfirmExitDialog,
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        // Build a form to input new product details
+        body: Stack(
+          children: _buildNewProductForm(context),
+        ),
       ),
     );
   }
@@ -461,9 +516,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     final _product = Product(
       name: _nameEditingController.text,
       description: _descriptionEditingController.text,
-      priceInYen: double.parse(
-        _priceEditingController.text,
-      ),
+      priceInYen: double.tryParse(_priceEditingController.text) ?? 0,
       imageUrls: _imageUrls,
       created: DateTime.now().toUtc(),
       isPublished: isPublished,
@@ -471,9 +524,79 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return _product;
   }
 
+  void _performPopupMenuAction(PopupMenuChoice choice) {
+    choice.action();
+  }
+
   Widget _buildAppBar() {
+    List<PopupMenuChoice> popupMenuChoices = _buildPopupMenuChoices();
+
     return AppBar(
       title: Text('Add New Product'),
+      actions: <Widget>[
+        PopupMenuButton<PopupMenuChoice>(
+          icon: Icon(Icons.more_vert),
+          itemBuilder: (context) {
+            return popupMenuChoices.map((PopupMenuChoice choice) {
+              return PopupMenuItem<PopupMenuChoice>(
+                value: choice,
+                child: Text(choice.title),
+              );
+            }).toList();
+          },
+          onSelected: _performPopupMenuAction,
+        ),
+      ],
     );
+  }
+
+  List<PopupMenuChoice> _buildPopupMenuChoices() {
+    List<PopupMenuChoice> popupMenuChoices = <PopupMenuChoice>[
+      PopupMenuChoice(
+        title: '変更を破棄',
+        action: () => _displayConfirmDiscardDialog(),
+      ),
+    ];
+    return popupMenuChoices;
+  }
+
+  Future<void> _displayConfirmDiscardDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm Discard',
+            style: getAlertStyle(),
+          ),
+          content: Text(
+              'Once discarded, the data cannot be recovered. Are you sure you want to discard?'),
+          actions: _buildConfirmDiscardDialogActions(
+            context,
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildConfirmDiscardDialogActions(
+    BuildContext context,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('Cancel'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Discard'),
+        onPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 }

@@ -210,13 +210,13 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
         kTransparentImage,
         height: constants.imageHeight,
       );
+    } else {
+      productImage = FadeInImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        height: constants.imageHeight,
+        image: product.imageUrls.first,
+      );
     }
-
-    productImage = FadeInImage.memoryNetwork(
-      placeholder: kTransparentImage,
-      height: constants.imageHeight,
-      image: product.imageUrls.first,
-    );
 
     return GestureDetector(
       onTap: () {
