@@ -3,6 +3,16 @@ jobs:
   build:
     docker:
       - image: cirrusci/flutter
+    branches:
+      only: master
     steps:
       - checkout
-      - run: echo "A first hello"
+      - run:
+          name: Run Flutter doctor
+          command: flutter doctor
+      - run:
+          name: Build the Android version
+          command: flutter build apk
+      - run:
+          name: Build the iOS version
+          command: flutter build ios
