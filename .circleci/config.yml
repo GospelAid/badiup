@@ -3,8 +3,6 @@ jobs:
   build:
     docker:
       - image: cirrusci/flutter
-    branches:
-      only: master
     steps:
       - checkout
       - run:
