@@ -6,9 +6,7 @@ class AdminProductDetailPage extends StatefulWidget {
   AdminProductDetailPage({
     Key key,
     this.product,
-  }) : super(
-          key: key,
-        );
+  }) : super(key: key);
 
   final Product product;
 
