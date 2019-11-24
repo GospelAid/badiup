@@ -4,3 +4,7 @@ The app provides supporters a way to buy products manufactured by the Badi girls
 We hope to give the girls a future and bring them up from darkness into light. We believe that the Love of Jesus Christ is capable in accomplishing this impossible task.
 
 About Gospel Aid: https://gospel-aid.org/en/
+
+For those interested in contributing to this project: thank you! Please follow the instructions at https://github.com/GospelAid/badiup/wiki/Configure-Your-Machine. 
+
+Happy fluttering!

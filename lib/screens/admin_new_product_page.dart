@@ -5,12 +5,23 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
+
+class PopupMenuChoice {
+  PopupMenuChoice({
+    this.title,
+    this.action,
+  });
+
+  final String title;
+  final Function action;
+}
 
 class AdminNewProductPage extends StatefulWidget {
   AdminNewProductPage({Key key, this.title}) : super(key: key);
@@ -24,22 +35,67 @@ class AdminNewProductPage extends StatefulWidget {
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _formKey = new GlobalKey<FormState>();
 
-  File _imageFile;
+  List<File> _imageFiles = [];
+  File _imageFileInDisplay;
 
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
-  final _captionEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
 
   bool _formSubmitInProgress = false;
 
+  Future<bool> _displayConfirmExitDialog() async {
+    await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Save Draft?',
+            style: getAlertStyle(),
+          ),
+          content: Text(
+              'Would you like to save a draft so that you can continue editing later?'),
+          actions: _buildConfirmExitDialogActions(
+            context,
+          ),
+        );
+      },
+    );
+
+    return true;
+  }
+
+  List<Widget> _buildConfirmExitDialogActions(
+    BuildContext context,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('Discard'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Save Draft'),
+        onPressed: () async {
+          await _submitForm(false);
+          Navigator.pop(context);
+        },
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      // Build a form to input new product details
-      body: Stack(
-        children: _buildNewProductForm(context),
+    return WillPopScope(
+      onWillPop: _displayConfirmExitDialog,
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        // Build a form to input new product details
+        body: Stack(
+          children: _buildNewProductForm(context),
+        ),
       ),
     );
   }
@@ -48,7 +104,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   void dispose() {
     _nameEditingController.dispose();
     _priceEditingController.dispose();
-    _captionEditingController.dispose();
     _descriptionEditingController.dispose();
     super.dispose();
   }
@@ -97,16 +152,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   List<Widget> _buildFormFields(BuildContext context) {
     return <Widget>[
-      _buildImageUploadField(),
+      _buildMultipleImageUploadField(),
       _buildNameFormField(),
-      SizedBox(height: 16.0),
-      _buildPriceFormField(),
-      SizedBox(height: 16.0),
-      _buildCaptionFormField(),
-      SizedBox(height: 16.0),
       _buildDescriptionFormField(),
       SizedBox(height: 16.0),
-      _buildSubmitButton(),
+      _buildPriceFormField(),
+      _buildFormButtonBar(),
     ];
   }
 
@@ -116,10 +167,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (selected != null) {
       cropped = await ImageCropper.cropImage(
         sourcePath: selected.path,
-        ratioX: 1.0,
-        ratioY: 0.7,
-        maxWidth: 512,
-        maxHeight: 512,
+        ratioX: 1.64,
+        ratioY: 1.0,
         toolbarColor: kPaletteDeepPurple,
         toolbarWidgetColor: kPaletteWhite,
         toolbarTitle: 'Crop Image',
@@ -127,41 +176,108 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
 
     setState(() {
-      _imageFile = cropped ?? selected ?? _imageFile;
+      if (cropped != null) {
+        _imageFiles.add(cropped);
+      }
+      _imageFileInDisplay = cropped;
     });
   }
 
-  Widget _buildImageUploadField() {
-    var widgetList = <Widget>[];
+  Widget _buildMultipleImageUploadField() {
+    Widget _imageToDisplay;
 
-    if (_imageFile != null) {
-      widgetList.add(Image.file(_imageFile));
+    if (_imageFileInDisplay == null) {
+      _imageToDisplay = AspectRatio(
+        aspectRatio: 1.64,
+        child: Image.memory(
+          kTransparentImage,
+          fit: BoxFit.fill,
+        ),
+      );
+    } else {
+      _imageToDisplay = Image.file(_imageFileInDisplay);
     }
-
-    widgetList.add(_buildImageUploadButtonBar());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: widgetList,
+      children: <Widget>[
+        _imageToDisplay,
+        SizedBox(height: 8.0),
+        _buildImageThumbnailBar(),
+      ],
     );
   }
 
-  ButtonBar _buildImageUploadButtonBar() {
-    return ButtonBar(
-      alignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(Icons.photo_camera),
-          iconSize: 48.0,
-          onPressed: () => _pickImage(ImageSource.camera),
+  Widget _buildImageThumbnailBar() {
+    List<Widget> _barElements = <Widget>[
+      _buildUploadImageButton(),
+      SizedBox(width: 8.0),
+    ];
+
+    _barElements.addAll(_buildImageThumbnails());
+
+    return Container(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: _barElements,
+      ),
+    );
+  }
+
+  SizedBox _buildUploadImageButton() {
+    return SizedBox(
+      width: 40,
+      child: FittedBox(
+        fit: BoxFit.none,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: Colors.white),
+          child: IconButton(
+            key: Key(constants.TestKeys.newProductFormImageGallery),
+            icon: Icon(Icons.add),
+            iconSize: 30.0,
+            onPressed: () => _pickImage(ImageSource.gallery),
+          ),
         ),
-        IconButton(
-          key: Key(constants.TestKeys.newProductFormImageGallery),
-          icon: Icon(Icons.photo_library),
-          iconSize: 48.0,
-          onPressed: () => _pickImage(ImageSource.gallery),
+      ),
+    );
+  }
+
+  List<Widget> _buildImageThumbnails() {
+    List<Widget> thumbnails = [];
+
+    for (var i = 0; i < _imageFiles.length; i++) {
+      thumbnails.add(_buildImageThumbnail(_imageFiles[i]));
+      thumbnails.add(SizedBox(width: 8.0));
+    }
+
+    return thumbnails;
+  }
+
+  Widget _buildImageThumbnail(File imageFile) {
+    Border thumbnailBorder;
+    if (_imageFileInDisplay == imageFile) {
+      thumbnailBorder = Border.all(color: Colors.lightBlue);
+    }
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _imageFileInDisplay = imageFile;
+        });
+      },
+      child: Container(
+        width: 40.0,
+        height: 40.0,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: FileImage(imageFile),
+            fit: BoxFit.cover,
+          ),
+          border: thumbnailBorder,
         ),
-      ],
+      ),
     );
   }
 
@@ -172,10 +288,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       keyboardType: TextInputType.multiline,
       maxLines: 10,
       decoration: InputDecoration(
-        labelText: 'Description',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
+        labelText: '説明',
+        alignLabelWithHint: true,
       ),
       validator: (value) {
         if (value.isEmpty) {
@@ -187,25 +301,60 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildPriceFormField() {
-    return TextFormField(
-      key: Key(constants.TestKeys.newProductFormPrice),
-      controller: _priceEditingController,
-      keyboardType: TextInputType.number,
-      style: TextStyle(fontSize: 24.0),
-      decoration: InputDecoration(
-        labelText: 'Price',
-        labelStyle: TextStyle(fontSize: 16.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        suffixText: '¥',
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          _buildYenLogo(),
+          _buildPriceTextFormField(),
+        ],
       ),
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Price cannot be empty';
-        }
-        return null;
-      },
+    );
+  }
+
+  Container _buildPriceTextFormField() {
+    return Container(
+      width: 120,
+      child: TextFormField(
+        key: Key(constants.TestKeys.newProductFormPrice),
+        controller: _priceEditingController,
+        keyboardType: TextInputType.number,
+        style: TextStyle(fontSize: 24.0),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: EdgeInsets.all(8.0),
+          border: InputBorder.none,
+          labelStyle: TextStyle(fontSize: 16.0),
+        ),
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Price cannot be empty';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildYenLogo() {
+    return SizedBox(
+      width: 35,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xFF151515),
+        ),
+        child: Center(
+          child: Text(
+            "¥",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -214,10 +363,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       key: Key(constants.TestKeys.newProductFormName),
       controller: _nameEditingController,
       decoration: InputDecoration(
-        labelText: 'Name',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
+        labelText: 'タイトル',
       ),
       maxLength: 10,
       validator: (value) {
@@ -229,51 +375,59 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Widget _buildCaptionFormField() {
-    return TextFormField(
-      key: Key(constants.TestKeys.newProductFormCaption),
-      controller: _captionEditingController,
-      decoration: InputDecoration(
-        labelText: 'Caption',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-      ),
-      maxLength: 15,
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Caption cannot be empty';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildFormButtonBar() {
+    return ButtonBar(
+      alignment: MainAxisAlignment.center,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 16.0,
-          ),
-          child: RaisedButton(
-            key: Key(constants.TestKeys.newProductFormSubmitButton),
-            onPressed: () async {
-              if (_formIsValid()) {
-                await _submitForm();
-                Navigator.pop(context);
-              }
-            },
-            child: Text('Submit'),
-          ),
-        ),
+        _buildPublishButton(),
+        _buildSaveDraftButton(),
       ],
     );
   }
 
+  Padding _buildPublishButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 16.0,
+      ),
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        key: Key(constants.TestKeys.newProductFormSubmitButton),
+        onPressed: () async {
+          if (_formIsValid()) {
+            await _submitForm(true);
+            Navigator.pop(context);
+          }
+        },
+        child: Text('保存'),
+      ),
+    );
+  }
+
+  Padding _buildSaveDraftButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 16.0,
+      ),
+      child: FlatButton(
+        color: Colors.white,
+        textColor: paletteBlackColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        onPressed: () async {
+          await _submitForm(false);
+          Navigator.pop(context);
+        },
+        child: Text('下書き'),
+      ),
+    );
+  }
+
   bool _formIsValid() {
-    if (_imageFile == null) {
+    if (_imageFiles.length == 0) {
       _buildImageMandatoryDialog();
       return false;
     }
@@ -305,16 +459,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Future<void> _submitForm() async {
+  Future<void> _submitForm(bool isPublished) async {
     setState(() {
       _formSubmitInProgress = true;
     });
 
-    String _imageUrl;
-    if (_imageFile != null) {
-      _imageUrl = await _uploadImageToStorage();
+    List<String> _imageUrls;
+    if (_imageFiles.length != 0) {
+      _imageUrls = await _uploadImagesToStorage();
     }
-    Product _product = _buildProductModel(_imageUrl);
+    Product _product = _buildProductModel(_imageUrls, isPublished);
 
     await Firestore.instance
         .collection(constants.DBCollections.products)
@@ -325,37 +479,124 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     });
   }
 
-  Future<String> _uploadImageToStorage() async {
+  Future<List<String>> _uploadImagesToStorage() async {
     final FirebaseStorage _storage =
         FirebaseStorage(storageBucket: config.firebaseStorageUri);
 
-    final String uuid = Uuid().v1();
+    List<String> imageUrls = [];
 
-    final StorageReference ref =
-        _storage.ref().child('images').child('products').child('$uuid.png');
+    for (var i = 0; i < _imageFiles.length; i++) {
+      final String uuid = Uuid().v1();
 
-    final StorageUploadTask uploadTask = ref.putFile(_imageFile);
-    final StorageTaskSnapshot snapshot = await uploadTask.onComplete;
-    return await snapshot.ref.getDownloadURL() as String;
+      final StorageReference ref = _storage
+          .ref()
+          .child(
+            constants.StorageCollections.images,
+          )
+          .child(
+            constants.StorageCollections.products,
+          )
+          .child('$uuid.png');
+
+      final StorageUploadTask uploadTask = ref.putFile(
+        _imageFiles[i],
+      );
+      final StorageTaskSnapshot snapshot = await uploadTask.onComplete;
+      final imageUrl = await snapshot.ref.getDownloadURL() as String;
+      imageUrls.add(imageUrl);
+    }
+
+    return imageUrls;
   }
 
-  Product _buildProductModel(String _imageUrl) {
+  Product _buildProductModel(
+    List<String> _imageUrls,
+    bool isPublished,
+  ) {
     final _product = Product(
       name: _nameEditingController.text,
-      caption: _captionEditingController.text,
       description: _descriptionEditingController.text,
-      priceInYen: double.parse(
-        _priceEditingController.text,
-      ),
-      imageUrl: _imageUrl,
+      priceInYen: double.tryParse(_priceEditingController.text) ?? 0,
+      imageUrls: _imageUrls,
       created: DateTime.now().toUtc(),
+      isPublished: isPublished,
     );
     return _product;
   }
 
+  void _performPopupMenuAction(PopupMenuChoice choice) {
+    choice.action();
+  }
+
   Widget _buildAppBar() {
+    List<PopupMenuChoice> popupMenuChoices = _buildPopupMenuChoices();
+
     return AppBar(
       title: Text('Add New Product'),
+      actions: <Widget>[
+        PopupMenuButton<PopupMenuChoice>(
+          icon: Icon(Icons.more_vert),
+          itemBuilder: (context) {
+            return popupMenuChoices.map((PopupMenuChoice choice) {
+              return PopupMenuItem<PopupMenuChoice>(
+                value: choice,
+                child: Text(choice.title),
+              );
+            }).toList();
+          },
+          onSelected: _performPopupMenuAction,
+        ),
+      ],
     );
+  }
+
+  List<PopupMenuChoice> _buildPopupMenuChoices() {
+    List<PopupMenuChoice> popupMenuChoices = <PopupMenuChoice>[
+      PopupMenuChoice(
+        title: '変更を破棄',
+        action: () => _displayConfirmDiscardDialog(),
+      ),
+    ];
+    return popupMenuChoices;
+  }
+
+  Future<void> _displayConfirmDiscardDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm Discard',
+            style: getAlertStyle(),
+          ),
+          content: Text(
+              'Once discarded, the data cannot be recovered. Are you sure you want to discard?'),
+          actions: _buildConfirmDiscardDialogActions(
+            context,
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildConfirmDiscardDialogActions(
+    BuildContext context,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('Cancel'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text('Discard'),
+        onPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 }

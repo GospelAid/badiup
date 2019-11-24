@@ -8,6 +8,11 @@ class DBCollections {
   static const String products = "products";
 }
 
+class StorageCollections {
+  static const String products = "products";
+  static const String images = "images";
+}
+
 // Keys
 class TestKeys {
   static const String productListingFirstName = "product_listing_first_name";
