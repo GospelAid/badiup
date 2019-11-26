@@ -34,7 +34,7 @@ class AdminNewProductPage extends StatefulWidget {
 }
 
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
-  final _formKey = new GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   List<File> _imageFiles = [];
   File _imageFileInDisplay;
@@ -110,7 +110,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   Widget _buildNewProductForm(BuildContext context) {
     var form = GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Form(
         key: _formKey,
@@ -137,15 +137,15 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   Widget _buildFormSubmitInProgressIndicator() {
     var modal = Stack(
       children: [
-        new Opacity(
+        Opacity(
           opacity: 0.5,
           child: const ModalBarrier(
             dismissible: false,
             color: Colors.black,
           ),
         ),
-        new Center(
-          child: new CircularProgressIndicator(),
+        Center(
+          child: CircularProgressIndicator(),
         ),
       ],
     );
