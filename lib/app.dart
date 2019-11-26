@@ -26,10 +26,9 @@ ThemeData _buildAppTheme() {
     textSelectionColor: kPalettePurple100,
     errorColor: kPaletteRed,
     buttonTheme: base.buttonTheme.copyWith(
-      buttonColor: const Color(0xFF892C26),
+      buttonColor: paletteForegroundColor,
       textTheme: ButtonTextTheme.primary,
       height: 48.0,
-      minWidth: 155.0,
     ),
     primaryIconTheme: base.iconTheme.copyWith(color: kPaletteWhite),
     textTheme: _buildAppTextTheme(base.textTheme),

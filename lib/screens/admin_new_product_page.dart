@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:badiup/screens/multi_select_gallery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,7 +34,7 @@ class AdminNewProductPage extends StatefulWidget {
 }
 
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
-  final _formKey = new GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   List<File> _imageFiles = [];
   File _imageFileInDisplay;
@@ -93,9 +94,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       child: Scaffold(
         appBar: _buildAppBar(),
         // Build a form to input new product details
-        body: Stack(
-          children: _buildNewProductForm(context),
-        ),
+        body: _buildNewProductForm(context),
       ),
     );
   }
@@ -108,10 +107,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     super.dispose();
   }
 
-  List<Widget> _buildNewProductForm(BuildContext context) {
+  Widget _buildNewProductForm(BuildContext context) {
     var form = GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Form(
         key: _formKey,
@@ -129,21 +128,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       widgetList.add(_buildFormSubmitInProgressIndicator());
     }
     widgetList.add(form);
-    return widgetList;
+
+    return Stack(
+      children: widgetList,
+    );
   }
 
   Widget _buildFormSubmitInProgressIndicator() {
-    var modal = new Stack(
+    var modal = Stack(
       children: [
-        new Opacity(
+        Opacity(
           opacity: 0.5,
           child: const ModalBarrier(
             dismissible: false,
             color: Colors.black,
           ),
         ),
-        new Center(
-          child: new CircularProgressIndicator(),
+        Center(
+          child: CircularProgressIndicator(),
         ),
       ],
     );
@@ -161,6 +163,23 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     ];
   }
 
+  Future<void> _pickImages() async {
+    List<Future<File>> selectedImages = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MultiSelectGallery()),
+    );
+
+    if (selectedImages != null && selectedImages.length != 0) {
+      List<File> images = await Future.wait(selectedImages);
+
+      setState(() {
+        _imageFiles.addAll(images);
+        _imageFileInDisplay = _imageFiles.last;
+      });
+    }
+  }
+
+  // Not in use right now, but keeping it for reference.
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
     File cropped;
@@ -187,21 +206,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     Widget _imageToDisplay;
 
     if (_imageFileInDisplay == null) {
-      _imageToDisplay = AspectRatio(
-        aspectRatio: 1.64,
-        child: Image.memory(
-          kTransparentImage,
-          fit: BoxFit.fill,
-        ),
+      _imageToDisplay = Image.memory(
+        kTransparentImage,
+        fit: BoxFit.fill,
       );
     } else {
-      _imageToDisplay = Image.file(_imageFileInDisplay);
+      _imageToDisplay = Image.file(
+        _imageFileInDisplay,
+        fit: BoxFit.fill,
+      );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        _imageToDisplay,
+        AspectRatio(
+          aspectRatio: 1.64,
+          child: _imageToDisplay,
+        ),
         SizedBox(height: 8.0),
         _buildImageThumbnailBar(),
       ],
@@ -209,18 +231,38 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildImageThumbnailBar() {
-    List<Widget> _barElements = <Widget>[
-      _buildUploadImageButton(),
-      SizedBox(width: 8.0),
-    ];
-
-    _barElements.addAll(_buildImageThumbnails());
-
     return Container(
-      height: 40,
-      child: ListView(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          _buildUploadImageButton(),
+          SizedBox(width: 4.0),
+          _buildDraggableThumbnailListView(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDraggableThumbnailListView() {
+    return Expanded(
+      child: ReorderableListView(
         scrollDirection: Axis.horizontal,
-        children: _barElements,
+        children: _buildImageThumbnails(),
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (newIndex > _imageFiles.length) {
+              newIndex = _imageFiles.length;
+            }
+            if (oldIndex < newIndex) {
+              newIndex--;
+            }
+
+            File item = _imageFiles[oldIndex];
+            _imageFiles.remove(item);
+            _imageFiles.insert(newIndex, item);
+          });
+        },
       ),
     );
   }
@@ -236,7 +278,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             key: Key(constants.TestKeys.newProductFormImageGallery),
             icon: Icon(Icons.add),
             iconSize: 30.0,
-            onPressed: () => _pickImage(ImageSource.gallery),
+            onPressed: () => _pickImages(),
           ),
         ),
       ),
@@ -248,7 +290,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
     for (var i = 0; i < _imageFiles.length; i++) {
       thumbnails.add(_buildImageThumbnail(_imageFiles[i]));
-      thumbnails.add(SizedBox(width: 8.0));
     }
 
     return thumbnails;
@@ -261,21 +302,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
 
     return GestureDetector(
+      key: Key(imageFile.path),
       onTap: () {
         setState(() {
           _imageFileInDisplay = imageFile;
         });
       },
-      child: Container(
-        width: 40.0,
-        height: 40.0,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: FileImage(imageFile),
-            fit: BoxFit.cover,
+      child: Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Container(
+          width: 40.0,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: FileImage(imageFile),
+              fit: BoxFit.cover,
+            ),
+            border: thumbnailBorder,
           ),
-          border: thumbnailBorder,
         ),
       ),
     );
@@ -376,8 +420,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildFormButtonBar() {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildPublishButton(),
         _buildSaveDraftButton(),
@@ -385,43 +429,49 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Padding _buildPublishButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildPublishButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        key: Key(constants.TestKeys.newProductFormSubmitButton),
-        onPressed: () async {
-          if (_formIsValid()) {
-            await _submitForm(true);
-            Navigator.pop(context);
-          }
-        },
-        child: Text('保存'),
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          key: Key(constants.TestKeys.newProductFormSubmitButton),
+          onPressed: () async {
+            if (_formIsValid()) {
+              await _submitForm(true);
+              Navigator.pop(context);
+            }
+          },
+          child: Text('保存'),
+        ),
       ),
     );
   }
 
-  Padding _buildSaveDraftButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: FlatButton(
-        color: Colors.white,
-        textColor: paletteBlackColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildSaveDraftButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-        child: Text('下書き'),
+        child: FlatButton(
+          color: Colors.white,
+          textColor: paletteBlackColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          onPressed: () async {
+            await _submitForm(false);
+            Navigator.pop(context);
+          },
+          child: Text('下書き'),
+        ),
       ),
     );
   }
