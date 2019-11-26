@@ -46,17 +46,23 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _formSubmitInProgress = false;
 
   Future<bool> _displayConfirmExitDialog() async {
-    await showDialog<bool>(
+    if ((_imageFiles?.length == 0 ?? true) &&
+        (_nameEditingController?.text == "" ?? true) &&
+        (_descriptionEditingController?.text == "" ?? true) &&
+        (_priceEditingController?.text == "" ?? true)) {
+      return true;
+    }
+
+    var result = await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Save Draft?',
+            '変更内容を保存しますか？',
             style: getAlertStyle(),
           ),
-          content: Text(
-              'Would you like to save a draft so that you can continue editing later?'),
+          content: Text('変更内容を保存して、後で編集を続けられるようにしますか'),
           actions: _buildConfirmExitDialogActions(
             context,
           ),
@@ -64,27 +70,55 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       },
     );
 
-    return true;
+    return result ?? false;
   }
 
   List<Widget> _buildConfirmExitDialogActions(
     BuildContext context,
   ) {
     return <Widget>[
-      FlatButton(
-        child: Text('Discard'),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-      FlatButton(
-        child: Text('Save Draft'),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-      ),
+      _buildConfirmExitDialogCancelAction(context),
+      _buildConfirmExitDialogDiscardAction(context),
+      _buildConfirmExitDialogSaveDraftAction(context),
     ];
+  }
+
+  FlatButton _buildConfirmExitDialogSaveDraftAction(BuildContext context) {
+    return FlatButton(
+      child: Text(
+        '保存',
+        // TODO: Use global variable here
+        style: TextStyle(color: const Color(0xFF892C26)),
+      ),
+      onPressed: () async {
+        await _submitForm(false);
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogDiscardAction(BuildContext context) {
+    return FlatButton(
+      child: Text(
+        '削除',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogCancelAction(BuildContext context) {
+    return FlatButton(
+      child: Text(
+        'キャンセル',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, false);
+      },
+    );
   }
 
   @override
@@ -447,7 +481,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               Navigator.pop(context);
             }
           },
-          child: Text('保存'),
+          child: Text('公開'),
         ),
       ),
     );
@@ -582,7 +616,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<PopupMenuChoice> popupMenuChoices = _buildPopupMenuChoices();
 
     return AppBar(
-      title: Text('Add New Product'),
+      title: Text('編集'),
       actions: <Widget>[
         PopupMenuButton<PopupMenuChoice>(
           icon: Icon(Icons.more_vert),
@@ -617,11 +651,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Confirm Discard',
+            '画像を削除',
             style: getAlertStyle(),
           ),
-          content: Text(
-              'Once discarded, the data cannot be recovered. Are you sure you want to discard?'),
+          content: Text('本当に削除しますか？この操作は取り消しできません。'),
           actions: _buildConfirmDiscardDialogActions(
             context,
           ),
@@ -635,13 +668,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   ) {
     return <Widget>[
       FlatButton(
-        child: Text('Cancel'),
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
         onPressed: () {
           Navigator.pop(context);
         },
       ),
       FlatButton(
-        child: Text('Discard'),
+        child: Text(
+          '削除',
+          // TODO: Use global variable here
+          style: TextStyle(color: const Color(0xFF892C26)),
+        ),
         onPressed: () {
           Navigator.pop(context);
           Navigator.pop(context);

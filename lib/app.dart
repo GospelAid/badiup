@@ -66,7 +66,7 @@ TextTheme _buildAppTextTheme(TextTheme base) {
         button: base.button.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 16.0,
-          color: const Color(0xFF151515),
+          color: paletteBlackColor,
         ),
       )
       .apply(fontFamily: 'Rubik');
