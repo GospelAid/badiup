@@ -420,8 +420,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildFormButtonBar() {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildPublishButton(),
         _buildSaveDraftButton(),
@@ -429,43 +429,49 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Padding _buildPublishButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildPublishButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        key: Key(constants.TestKeys.newProductFormSubmitButton),
-        onPressed: () async {
-          if (_formIsValid()) {
-            await _submitForm(true);
-            Navigator.pop(context);
-          }
-        },
-        child: Text('保存'),
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          key: Key(constants.TestKeys.newProductFormSubmitButton),
+          onPressed: () async {
+            if (_formIsValid()) {
+              await _submitForm(true);
+              Navigator.pop(context);
+            }
+          },
+          child: Text('保存'),
+        ),
       ),
     );
   }
 
-  Padding _buildSaveDraftButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: FlatButton(
-        color: Colors.white,
-        textColor: paletteBlackColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildSaveDraftButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-        child: Text('下書き'),
+        child: FlatButton(
+          color: Colors.white,
+          textColor: paletteBlackColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          onPressed: () async {
+            await _submitForm(false);
+            Navigator.pop(context);
+          },
+          child: Text('下書き'),
+        ),
       ),
     );
   }
