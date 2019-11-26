@@ -1,3 +1,4 @@
+import 'package:badiup/colors.dart';
 import 'package:badiup/models/gallery_image_asset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,16 +30,9 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Gallery"),
+        title: Text("ギャラリー"),
         actions: <Widget>[
-          FlatButton(
-            child: Text("Done"),
-            onPressed: () {
-              Navigator.pop(context, _selectedImages.map((img) async {
-                return await img.toFile();
-              }).toList());
-            },
-          ),
+          _buildDoneButton(context),
         ],
       ),
       body: GridView.builder(
@@ -54,7 +48,21 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
     );
   }
 
-  _buildGalleryTile(int index) {
+  FlatButton _buildDoneButton(BuildContext context) {
+    return FlatButton(
+      child: Text("Done"),
+      onPressed: () {
+        Navigator.pop(
+          context,
+          _selectedImages.map((img) async {
+            return await img.toFile();
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildGalleryTile(int index) {
     return GestureDetector(
       child: Card(
         elevation: 0.0,
@@ -63,7 +71,7 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
           builder: (context, snapshot) {
             var item = snapshot?.data;
             if (item != null) {
-              return _buildGalleryTileImage(item);
+              return _buildGalleryTileContents(item);
             } else {
               return Container();
             }
@@ -76,7 +84,7 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
     );
   }
 
-  Widget _buildGalleryTileImage(item) {
+  Widget _buildGalleryTileContents(item) {
     return Stack(
       alignment: AlignmentDirectional.topEnd,
       children: <Widget>[
@@ -88,17 +96,51 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
             ),
           ],
         ),
-        Padding(
-          padding: EdgeInsets.all(4),
-          child: Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _isSelected(item.id) ? Colors.blue : Colors.transparent,
-              border: Border.all(color: Colors.white, width: 2.0),
-            ),
+        _buildSelectionIndicator(item),
+      ],
+    );
+  }
+
+  Padding _buildSelectionIndicator(item) {
+    Widget selectionIndicator;
+
+    if (_isSelected(item.id)) {
+      selectionIndicator = _buildCheckMark();
+    } else {
+      selectionIndicator = Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.transparent,
+          border: Border.all(color: Colors.white, width: 2.0),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(4),
+      child: selectionIndicator,
+    );
+  }
+
+  Stack _buildCheckMark() {
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: Colors.transparent),
           ),
+        ),
+        Icon(
+          Icons.check_circle,
+          color: paletteForegroundColor,
+          size: 20.0,
         ),
       ],
     );

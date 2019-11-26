@@ -169,12 +169,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       MaterialPageRoute(builder: (context) => MultiSelectGallery()),
     );
 
-    List<File> images = await Future.wait(selectedImages);
+    if (selectedImages != null && selectedImages.length != 0) {
+      List<File> images = await Future.wait(selectedImages);
 
-    setState(() {
-      _imageFiles.addAll(images);
-      _imageFileInDisplay = _imageFiles.last;
-    });
+      setState(() {
+        _imageFiles.addAll(images);
+        _imageFileInDisplay = _imageFiles.last;
+      });
+    }
   }
 
   // Not in use right now, but keeping it for reference.
