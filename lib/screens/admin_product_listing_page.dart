@@ -8,6 +8,7 @@ import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
+import 'package:badiup/screens/admin_product_detail_page.dart';
 
 class AdminProductListingPage extends StatefulWidget {
   AdminProductListingPage({Key key, this.title}) : super(key: key);
@@ -116,7 +117,6 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _buildProductListingItemTileInfoPaneCaption(product),
               _buildProductListingItemTileInfoPaneDeleteButton(
                 context,
                 product,
@@ -187,12 +187,12 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Future<void> _deleteProduct(Product product) async {
-    if (!(product.imageUrl?.isEmpty ?? true)) {
+    if (!(product.imageUrls?.isEmpty ?? true)) {
       final FirebaseStorage _storage = FirebaseStorage(
         storageBucket: config.firebaseStorageUri,
       );
       var ref = await _storage.getReferenceFromUrl(
-        product.imageUrl,
+        product.imageUrls.first,
       );
       await ref.delete();
     }
@@ -204,31 +204,32 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Widget _buildProductListingItemTileImage(Product product) {
-    if (product.imageUrl?.isEmpty ?? true) {
-      return Image.memory(
+    Widget productImage;
+    if (product.imageUrls?.isEmpty ?? true) {
+      productImage = Image.memory(
         kTransparentImage,
         height: constants.imageHeight,
       );
+    } else {
+      productImage = FadeInImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        height: constants.imageHeight,
+        image: product.imageUrls.first,
+      );
     }
 
-    return FadeInImage.memoryNetwork(
-      placeholder: kTransparentImage,
-      height: constants.imageHeight,
-      image: product.imageUrl,
-    );
-  }
-
-  //
-  Widget _buildProductListingItemTileInfoPaneCaption(
-    Product product,
-  ) {
-    return Text(
-      product.caption,
-      style: TextStyle(
-        fontSize: 17.0,
-        fontWeight: FontWeight.w600,
-        color: Colors.black,
-      ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminProductDetailPage(
+              product: product,
+            ),
+          ),
+        );
+      },
+      child: productImage,
     );
   }
 
@@ -253,7 +254,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("PRODUCTS"),
+      title: Text("商品リスト"),
       centerTitle: true,
       //leading: _buildMenuButton(context),
       actions: <Widget>[

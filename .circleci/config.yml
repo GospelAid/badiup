@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cirrusci/flutter
+    steps:
+      - checkout
+      - run:
+          name: Run Flutter doctor
+          command: flutter doctor
+      # - run:
+      #     name: Build the Android version
+      #     command: flutter build apk
+      # - run:
+      #     name: Build the iOS version
+      #     command: flutter build ios

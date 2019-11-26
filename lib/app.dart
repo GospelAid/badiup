@@ -20,15 +20,16 @@ ThemeData _buildAppTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
     accentColor: kPaletteWhite,
-    primaryColor: kPaletteDeepPurple,
-    buttonColor: kPalettePurple,
-    scaffoldBackgroundColor: kPaletteWhite,
+    primaryColor: paletteBlackColor,
+    scaffoldBackgroundColor: const Color(0xFFD2D0D1),
     cardColor: kPaletteWhite,
     textSelectionColor: kPalettePurple100,
     errorColor: kPaletteRed,
     buttonTheme: base.buttonTheme.copyWith(
-      buttonColor: kPalettePurple,
+      buttonColor: const Color(0xFF892C26),
       textTheme: ButtonTextTheme.primary,
+      height: 48.0,
+      minWidth: 155.0,
     ),
     primaryIconTheme: base.iconTheme.copyWith(color: kPaletteWhite),
     textTheme: _buildAppTextTheme(base.textTheme),
@@ -63,8 +64,11 @@ TextTheme _buildAppTextTheme(TextTheme base) {
           fontSize: 16.0,
           color: kPalettePurple,
         ),
+        button: base.button.copyWith(
+          fontWeight: FontWeight.w600,
+          fontSize: 16.0,
+          color: const Color(0xFF151515),
+        ),
       )
-      .apply(
-        fontFamily: 'Rubik',
-      );
+      .apply(fontFamily: 'Rubik');
 }
