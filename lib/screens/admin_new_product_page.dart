@@ -46,10 +46,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _formSubmitInProgress = false;
 
   Future<bool> _displayConfirmExitDialog() async {
-    if ((_imageFiles?.length == 0 ?? true) &&
-        (_nameEditingController?.text == "" ?? true) &&
-        (_descriptionEditingController?.text == "" ?? true) &&
-        (_priceEditingController?.text == "" ?? true)) {
+    if (_isFormEmpty()) {
       return true;
     }
 
@@ -62,7 +59,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             '変更内容を保存しますか？',
             style: getAlertStyle(),
           ),
-          content: Text('変更内容を保存して、後で編集を続けられるようにしますか'),
+          content: Text(
+            '変更内容を保存して、後で編集を続けられるようにしますか',
+          ),
           actions: _buildConfirmExitDialogActions(
             context,
           ),
@@ -71,6 +70,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
 
     return result ?? false;
+  }
+
+  bool _isFormEmpty() {
+    return (_imageFiles?.length == 0 ?? true) &&
+        (_nameEditingController?.text == "" ?? true) &&
+        (_descriptionEditingController?.text == "" ?? true) &&
+        (_priceEditingController?.text == "" ?? true);
   }
 
   List<Widget> _buildConfirmExitDialogActions(
@@ -83,7 +89,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     ];
   }
 
-  FlatButton _buildConfirmExitDialogSaveDraftAction(BuildContext context) {
+  FlatButton _buildConfirmExitDialogSaveDraftAction(
+    BuildContext context,
+  ) {
     return FlatButton(
       child: Text(
         '保存',
@@ -109,7 +117,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  FlatButton _buildConfirmExitDialogCancelAction(BuildContext context) {
+  FlatButton _buildConfirmExitDialogCancelAction(
+    BuildContext context,
+  ) {
     return FlatButton(
       child: Text(
         'キャンセル',
@@ -645,6 +655,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future<void> _displayConfirmDiscardDialog() {
+    if (_isFormEmpty()) {
+      Navigator.pop(context);
+      return null;
+    }
+
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
