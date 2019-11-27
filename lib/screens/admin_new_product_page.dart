@@ -250,10 +250,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     Widget _imageToDisplay;
 
     if (_imageFileInDisplay == null) {
-      _imageToDisplay = Image.memory(
-        kTransparentImage,
-        fit: BoxFit.fill,
-      );
+      _imageToDisplay = _buildPlaceholderImage();
     } else {
       _imageToDisplay = Image.file(
         _imageFileInDisplay,
@@ -270,6 +267,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
         SizedBox(height: 8.0),
         _buildImageThumbnailBar(),
+      ],
+    );
+  }
+
+  Stack _buildPlaceholderImage() {
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        Container(
+          color: const Color(0xFF8D8D8D),
+        ),
+        Text(
+          "写真を選択してください",
+          style: TextStyle(
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
