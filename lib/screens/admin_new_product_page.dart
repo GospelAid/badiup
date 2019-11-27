@@ -6,7 +6,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
@@ -355,11 +354,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildImageThumbnail(File imageFile) {
-    Border thumbnailBorder;
-    if (_imageFileInDisplay == imageFile) {
-      thumbnailBorder = Border.all(color: Colors.lightBlue);
-    }
-
     return GestureDetector(
       key: Key(imageFile.path),
       onTap: () {
@@ -377,11 +371,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               image: FileImage(imageFile),
               fit: BoxFit.cover,
             ),
-            border: thumbnailBorder,
+            border: _buildThumbnailBorder(imageFile),
           ),
         ),
       ),
     );
+  }
+
+  Border _buildThumbnailBorder(File imageFile) {
+    Border thumbnailBorder;
+    if (_imageFileInDisplay == imageFile) {
+      thumbnailBorder = Border.all(
+        color: paletteBlackColor,
+        width: 2.0,
+      );
+    }
+    return thumbnailBorder;
   }
 
   Widget _buildDescriptionFormField() {
