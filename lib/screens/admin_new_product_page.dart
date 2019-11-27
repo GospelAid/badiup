@@ -686,7 +686,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            '画像を削除',
+            '変更を破棄',
             style: getAlertStyle(),
           ),
           content: Text('本当に削除しますか？この操作は取り消しできません。'),
