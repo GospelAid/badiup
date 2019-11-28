@@ -68,7 +68,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerLogoutTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.exit_to_app, color: Color(0xFF151515) ),
+      leading: Icon(Icons.exit_to_app, color: Color(0xFFFFFFFF) ),
       title: Text(
         'ログアウト',
         textAlign: TextAlign.justify,
@@ -90,7 +90,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerHeader(BuildContext context) {
     return Container(
-      height: 104,
+      height: 120,
       child: DrawerHeader(
         decoration: _buildDrawerHeaderDecoration(context),
         child: Container(
@@ -129,8 +129,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
         currentSignedInUser.email,
         style: TextStyle(
           color: Color(0xFFFFFFFF),
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
+          fontSize: 12,
         ),
       ),
     ];

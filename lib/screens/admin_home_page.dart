@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:badiup/colors.dart';
 
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/admin_order_list.dart';
@@ -14,6 +15,11 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  bool allOrdersButtonSelected = true;
+  bool pendingOrdersButtonSelected = false;
+
+  //Color unselectedButtonColor TextStyle( fontSize: 14, fontWeight: FontWeight.bold, color: paletteBlackColor )
 
   @override
   Widget build(BuildContext context) {
@@ -40,52 +46,52 @@ class _AdminHomePageState extends State<AdminHomePage> {
       title: Text(
         'ホーム',
         style: TextStyle(
-          color: Color(0xFF151515),
+          color: paletteBlackColor,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         )
       ),
       centerTitle: true,
-      backgroundColor: Color(0xFFD2D1D1),
+      backgroundColor: paletteLightGreyColor,
       elevation: 0.0,
-      iconTheme: new IconThemeData( color: Color(0xFF151515) ),
+      iconTheme: IconThemeData( color: paletteBlackColor ),
       leading: IconButton(
         icon: Icon(Icons.menu),
         onPressed: () => _scaffoldKey.currentState.openDrawer(),
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
   Widget _buildBody(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric( horizontal: 16.0 ),
-      color: Color(0xFFD2D1D1),
+      color: paletteLightGreyColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric( vertical: 8 ),
-            child: Text(
-              '注文',
-              style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF151515),
-              ),
-            ),
-          ),
           Row(
             children: <Widget>[
-              Container(
-                padding: EdgeInsets.only( right: 16.0 ),
-                child: _buildAllOrdersButton(context)
+              Expanded (
+                child: Text(
+                  '注文',
+                  style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.bold, color: paletteBlackColor,
+                  ),
+                ),
               ),
-              Container(
-                child: _buildPendingOrdersButton(context),
+              Expanded(
+                child: Container (
+                  height: 35.0,
+                  padding: EdgeInsets.only( left: 16 ),
+                  child: _buildAllOrdersButton(context)
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 35.0,
+                  padding: EdgeInsets.only( left: 16 ),
+                  child: _buildPendingOrdersButton(context),
+                ),
               ),
             ],
           ),
@@ -102,35 +108,55 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildAllOrdersButton(BuildContext context) {
     return RaisedButton(
+      key: Key('all_orders_button'),
       elevation: 0.0,
-      color: Color(0xFFFFFFFF),
+      color: allOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
       child: Container(
         child: Text(
           '全て',
-          style: TextStyle( fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF151515)),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: allOrdersButtonSelected ? kPaletteWhite : paletteBlackColor
+          ),
         ),
       ),
-      onPressed: () {},
+      onPressed: () {
+        setState(() {
+          allOrdersButtonSelected = true;
+          pendingOrdersButtonSelected = false;
+        });
+      },
     );
   }
 
   Widget _buildPendingOrdersButton(BuildContext context) {
     return RaisedButton(
+      key: Key('pending_orders_button'),
       elevation: 0.0,
-      color: Color(0xFFFFFFFF),
+      color: pendingOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
       child: Container(
         child: Text(
           '保留中',
-          style: TextStyle( fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF151515)),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor
+          ),
         ),
       ),
-      onPressed: () {},
+      onPressed: () {
+        setState(() {
+          allOrdersButtonSelected = false;
+          pendingOrdersButtonSelected = true;
+        });
+      },
     );
   }
 }

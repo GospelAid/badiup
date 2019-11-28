@@ -1,3 +1,4 @@
+import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -44,17 +45,17 @@ class _AdminOrderListState extends State<AdminOrderList> {
       child: Container(
         height: 73.0,
         decoration: BoxDecoration(
-          color: Color(0xFFFFFFFF),
+          color: kPaletteWhite,
           borderRadius: BorderRadius.circular(0.0),
         ),
         child: ListTile(
           title: Text(
             record.id,
-            style: TextStyle( fontSize: 10, color: Color(0xFF151515), ),
+            style: TextStyle( fontSize: 10, color: paletteBlackColor, ),
           ),
           subtitle: Text(
             record.price,
-            style: TextStyle( fontSize: 18, color: Color(0xFF892C26), fontWeight: FontWeight.bold),
+            style: TextStyle( fontSize: 18, color: paletteDarkRedColor, fontWeight: FontWeight.bold),
           ),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -62,11 +63,11 @@ class _AdminOrderListState extends State<AdminOrderList> {
             children: <Widget>[
               Text(
                 record.time,
-                style: TextStyle( fontSize: 14, color: Color(0xFF151515), fontWeight: FontWeight.bold),
+                style: TextStyle( fontSize: 14, color: paletteBlackColor, fontWeight: FontWeight.bold),
               ),
               Text(
                 record.status,
-                style: TextStyle( fontSize: 10, color: Color(0xFF892C26), ),
+                style: TextStyle( fontSize: 10, color: paletteDarkRedColor, ),
               ),
             ],
           ),
