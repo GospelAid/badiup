@@ -1,3 +1,4 @@
+import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:badiup/screens/admin_product_listing_page.dart';
@@ -13,7 +14,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color(0xFF151515),
+      color: paletteBlackColor,
       child: ListView(
         children: <Widget>[
           _buildDrawerHeader(context),
@@ -36,11 +37,11 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerProductTile(BuildContext context) {
     return ListTile(
-      leading: Icon( Icons.image, color: Color(0xFFFFFFFF) ),
+      leading: Icon( Icons.image, color: kPaletteWhite ),
       title: Text(
         '商品',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold ),
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
       ),
       onTap: () {
         Navigator.push(
@@ -55,11 +56,11 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerSettingsTile(BuildContext context) {
     return ListTile(
-      leading: Icon( Icons.settings, color: Color(0xFFFFFFFF) ),
+      leading: Icon( Icons.settings, color: kPaletteWhite ),
       title: Text(
         '設定',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold ),
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
       ),
       onTap: () {
       },
@@ -68,11 +69,11 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerLogoutTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.exit_to_app, color: Color(0xFFFFFFFF) ),
+      leading: Icon(Icons.exit_to_app, color: kPaletteWhite ),
       title: Text(
         'ログアウト',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold ),
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
       ),
       onTap: () {
         signOutGoogle();
@@ -120,7 +121,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
       Text(
         currentSignedInUser.name,
         style: TextStyle(
-          color: Color(0xFFFFFFFF),
+          color: kPaletteWhite,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
@@ -128,7 +129,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
       Text(
         currentSignedInUser.email,
         style: TextStyle(
-          color: Color(0xFFFFFFFF),
+          color: kPaletteWhite,
           fontSize: 12,
         ),
       ),
@@ -147,8 +148,8 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
   Widget _buildDrawerHeaderAvatar(BuildContext context) {
     return CircleAvatar(
       child: Icon(Icons.person),
-      foregroundColor: Color(0xFFFFFFFF),
-      backgroundColor: Color(0xFF151515),
+      foregroundColor: kPaletteWhite,
+      backgroundColor: paletteBlackColor,
     );
   }
 }

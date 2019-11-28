@@ -35,11 +35,11 @@ class Order{
   Order.fromMap(Map<String, dynamic> map) {
     customerId = map['customerId'];
     status = OrderStatus.values[ map['status'] ];
-    placedDate = map['placedDate'];
+    placedDate = map['placedDate'].toDate();
     details = map['details'];
     trackingUrl = map['trackingUrl'];
     items = map['items'].map<OrderItem>(
-      (item) => OrderItem.fromMap( item.cast<String, OrderItem>() )
+      (item) => OrderItem.fromMap( item.cast<String, dynamic>() )
     ).toList();
   }
 
@@ -50,16 +50,19 @@ class Order{
 class OrderItem{
   String productId;
   int quantity;
+  double price;
 
   OrderItem({
     this.productId,
-    this.quantity
+    this.quantity,
+    this.price,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'productId': productId,
       'quantity': quantity,
+      'price': price,
     };
   }
 
@@ -67,10 +70,12 @@ class OrderItem{
     : assert(map['productId'] != null),
       assert(map['quantity'] != null),
       productId = map['productId'],
-      quantity = map['quantity'];
+      quantity = map['quantity'],
+      price = map['price'];
 }
 
 enum OrderStatus{
+  all,
   pending,
   dispatched,
   delivered,

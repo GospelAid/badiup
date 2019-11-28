@@ -3,6 +3,7 @@ import 'package:badiup/colors.dart';
 
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/admin_order_list.dart';
+import 'package:badiup/models/order_model.dart';
 
 class AdminHomePage extends StatefulWidget {
   AdminHomePage({Key key, this.title}) : super(key: key);
@@ -18,8 +19,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   bool allOrdersButtonSelected = true;
   bool pendingOrdersButtonSelected = false;
-
-  //Color unselectedButtonColor TextStyle( fontSize: 14, fontWeight: FontWeight.bold, color: paletteBlackColor )
+  OrderStatus orderStatusToSearch = OrderStatus.all;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
           Expanded(
             child: Container(
               padding: EdgeInsets.only( top: 16.0 ),
-              child: AdminOrderList(),
+              child: AdminOrderList(
+                orderStatusToSearch: orderStatusToSearch 
+              ),
             ),
           ),
         ],
@@ -127,6 +129,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         setState(() {
           allOrdersButtonSelected = true;
           pendingOrdersButtonSelected = false;
+          orderStatusToSearch = OrderStatus.all;
         });
       },
     );
@@ -153,6 +156,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         setState(() {
           allOrdersButtonSelected = false;
           pendingOrdersButtonSelected = true;
+          orderStatusToSearch = OrderStatus.pending;
         });
       },
     );
