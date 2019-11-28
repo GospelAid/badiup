@@ -6,7 +6,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
@@ -46,17 +45,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _formSubmitInProgress = false;
 
   Future<bool> _displayConfirmExitDialog() async {
-    await showDialog<bool>(
+    if (_isFormEmpty()) {
+      return true;
+    }
+
+    var result = await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Save Draft?',
+            '変更内容を保存しますか？',
             style: getAlertStyle(),
           ),
           content: Text(
-              'Would you like to save a draft so that you can continue editing later?'),
+            '変更内容を保存して、後で編集を続けられるようにしますか',
+          ),
           actions: _buildConfirmExitDialogActions(
             context,
           ),
@@ -64,27 +68,66 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       },
     );
 
-    return true;
+    return result ?? false;
+  }
+
+  bool _isFormEmpty() {
+    return (_imageFiles?.length == 0 ?? true) &&
+        (_nameEditingController?.text == "" ?? true) &&
+        (_descriptionEditingController?.text == "" ?? true) &&
+        (_priceEditingController?.text == "" ?? true);
   }
 
   List<Widget> _buildConfirmExitDialogActions(
     BuildContext context,
   ) {
     return <Widget>[
-      FlatButton(
-        child: Text('Discard'),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-      FlatButton(
-        child: Text('Save Draft'),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-      ),
+      _buildConfirmExitDialogCancelAction(context),
+      _buildConfirmExitDialogDiscardAction(context),
+      _buildConfirmExitDialogSaveDraftAction(context),
     ];
+  }
+
+  FlatButton _buildConfirmExitDialogSaveDraftAction(
+    BuildContext context,
+  ) {
+    return FlatButton(
+      child: Text(
+        '保存',
+        // TODO: Use global variable here
+        style: TextStyle(color: const Color(0xFF892C26)),
+      ),
+      onPressed: () async {
+        await _submitForm(false);
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogDiscardAction(BuildContext context) {
+    return FlatButton(
+      child: Text(
+        '削除',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogCancelAction(
+    BuildContext context,
+  ) {
+    return FlatButton(
+      child: Text(
+        'キャンセル',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, false);
+      },
+    );
   }
 
   @override
@@ -206,10 +249,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     Widget _imageToDisplay;
 
     if (_imageFileInDisplay == null) {
-      _imageToDisplay = Image.memory(
-        kTransparentImage,
-        fit: BoxFit.fill,
-      );
+      _imageToDisplay = _buildPlaceholderImage();
     } else {
       _imageToDisplay = Image.file(
         _imageFileInDisplay,
@@ -226,6 +266,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
         SizedBox(height: 8.0),
         _buildImageThumbnailBar(),
+      ],
+    );
+  }
+
+  Stack _buildPlaceholderImage() {
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        Container(
+          color: const Color(0xFF8D8D8D),
+        ),
+        Text(
+          "写真を選択してください",
+          style: TextStyle(
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -296,11 +354,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildImageThumbnail(File imageFile) {
-    Border thumbnailBorder;
-    if (_imageFileInDisplay == imageFile) {
-      thumbnailBorder = Border.all(color: Colors.lightBlue);
-    }
-
     return GestureDetector(
       key: Key(imageFile.path),
       onTap: () {
@@ -318,11 +371,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               image: FileImage(imageFile),
               fit: BoxFit.cover,
             ),
-            border: thumbnailBorder,
+            border: _buildThumbnailBorder(imageFile),
           ),
         ),
       ),
     );
+  }
+
+  Border _buildThumbnailBorder(File imageFile) {
+    Border thumbnailBorder;
+    if (_imageFileInDisplay == imageFile) {
+      thumbnailBorder = Border.all(
+        color: paletteBlackColor,
+        width: 2.0,
+      );
+    }
+    return thumbnailBorder;
   }
 
   Widget _buildDescriptionFormField() {
@@ -447,7 +511,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               Navigator.pop(context);
             }
           },
-          child: Text('保存'),
+          child: Text('公開'),
         ),
       ),
     );
@@ -582,7 +646,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<PopupMenuChoice> popupMenuChoices = _buildPopupMenuChoices();
 
     return AppBar(
-      title: Text('Add New Product'),
+      title: Text('編集'),
       actions: <Widget>[
         PopupMenuButton<PopupMenuChoice>(
           icon: Icon(Icons.more_vert),
@@ -611,17 +675,21 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future<void> _displayConfirmDiscardDialog() {
+    if (_isFormEmpty()) {
+      Navigator.pop(context);
+      return null;
+    }
+
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Confirm Discard',
+            '変更を破棄',
             style: getAlertStyle(),
           ),
-          content: Text(
-              'Once discarded, the data cannot be recovered. Are you sure you want to discard?'),
+          content: Text('本当に削除しますか？この操作は取り消しできません。'),
           actions: _buildConfirmDiscardDialogActions(
             context,
           ),
@@ -635,13 +703,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   ) {
     return <Widget>[
       FlatButton(
-        child: Text('Cancel'),
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
         onPressed: () {
           Navigator.pop(context);
         },
       ),
       FlatButton(
-        child: Text('Discard'),
+        child: Text(
+          '削除',
+          // TODO: Use global variable here
+          style: TextStyle(color: const Color(0xFF892C26)),
+        ),
         onPressed: () {
           Navigator.pop(context);
           Navigator.pop(context);

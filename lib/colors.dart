@@ -19,7 +19,8 @@ const paletteForegroundColor = const Color(0xFF892C26);
 
 TextStyle getAlertStyle() {
   return TextStyle(
-    color: kPaletteRed,
+    // TODO: Use global variable here
+    color: const Color(0xFF892C26),
     fontWeight: FontWeight.bold,
   );
 }
