@@ -108,7 +108,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildAllOrdersButton(BuildContext context) {
     return RaisedButton(
-      key: Key('all_orders_button'),
       elevation: 0.0,
       color: allOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
       shape: RoundedRectangleBorder(
@@ -120,7 +119,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: allOrdersButtonSelected ? kPaletteWhite : paletteBlackColor
+            color: allOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
           ),
         ),
       ),
@@ -135,7 +134,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildPendingOrdersButton(BuildContext context) {
     return RaisedButton(
-      key: Key('pending_orders_button'),
       elevation: 0.0,
       color: pendingOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
       shape: RoundedRectangleBorder(
@@ -147,7 +145,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor
+            color: pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
           ),
         ),
       ),
