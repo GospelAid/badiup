@@ -19,7 +19,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   bool allOrdersButtonSelected = true;
   bool pendingOrdersButtonSelected = false;
-  OrderStatus orderStatusToSearch = OrderStatus.all;
+  OrderStatus orderStatusToFilter = OrderStatus.all;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             child: Container(
               padding: EdgeInsets.only( top: 16.0 ),
               child: AdminOrderList(
-                orderStatusToSearch: orderStatusToSearch 
+                orderStatusToFilter: orderStatusToFilter 
               ),
             ),
           ),
@@ -129,7 +129,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         setState(() {
           allOrdersButtonSelected = true;
           pendingOrdersButtonSelected = false;
-          orderStatusToSearch = OrderStatus.all;
+          orderStatusToFilter = OrderStatus.all;
         });
       },
     );
@@ -156,7 +156,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         setState(() {
           allOrdersButtonSelected = false;
           pendingOrdersButtonSelected = true;
-          orderStatusToSearch = OrderStatus.pending;
+          orderStatusToFilter = OrderStatus.pending;
         });
       },
     );

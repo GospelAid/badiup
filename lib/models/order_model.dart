@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Order{
-  String customerId;
-  List<OrderItem> items;
-  OrderStatus status;
-  DateTime placedDate;
-  String details;
-  String trackingUrl;
+  final String documentId;
+  final String customerId;
+  final List<OrderItem> items;
+  final OrderStatus status;
+  final DateTime placedDate;
+  final String details;
+  final String trackingUrl;
 
   Order({
+    this.documentId,
     this.customerId,
     this.items,
     this.status,
@@ -16,6 +18,23 @@ class Order{
     this.details,
     this.trackingUrl,
   });
+
+  double getOrderPrice() {
+    return items.map(
+      (item) => item.price
+    ).reduce( (a, b) => a + b );
+  }
+
+  String getOrderStatusText() {
+    switch (status) {
+      case OrderStatus.all:
+        return '全て';
+      case OrderStatus.pending:
+        return '保留中';
+      default:
+        return 'その他';
+    }
+  }
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
@@ -32,19 +51,19 @@ class Order{
     return map;
   }
 
-  Order.fromMap(Map<String, dynamic> map) {
-    customerId = map['customerId'];
-    status = OrderStatus.values[ map['status'] ];
-    placedDate = map['placedDate'].toDate();
-    details = map['details'];
-    trackingUrl = map['trackingUrl'];
-    items = map['items'].map<OrderItem>(
-      (item) => OrderItem.fromMap( item.cast<String, dynamic>() )
-    ).toList();
-  }
+  Order.fromMap(Map<String, dynamic> map, String documentId)
+    : customerId = map['customerId'],
+      status = OrderStatus.values[ map['status'] ],
+      placedDate = map['placedDate'].toDate(),
+      details = map['details'],
+      trackingUrl = map['trackingUrl'],
+      items = map['items'].map<OrderItem>(
+        (item) => OrderItem.fromMap( item.cast<String, dynamic>() )
+      ).toList(),
+      documentId = documentId;
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
-    : this.fromMap(snapshot.data);
+    : this.fromMap(snapshot.data, snapshot.documentID);
 }
 
 class OrderItem{

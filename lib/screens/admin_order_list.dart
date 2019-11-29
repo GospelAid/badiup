@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:intl/intl.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/order_model.dart';
 
 class AdminOrderList extends StatefulWidget {
-  AdminOrderList({Key key, this.orderStatusToSearch}) : super(key: key);
+  AdminOrderList({Key key, this.orderStatusToFilter}) : super(key: key);
   
-  final OrderStatus orderStatusToSearch;
+  final OrderStatus orderStatusToFilter;
 
   @override
   _AdminOrderListState createState() => _AdminOrderListState();
@@ -20,7 +21,6 @@ class _AdminOrderListState extends State<AdminOrderList> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
               .collection( constants.DBCollections.orders )
-              .where('status', isEqualTo: widget.orderStatusToSearch.index )
               .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
@@ -33,17 +33,19 @@ class _AdminOrderListState extends State<AdminOrderList> {
   Widget _buildOrderList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return ListView(
       children: snapshot.map(
-        (data) => _buildOrderListItem(context, data)
+        (data) {
+          final Order order = Order.fromSnapshot(data);
+          if ( widget.orderStatusToFilter == OrderStatus.all ||
+               order.status == widget.orderStatusToFilter ) {
+                 return _buildOrderListItem(context, order);
+          }
+          return Container();
+        }
       ).toList(),
     );
   }
 
-  Widget _buildOrderListItem(BuildContext context, DocumentSnapshot data) {
-    final Order order = Order.fromSnapshot(data);
-    double orderPrice = order.items.map(
-      (item) => item.price
-    ).reduce( (a, b) => a + b );
-
+  Widget _buildOrderListItem(BuildContext context, Order order) {
     return Container(
       padding: EdgeInsets.only( bottom: 16.0 ),
       child: Container(
@@ -54,11 +56,11 @@ class _AdminOrderListState extends State<AdminOrderList> {
         ),
         child: ListTile(
           title: Text(
-            order.trackingUrl,
+            order.customerId.toString(),
             style: TextStyle( fontSize: 10, color: paletteBlackColor, ),
           ),
           subtitle: Text(
-            orderPrice.toString(),
+            order.getOrderPrice().toString(),
             style: TextStyle( fontSize: 18, color: paletteDarkRedColor, fontWeight: FontWeight.bold),
           ),
           trailing: Column(
@@ -66,11 +68,11 @@ class _AdminOrderListState extends State<AdminOrderList> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               Text(
-                order.placedDate.toString(),
+                DateFormat('yyyy年MM月dd日').format(order.placedDate),
                 style: TextStyle( fontSize: 14, color: paletteBlackColor, fontWeight: FontWeight.bold),
               ),
               Text(
-                order.status.toString(),
+                order.getOrderStatusText(),
                 style: TextStyle( fontSize: 10, color: paletteDarkRedColor, ),
               ),
             ],
