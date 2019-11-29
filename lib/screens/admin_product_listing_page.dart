@@ -143,6 +143,22 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Widget _buildProductListingItemTileInfoPane(Product product) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminProductDetailPage(
+              product: product,
+            ),
+          ),
+        );
+      },
+      child: _buildProductInfoPaneContents(product),
+    );
+  }
+
+  Widget _buildProductInfoPaneContents(Product product) {
     return Container(
       padding: EdgeInsets.all(16.0),
       color: kPaletteWhite,
@@ -254,19 +270,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
       height: constants.imageHeight,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdminProductDetailPage(
-                product: product,
-              ),
-            ),
-          );
-        },
-        child: _getProductListingImage(product),
-      ),
+      child: _getProductListingImage(product),
     );
   }
 

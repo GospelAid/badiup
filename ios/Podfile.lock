@@ -146,7 +146,7 @@ PODS:
   - GTMSessionFetcher/Core (1.2.2)
   - image_cropper (0.0.1):
     - Flutter
-    - TOCropViewController (~> 2.5.0)
+    - TOCropViewController (~> 2.5.1)
   - image_picker (0.0.1):
     - Flutter
   - leveldb-library (1.22)
@@ -245,7 +245,7 @@ SPEC CHECKSUMS:
   "gRPC-C++": 9dfe7b44821e7b3e44aacad2af29d2c21f7cde83
   gRPC-Core: c9aef9a261a1247e881b18059b84d597293c9947
   GTMSessionFetcher: 61bb0f61a4cb560030f1222021178008a5727a23
-  image_cropper: f25bdfbf1ef970c9a0a0f78306fb6a0aaac7229e
+  image_cropper: 966bf742cd9cee8d78010ec5c67dd9e7826e6b19
   image_picker: 16e5fec1fbc87fd3b297c53e4048521eaf17cd06
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
