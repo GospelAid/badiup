@@ -215,6 +215,17 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (selectedImages != null && selectedImages.length != 0) {
       List<File> images = await Future.wait(selectedImages);
 
+      for (var i = 0; i < images.length; i++) {
+        images[i] = await ImageCropper.cropImage(
+          sourcePath: images[i].path,
+          ratioX: 1.64,
+          ratioY: 1.0,
+          toolbarColor: kPaletteDeepPurple,
+          toolbarWidgetColor: kPaletteWhite,
+          toolbarTitle: 'Crop Image',
+        );
+      }
+
       setState(() {
         _imageFiles.addAll(images);
         _imageFileInDisplay = _imageFiles.last;

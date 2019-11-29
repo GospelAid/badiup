@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,8 @@ class AdminProductListingPage extends StatefulWidget {
 }
 
 class _AdminProductListingPageState extends State<AdminProductListingPage> {
+  // product.documentId -> index of image to display
+  HashMap activeImageMap = HashMap<String, int>();
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +74,14 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   ) {
     final product = Product.fromSnapshot(data);
 
+    activeImageMap.putIfAbsent(product.documentId, () => 0);
+
     return Container(
-      padding: const EdgeInsets.all(0.0),
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        top: 16.0,
+        right: 16.0,
+      ),
       child: _buildProductListingItemTile(
         context,
         product,
@@ -88,38 +98,72 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _buildProductListingItemTileImage(product),
-        SizedBox(height: 8.0),
-        _buildProductListingItemTileInfoPane(
-          context,
-          product,
-          index,
+        Stack(
+          alignment: AlignmentDirectional.center,
+          children: <Widget>[
+            _buildProductListingItemTileImage(product),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                _buildProductListingImageLeftButton(product),
+                _buildProductListingImageRightButton(product),
+              ],
+            ),
+          ],
         ),
-        Container(
-          height: 12.0,
-          color: kPaletteSpacerColor,
-        ),
+        _buildProductListingItemTileInfoPane(product),
       ],
     );
   }
 
-  Widget _buildProductListingItemTileInfoPane(
-    BuildContext context,
-    Product product,
-    int index,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+  IconButton _buildProductListingImageRightButton(Product product) {
+    return IconButton(
+      icon: Icon(Icons.chevron_right, size: 32.0),
+      onPressed: () {
+        setState(() {
+          activeImageMap[product.documentId] =
+              (activeImageMap[product.documentId] + 1) %
+                  product.imageUrls.length;
+        });
+      },
+    );
+  }
+
+  IconButton _buildProductListingImageLeftButton(Product product) {
+    return IconButton(
+      icon: Icon(Icons.chevron_left, size: 32.0),
+      onPressed: () {
+        setState(() {
+          activeImageMap[product.documentId] =
+              (activeImageMap[product.documentId] - 1) %
+                  product.imageUrls.length;
+        });
+      },
+    );
+  }
+
+  Widget _buildProductListingItemTileInfoPane(Product product) {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      color: kPaletteWhite,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _buildProductListItemTileInfoPaneName(product, index),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _buildProductListingItemTileInfoPaneDeleteButton(
-                context,
-                product,
+              _buildProductInfoPaneTitle(product),
+              _buildProductInfoPanePublishSwitch(product),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _buildProductInfoPaneDescription(product),
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  // TODO: Navigate to product edit page
+                },
               ),
             ],
           ),
@@ -128,64 +172,61 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     );
   }
 
-  Widget _buildProductListingItemTileInfoPaneDeleteButton(
-    BuildContext context,
-    Product product,
-  ) {
-    return IconButton(
-      icon: Icon(
-        Icons.delete,
-        color: kPaletteDeleteIconColor,
+  Expanded _buildProductInfoPaneDescription(Product product) {
+    return Expanded(
+      child: Text(
+        product.description,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 2,
+        style: TextStyle(
+          color: paletteBlackColor,
+          fontSize: 16.0,
+          fontWeight: FontWeight.w300,
+        ),
       ),
-      onPressed: () => _buildConfirmDeleteDialog(context, product),
     );
   }
 
-  Future<void> _buildConfirmDeleteDialog(
-    BuildContext context,
-    Product product,
-  ) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Confirm Delete',
-            style: getAlertStyle(),
+  Widget _buildProductInfoPanePublishSwitch(Product product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Text(
+          "公開する",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 14.0,
+            fontWeight: FontWeight.w300,
           ),
-          content: Text(
-              'Once deleted, the data cannot be recovered. Are you sure you want to delete?'),
-          actions: _buildConfirmDeleteDialogActions(
-            context,
-            product,
-          ),
-        );
-      },
+        ),
+        Switch(
+          value: product.isPublished,
+          onChanged: (value) async {
+            await Firestore.instance
+                .collection(constants.DBCollections.products)
+                .document(product.documentId)
+                .updateData({'isPublished': value});
+          },
+          activeTrackColor: paletteForegroundColor,
+          activeColor: kPaletteWhite,
+        ),
+      ],
     );
   }
 
-  List<Widget> _buildConfirmDeleteDialogActions(
-    BuildContext context,
-    Product product,
-  ) {
-    return <Widget>[
-      FlatButton(
-        child: Text('Cancel'),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+  Widget _buildProductInfoPaneTitle(Product product) {
+    return Text(
+      product.name,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: paletteBlackColor,
+        fontWeight: FontWeight.w600,
+        fontSize: 16.0,
       ),
-      FlatButton(
-        child: Text('Delete'),
-        onPressed: () {
-          _deleteProduct(product);
-          Navigator.pop(context);
-        },
-      ),
-    ];
+    );
   }
 
+  // TODO: Not used right now but keeping for future reference
   Future<void> _deleteProduct(Product product) async {
     if (!(product.imageUrls?.isEmpty ?? true)) {
       final FirebaseStorage _storage = FirebaseStorage(
@@ -204,6 +245,25 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   }
 
   Widget _buildProductListingItemTileImage(Product product) {
+    return Container(
+      height: constants.imageHeight,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdminProductDetailPage(
+                product: product,
+              ),
+            ),
+          );
+        },
+        child: _getProductListingImage(product),
+      ),
+    );
+  }
+
+  Widget _getProductListingImage(Product product) {
     Widget productImage;
     if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
@@ -212,44 +272,12 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
       );
     } else {
       productImage = FadeInImage.memoryNetwork(
+        fit: BoxFit.fill,
         placeholder: kTransparentImage,
-        height: constants.imageHeight,
-        image: product.imageUrls.first,
+        image: product.imageUrls[activeImageMap[product.documentId]],
       );
     }
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AdminProductDetailPage(
-              product: product,
-            ),
-          ),
-        );
-      },
-      child: productImage,
-    );
-  }
-
-  Widget _buildProductListItemTileInfoPaneName(
-    Product product,
-    int index,
-  ) {
-    return Text(
-      product.name,
-      key: index == 0
-          ? Key(
-              constants.TestKeys.productListingFirstName,
-            )
-          : null,
-      style: TextStyle(
-        fontSize: 24.0,
-        fontWeight: FontWeight.w700,
-      ),
-      textAlign: TextAlign.center,
-    );
+    return productImage;
   }
 
   Widget _buildAppBar(BuildContext context) {
