@@ -82,14 +82,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
               Expanded(
                 child: Container (
                   height: 35.0,
-                  padding: EdgeInsets.only( left: 16 ),
+                  padding: EdgeInsets.only( left: 16.0 ),
                   child: _buildAllOrdersButton(context)
                 ),
               ),
               Expanded(
                 child: Container(
                   height: 35.0,
-                  padding: EdgeInsets.only( left: 16 ),
+                  padding: EdgeInsets.only( left: 16.0 ),
                   child: _buildPendingOrdersButton(context),
                 ),
               ),

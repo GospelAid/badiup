@@ -20,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
             decoration: _buildBackgroundDecoration(context),
           ),
           Column(
-            //mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(height: 150),
