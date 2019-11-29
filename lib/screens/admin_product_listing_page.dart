@@ -159,16 +159,23 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               _buildProductInfoPaneDescription(product),
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  // TODO: Navigate to product edit page
-                },
-              ),
+              _buildProductInfoPaneEditButton(product),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  IconButton _buildProductInfoPaneEditButton(Product product) {
+    return IconButton(
+      icon: Icon(
+        Icons.edit,
+        color: paletteForegroundColor,
+      ),
+      onPressed: () {
+        // TODO: Navigate to product edit page
+      },
     );
   }
 
