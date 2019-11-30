@@ -1,6 +1,6 @@
 library constants;
 
-const double imageHeight = 290;
+const double imageHeight = 210;
 
 // Database Collections
 class DBCollections {

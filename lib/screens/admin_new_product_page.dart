@@ -214,35 +214,39 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
     if (selectedImages != null && selectedImages.length != 0) {
       List<File> images = await Future.wait(selectedImages);
+      List<File> croppedImages = await _cropImages(images);
 
-      setState(() {
-        _imageFiles.addAll(images);
-        _imageFileInDisplay = _imageFiles.last;
-      });
+      if (croppedImages != null && croppedImages.length != 0) {
+        setState(() {
+          _imageFiles.addAll(croppedImages);
+          _imageFileInDisplay = _imageFiles.last;
+        });
+      }
     }
   }
 
-  // Not in use right now, but keeping it for reference.
-  Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
-    File cropped;
-    if (selected != null) {
-      cropped = await ImageCropper.cropImage(
-        sourcePath: selected.path,
-        ratioX: 1.64,
-        ratioY: 1.0,
-        toolbarColor: kPaletteDeepPurple,
-        toolbarWidgetColor: kPaletteWhite,
-        toolbarTitle: 'Crop Image',
-      );
-    }
+  Future<List<File>> _cropImages(List<File> images) async {
+    List<File> croppedImages = List<File>();
 
-    setState(() {
-      if (cropped != null) {
-        _imageFiles.add(cropped);
+    for (var i = 0; i < images.length; i++) {
+      File croppedImage = await ImageCropper.cropImage(
+        sourcePath: images[i].path,
+        aspectRatio: CropAspectRatio(
+          ratioX: 1.64,
+          ratioY: 1.0,
+        ),
+        androidUiSettings: AndroidUiSettings(
+          toolbarColor: paletteForegroundColor,
+          toolbarWidgetColor: kPaletteWhite,
+          toolbarTitle: 'Crop Image',
+        ),
+      );
+
+      if (croppedImage != null) {
+        croppedImages.add(croppedImage);
       }
-      _imageFileInDisplay = cropped;
-    });
+    }
+    return croppedImages;
   }
 
   Widget _buildMultipleImageUploadField() {
