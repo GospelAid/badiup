@@ -274,21 +274,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Stack _buildPlaceholderImage() {
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      children: <Widget>[
-        Container(
-          color: const Color(0xFF8D8D8D),
-        ),
-        Text(
-          "写真を選択してください",
-          style: TextStyle(
-            color: kPaletteWhite,
-            fontWeight: FontWeight.w600,
+  Widget _buildPlaceholderImage() {
+    return GestureDetector(
+      onTap: _pickImages,
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: <Widget>[
+          Container(
+            color: const Color(0xFF8D8D8D),
           ),
-        ),
-      ],
+          Text(
+            "写真を選択してください",
+            style: TextStyle(
+              color: kPaletteWhite,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
