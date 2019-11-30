@@ -313,7 +313,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   Widget _getProductListingImage(Product product) {
     var widgetList = <Widget>[];
 
-    if (product.isPublished) {
+    if (product.isPublished || (product.imageUrls?.length ?? 0) != 0) {
       widgetList.addAll([
         SpinKitThreeBounce(
           color: Colors.white,
