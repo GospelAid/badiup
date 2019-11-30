@@ -14,6 +14,7 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
   var _numberOfItems = 0;
   var _selectedImages = List<GalleryImageAsset>();
   var _imageAssetCache = Map<int, GalleryImageAsset>();
+  var _hdImageAssetCache = Map<int, GalleryImageAsset>();
 
   @override
   void initState() {
@@ -149,19 +150,50 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
   _selectImage(int index) async {
     var galleryImage = await _getImageAssetFromDeviceGallery(index);
 
-    setState(() {
-      if (_isSelected(galleryImage.id)) {
+    if (_isSelected(galleryImage.id)) {
+      setState(() {
         _selectedImages.removeWhere((anItem) {
           return anItem.id == galleryImage.id;
         });
-      } else {
+      });
+    } else {
+      galleryImage = await _getHDImageAssetFromDeviceGallery(index);
+      
+      setState(() {
         _selectedImages.add(galleryImage);
-      }
-    });
+      });
+    }
   }
 
   _isSelected(String id) {
     return _selectedImages.where((item) => item.id == id).length > 0;
+  }
+
+  Future<GalleryImageAsset> _getHDImageAssetFromDeviceGallery(
+    int index,
+  ) async {
+    if (_hdImageAssetCache[index] != null) {
+      return _hdImageAssetCache[index];
+    } else {
+      var channelResponse = await _channel.invokeMethod(
+        "getItemHD",
+        index,
+      );
+      var imageAsset = Map<String, dynamic>.from(channelResponse);
+
+      var galleryImageAsset = GalleryImageAsset(
+        bytes: imageAsset['data'],
+        id: imageAsset['id'],
+        created: DateTime.fromMillisecondsSinceEpoch(
+          imageAsset['created'] * 1000,
+        ),
+        location: imageAsset['location'],
+      );
+
+      _hdImageAssetCache[index] = galleryImageAsset;
+
+      return galleryImageAsset;
+    }
   }
 
   Future<GalleryImageAsset> _getImageAssetFromDeviceGallery(

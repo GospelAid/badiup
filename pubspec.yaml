@@ -37,6 +37,7 @@ dependencies:
   uuid: any
 
   path_provider: ^1.4.4
+  flutter_spinkit: ^4.0.0
 
 dev_dependencies:
   flutter_test:

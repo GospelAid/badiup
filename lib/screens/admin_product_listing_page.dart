@@ -12,6 +12,8 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 class AdminProductListingPage extends StatefulWidget {
   AdminProductListingPage({Key key, this.title}) : super(key: key);
 
@@ -288,7 +290,16 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
         image: product.imageUrls[activeImageMap[product.documentId]],
       );
     }
-    return productImage;
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        SpinKitThreeBounce(
+          color: Colors.white,
+          size: 24,
+        ),
+        productImage,
+      ],
+    );
   }
 
   Widget _buildAppBar(BuildContext context) {
