@@ -264,6 +264,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildImageToDisplay() {
+    var stackWidgetList = <Widget>[
+      _buildInnerStackForImageDisplay(),
+    ];
+
+    if (_imageFiles != null && _imageFiles.length != 0) {
+      stackWidgetList.add(_buildImageDeleteButton());
+    }
+    return Stack(
+      alignment: AlignmentDirectional.topEnd,
+      children: stackWidgetList,
+    );
+  }
+
+  Stack _buildInnerStackForImageDisplay() {
     Widget _imageToDisplay;
 
     if (_imageFiles?.length == 0 ?? true) {
@@ -286,6 +300,27 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: stackWidgetList,
+    );
+  }
+
+  IconButton _buildImageDeleteButton() {
+    return IconButton(
+      color: paletteBlackColor,
+      icon: Icon(Icons.delete),
+      onPressed: () {
+        setState(() {
+          _imageFiles.removeAt(_indexOfImageInDisplay);
+          if (_imageFiles.length != 0) {
+            if (_indexOfImageInDisplay == _imageFiles.length) {
+              _indexOfImageInDisplay--;
+            }
+            _indexOfImageInDisplay =
+                _indexOfImageInDisplay % _imageFiles.length;
+          } else {
+            _indexOfImageInDisplay = 0;
+          }
+        });
+      },
     );
   }
 
