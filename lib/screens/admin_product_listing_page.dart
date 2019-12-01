@@ -8,6 +8,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
@@ -131,7 +132,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildProductListingImageRightButton(Product product) {
     return IconButton(
-      icon: _buildIconWithShadow(Icons.chevron_right),
+      icon: buildIconWithShadow(Icons.chevron_right),
       onPressed: () {
         setState(() {
           activeImageMap[product.documentId] =
@@ -142,30 +143,9 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     );
   }
 
-  Widget _buildIconWithShadow(IconData iconData) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          left: 1.0,
-          top: 2.0,
-          child: Icon(
-            iconData,
-            size: 32,
-            color: Colors.black54,
-          ),
-        ),
-        Icon(
-          iconData,
-          size: 32,
-          color: Colors.white,
-        ),
-      ],
-    );
-  }
-
   Widget _buildProductListingImageLeftButton(Product product) {
     return IconButton(
-      icon: _buildIconWithShadow(Icons.chevron_left),
+      icon: buildIconWithShadow(Icons.chevron_left),
       onPressed: () {
         setState(() {
           activeImageMap[product.documentId] =
