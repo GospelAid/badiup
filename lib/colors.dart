@@ -17,10 +17,12 @@ const kPaletteSpacerColor = const Color(0xFFBABABA);
 const paletteBlackColor = const Color(0xFF151515);
 const paletteLightGreyColor = const Color(0xFFD2D1D1);
 const paletteDarkRedColor = const Color(0xFF892C26);
+const paletteForegroundColor = const Color(0xFF892C26);
 
 TextStyle getAlertStyle() {
   return TextStyle(
-    color: kPaletteRed,
+    // TODO: Use global variable here
+    color: const Color(0xFF892C26),
     fontWeight: FontWeight.bold,
   );
 }

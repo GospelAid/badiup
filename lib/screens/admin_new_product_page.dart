@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:badiup/screens/multi_select_gallery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
@@ -33,7 +33,7 @@ class AdminNewProductPage extends StatefulWidget {
 }
 
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
-  final _formKey = new GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   List<File> _imageFiles = [];
   File _imageFileInDisplay;
@@ -45,17 +45,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _formSubmitInProgress = false;
 
   Future<bool> _displayConfirmExitDialog() async {
-    await showDialog<bool>(
+    if (_isFormEmpty()) {
+      return true;
+    }
+
+    var result = await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Save Draft?',
+            '変更内容を保存しますか？',
             style: getAlertStyle(),
           ),
           content: Text(
-              'Would you like to save a draft so that you can continue editing later?'),
+            '変更内容を保存して、後で編集を続けられるようにしますか',
+          ),
           actions: _buildConfirmExitDialogActions(
             context,
           ),
@@ -63,27 +68,66 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       },
     );
 
-    return true;
+    return result ?? false;
+  }
+
+  bool _isFormEmpty() {
+    return (_imageFiles?.length == 0 ?? true) &&
+        (_nameEditingController?.text == "" ?? true) &&
+        (_descriptionEditingController?.text == "" ?? true) &&
+        (_priceEditingController?.text == "" ?? true);
   }
 
   List<Widget> _buildConfirmExitDialogActions(
     BuildContext context,
   ) {
     return <Widget>[
-      FlatButton(
-        child: Text('Discard'),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-      FlatButton(
-        child: Text('Save Draft'),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-      ),
+      _buildConfirmExitDialogCancelAction(context),
+      _buildConfirmExitDialogDiscardAction(context),
+      _buildConfirmExitDialogSaveDraftAction(context),
     ];
+  }
+
+  FlatButton _buildConfirmExitDialogSaveDraftAction(
+    BuildContext context,
+  ) {
+    return FlatButton(
+      child: Text(
+        '保存',
+        // TODO: Use global variable here
+        style: TextStyle(color: const Color(0xFF892C26)),
+      ),
+      onPressed: () async {
+        await _submitForm(false);
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogDiscardAction(BuildContext context) {
+    return FlatButton(
+      child: Text(
+        '削除',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  FlatButton _buildConfirmExitDialogCancelAction(
+    BuildContext context,
+  ) {
+    return FlatButton(
+      child: Text(
+        'キャンセル',
+        style: TextStyle(color: paletteBlackColor),
+      ),
+      onPressed: () {
+        Navigator.pop(context, false);
+      },
+    );
   }
 
   @override
@@ -93,9 +137,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       child: Scaffold(
         appBar: _buildAppBar(),
         // Build a form to input new product details
-        body: Stack(
-          children: _buildNewProductForm(context),
-        ),
+        body: _buildNewProductForm(context),
       ),
     );
   }
@@ -108,10 +150,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     super.dispose();
   }
 
-  List<Widget> _buildNewProductForm(BuildContext context) {
+  Widget _buildNewProductForm(BuildContext context) {
     var form = GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Form(
         key: _formKey,
@@ -129,21 +171,24 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       widgetList.add(_buildFormSubmitInProgressIndicator());
     }
     widgetList.add(form);
-    return widgetList;
+
+    return Stack(
+      children: widgetList,
+    );
   }
 
   Widget _buildFormSubmitInProgressIndicator() {
-    var modal = new Stack(
+    var modal = Stack(
       children: [
-        new Opacity(
+        Opacity(
           opacity: 0.5,
           child: const ModalBarrier(
             dismissible: false,
             color: Colors.black,
           ),
         ),
-        new Center(
-          child: new CircularProgressIndicator(),
+        Center(
+          child: CircularProgressIndicator(),
         ),
       ],
     );
@@ -161,66 +206,125 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     ];
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
-    File cropped;
-    if (selected != null) {
-      cropped = await ImageCropper.cropImage(
-        sourcePath: selected.path,
-        ratioX: 1.64,
-        ratioY: 1.0,
-        toolbarColor: kPaletteDeepPurple,
-        toolbarWidgetColor: kPaletteWhite,
-        toolbarTitle: 'Crop Image',
-      );
-    }
+  Future<void> _pickImages() async {
+    List<Future<File>> selectedImages = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MultiSelectGallery()),
+    );
 
-    setState(() {
-      if (cropped != null) {
-        _imageFiles.add(cropped);
+    if (selectedImages != null && selectedImages.length != 0) {
+      List<File> images = await Future.wait(selectedImages);
+      List<File> croppedImages = await _cropImages(images);
+
+      if (croppedImages != null && croppedImages.length != 0) {
+        setState(() {
+          _imageFiles.addAll(croppedImages);
+          _imageFileInDisplay = _imageFiles.last;
+        });
       }
-      _imageFileInDisplay = cropped;
-    });
+    }
+  }
+
+  Future<List<File>> _cropImages(List<File> images) async {
+    List<File> croppedImages = List<File>();
+
+    for (var i = 0; i < images.length; i++) {
+      File croppedImage = await ImageCropper.cropImage(
+        sourcePath: images[i].path,
+        aspectRatio: CropAspectRatio(
+          ratioX: 1.64,
+          ratioY: 1.0,
+        ),
+        androidUiSettings: AndroidUiSettings(
+          toolbarColor: paletteForegroundColor,
+          toolbarWidgetColor: kPaletteWhite,
+          toolbarTitle: 'Crop Image',
+        ),
+      );
+
+      if (croppedImage != null) {
+        croppedImages.add(croppedImage);
+      }
+    }
+    return croppedImages;
   }
 
   Widget _buildMultipleImageUploadField() {
     Widget _imageToDisplay;
 
     if (_imageFileInDisplay == null) {
-      _imageToDisplay = AspectRatio(
-        aspectRatio: 1.64,
-        child: Image.memory(
-          kTransparentImage,
-          fit: BoxFit.fill,
-        ),
-      );
+      _imageToDisplay = _buildPlaceholderImage();
     } else {
-      _imageToDisplay = Image.file(_imageFileInDisplay);
+      _imageToDisplay = Image.file(
+        _imageFileInDisplay,
+        fit: BoxFit.fill,
+      );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        _imageToDisplay,
+        AspectRatio(
+          aspectRatio: 1.64,
+          child: _imageToDisplay,
+        ),
         SizedBox(height: 8.0),
         _buildImageThumbnailBar(),
       ],
     );
   }
 
+  Stack _buildPlaceholderImage() {
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        Container(
+          color: const Color(0xFF8D8D8D),
+        ),
+        Text(
+          "写真を選択してください",
+          style: TextStyle(
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildImageThumbnailBar() {
-    List<Widget> _barElements = <Widget>[
-      _buildUploadImageButton(),
-      SizedBox(width: 8.0),
-    ];
-
-    _barElements.addAll(_buildImageThumbnails());
-
     return Container(
-      height: 40,
-      child: ListView(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          _buildUploadImageButton(),
+          SizedBox(width: 4.0),
+          _buildDraggableThumbnailListView(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDraggableThumbnailListView() {
+    return Expanded(
+      child: ReorderableListView(
         scrollDirection: Axis.horizontal,
-        children: _barElements,
+        children: _buildImageThumbnails(),
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (newIndex > _imageFiles.length) {
+              newIndex = _imageFiles.length;
+            }
+            if (oldIndex < newIndex) {
+              newIndex--;
+            }
+
+            File item = _imageFiles[oldIndex];
+            _imageFiles.remove(item);
+            _imageFiles.insert(newIndex, item);
+          });
+        },
       ),
     );
   }
@@ -236,7 +340,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             key: Key(constants.TestKeys.newProductFormImageGallery),
             icon: Icon(Icons.add),
             iconSize: 30.0,
-            onPressed: () => _pickImage(ImageSource.gallery),
+            onPressed: () => _pickImages(),
           ),
         ),
       ),
@@ -248,37 +352,45 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
     for (var i = 0; i < _imageFiles.length; i++) {
       thumbnails.add(_buildImageThumbnail(_imageFiles[i]));
-      thumbnails.add(SizedBox(width: 8.0));
     }
 
     return thumbnails;
   }
 
   Widget _buildImageThumbnail(File imageFile) {
-    Border thumbnailBorder;
-    if (_imageFileInDisplay == imageFile) {
-      thumbnailBorder = Border.all(color: Colors.lightBlue);
-    }
-
     return GestureDetector(
+      key: Key(imageFile.path),
       onTap: () {
         setState(() {
           _imageFileInDisplay = imageFile;
         });
       },
-      child: Container(
-        width: 40.0,
-        height: 40.0,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: FileImage(imageFile),
-            fit: BoxFit.cover,
+      child: Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Container(
+          width: 40.0,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: FileImage(imageFile),
+              fit: BoxFit.cover,
+            ),
+            border: _buildThumbnailBorder(imageFile),
           ),
-          border: thumbnailBorder,
         ),
       ),
     );
+  }
+
+  Border _buildThumbnailBorder(File imageFile) {
+    Border thumbnailBorder;
+    if (_imageFileInDisplay == imageFile) {
+      thumbnailBorder = Border.all(
+        color: paletteBlackColor,
+        width: 2.0,
+      );
+    }
+    return thumbnailBorder;
   }
 
   Widget _buildDescriptionFormField() {
@@ -376,8 +488,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildFormButtonBar() {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildPublishButton(),
         _buildSaveDraftButton(),
@@ -385,43 +497,49 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Padding _buildPublishButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildPublishButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        key: Key(constants.TestKeys.newProductFormSubmitButton),
-        onPressed: () async {
-          if (_formIsValid()) {
-            await _submitForm(true);
-            Navigator.pop(context);
-          }
-        },
-        child: Text('保存'),
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          key: Key(constants.TestKeys.newProductFormSubmitButton),
+          onPressed: () async {
+            if (_formIsValid()) {
+              await _submitForm(true);
+              Navigator.pop(context);
+            }
+          },
+          child: Text('公開'),
+        ),
       ),
     );
   }
 
-  Padding _buildSaveDraftButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-      ),
-      child: FlatButton(
-        color: Colors.white,
-        textColor: paletteBlackColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _buildSaveDraftButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
         ),
-        onPressed: () async {
-          await _submitForm(false);
-          Navigator.pop(context);
-        },
-        child: Text('下書き'),
+        child: FlatButton(
+          color: Colors.white,
+          textColor: paletteBlackColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          onPressed: () async {
+            await _submitForm(false);
+            Navigator.pop(context);
+          },
+          child: Text('下書き'),
+        ),
       ),
     );
   }
@@ -532,7 +650,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<PopupMenuChoice> popupMenuChoices = _buildPopupMenuChoices();
 
     return AppBar(
-      title: Text('Add New Product'),
+      title: Text('編集'),
       actions: <Widget>[
         PopupMenuButton<PopupMenuChoice>(
           icon: Icon(Icons.more_vert),
@@ -561,17 +679,21 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future<void> _displayConfirmDiscardDialog() {
+    if (_isFormEmpty()) {
+      Navigator.pop(context);
+      return null;
+    }
+
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Confirm Discard',
+            '変更を破棄',
             style: getAlertStyle(),
           ),
-          content: Text(
-              'Once discarded, the data cannot be recovered. Are you sure you want to discard?'),
+          content: Text('本当に削除しますか？この操作は取り消しできません。'),
           actions: _buildConfirmDiscardDialogActions(
             context,
           ),
@@ -585,13 +707,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   ) {
     return <Widget>[
       FlatButton(
-        child: Text('Cancel'),
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
         onPressed: () {
           Navigator.pop(context);
         },
       ),
       FlatButton(
-        child: Text('Discard'),
+        child: Text(
+          '削除',
+          // TODO: Use global variable here
+          style: TextStyle(color: const Color(0xFF892C26)),
+        ),
         onPressed: () {
           Navigator.pop(context);
           Navigator.pop(context);
