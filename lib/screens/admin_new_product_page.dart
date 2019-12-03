@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:badiup/screens/multi_select_gallery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -11,7 +9,9 @@ import 'package:uuid/uuid.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
+import 'package:badiup/screens/multi_select_gallery.dart';
 
 class PopupMenuChoice {
   PopupMenuChoice({
@@ -36,7 +36,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _formKey = GlobalKey<FormState>();
 
   List<File> _imageFiles = [];
-  File _imageFileInDisplay;
+  int _indexOfImageInDisplay = 0;
 
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
@@ -219,7 +219,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       if (croppedImages != null && croppedImages.length != 0) {
         setState(() {
           _imageFiles.addAll(croppedImages);
-          _imageFileInDisplay = _imageFiles.last;
+          _indexOfImageInDisplay = _imageFiles.length - 1;
         });
       }
     }
@@ -250,23 +250,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildMultipleImageUploadField() {
-    Widget _imageToDisplay;
-
-    if (_imageFileInDisplay == null) {
-      _imageToDisplay = _buildPlaceholderImage();
-    } else {
-      _imageToDisplay = Image.file(
-        _imageFileInDisplay,
-        fit: BoxFit.fill,
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         AspectRatio(
           aspectRatio: 1.64,
-          child: _imageToDisplay,
+          child: _buildImageToDisplay(),
         ),
         SizedBox(height: 8.0),
         _buildImageThumbnailBar(),
@@ -274,21 +263,111 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Stack _buildPlaceholderImage() {
+  Widget _buildImageToDisplay() {
+    var stackWidgetList = <Widget>[
+      _buildInnerStackForImageDisplay(),
+    ];
+
+    if (_imageFiles != null && _imageFiles.length != 0) {
+      stackWidgetList.add(_buildImageDeleteButton());
+    }
+    return Stack(
+      alignment: AlignmentDirectional.topEnd,
+      children: stackWidgetList,
+    );
+  }
+
+  Stack _buildInnerStackForImageDisplay() {
+    Widget _imageToDisplay;
+
+    if (_imageFiles?.length == 0 ?? true) {
+      _imageToDisplay = _buildPlaceholderImage();
+    } else {
+      _imageToDisplay = Image.file(
+        _imageFiles[_indexOfImageInDisplay],
+        fit: BoxFit.fill,
+      );
+    }
+
+    var stackWidgetList = <Widget>[_imageToDisplay];
+
+    if (_imageFiles != null && _imageFiles.length > 1) {
+      stackWidgetList.add(
+        _buildImageSliderButtons(),
+      );
+    }
+
     return Stack(
       alignment: AlignmentDirectional.center,
+      children: stackWidgetList,
+    );
+  }
+
+  IconButton _buildImageDeleteButton() {
+    return IconButton(
+      color: paletteBlackColor,
+      icon: Icon(Icons.delete),
+      onPressed: () {
+        setState(() {
+          _imageFiles.removeAt(_indexOfImageInDisplay);
+          if (_imageFiles.length != 0) {
+            if (_indexOfImageInDisplay == _imageFiles.length) {
+              _indexOfImageInDisplay--;
+            }
+            _indexOfImageInDisplay =
+                _indexOfImageInDisplay % _imageFiles.length;
+          } else {
+            _indexOfImageInDisplay = 0;
+          }
+        });
+      },
+    );
+  }
+
+  Widget _buildImageSliderButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Container(
-          color: const Color(0xFF8D8D8D),
+        IconButton(
+          icon: buildIconWithShadow(Icons.chevron_left),
+          onPressed: () {
+            setState(() {
+              _indexOfImageInDisplay =
+                  (_indexOfImageInDisplay - 1) % _imageFiles.length;
+            });
+          },
         ),
-        Text(
-          "写真を選択してください",
-          style: TextStyle(
-            color: kPaletteWhite,
-            fontWeight: FontWeight.w600,
-          ),
+        IconButton(
+          icon: buildIconWithShadow(Icons.chevron_right),
+          onPressed: () {
+            setState(() {
+              _indexOfImageInDisplay =
+                  (_indexOfImageInDisplay + 1) % _imageFiles.length;
+            });
+          },
         ),
       ],
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return GestureDetector(
+      onTap: _pickImages,
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: <Widget>[
+          Container(
+            color: const Color(0xFF8D8D8D),
+          ),
+          Text(
+            "写真を選択してください",
+            style: TextStyle(
+              color: kPaletteWhite,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -323,6 +402,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             File item = _imageFiles[oldIndex];
             _imageFiles.remove(item);
             _imageFiles.insert(newIndex, item);
+            _indexOfImageInDisplay = newIndex;
           });
         },
       ),
@@ -351,18 +431,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<Widget> thumbnails = [];
 
     for (var i = 0; i < _imageFiles.length; i++) {
-      thumbnails.add(_buildImageThumbnail(_imageFiles[i]));
+      thumbnails.add(_buildImageThumbnail(i));
     }
 
     return thumbnails;
   }
 
-  Widget _buildImageThumbnail(File imageFile) {
+  Widget _buildImageThumbnail(int thumbnailIndex) {
+    var imageFile = _imageFiles[thumbnailIndex];
+
     return GestureDetector(
       key: Key(imageFile.path),
       onTap: () {
         setState(() {
-          _imageFileInDisplay = imageFile;
+          _indexOfImageInDisplay = thumbnailIndex;
         });
       },
       child: Padding(
@@ -375,16 +457,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               image: FileImage(imageFile),
               fit: BoxFit.cover,
             ),
-            border: _buildThumbnailBorder(imageFile),
+            border: _buildThumbnailBorder(thumbnailIndex),
           ),
         ),
       ),
     );
   }
 
-  Border _buildThumbnailBorder(File imageFile) {
+  Border _buildThumbnailBorder(int thumbnailIndex) {
     Border thumbnailBorder;
-    if (_imageFileInDisplay == imageFile) {
+    if (_indexOfImageInDisplay == thumbnailIndex) {
       thumbnailBorder = Border.all(
         color: paletteBlackColor,
         width: 2.0,

@@ -8,6 +8,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
@@ -97,30 +98,41 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     Product product,
     int index,
   ) {
+    var widgetList = <Widget>[
+      _buildProductListingItemTileImage(product),
+    ];
+
+    if ((product.imageUrls?.length ?? 0) > 1) {
+      widgetList.add(
+        _buildProductListingImageSliderButtons(product),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Stack(
           alignment: AlignmentDirectional.center,
-          children: <Widget>[
-            _buildProductListingItemTileImage(product),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                _buildProductListingImageLeftButton(product),
-                _buildProductListingImageRightButton(product),
-              ],
-            ),
-          ],
+          children: widgetList,
         ),
         _buildProductListingItemTileInfoPane(product),
       ],
     );
   }
 
-  IconButton _buildProductListingImageRightButton(Product product) {
+  Widget _buildProductListingImageSliderButtons(Product product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        _buildProductListingImageLeftButton(product),
+        _buildProductListingImageRightButton(product),
+      ],
+    );
+  }
+
+  Widget _buildProductListingImageRightButton(Product product) {
     return IconButton(
-      icon: Icon(Icons.chevron_right, size: 32.0),
+      icon: buildIconWithShadow(Icons.chevron_right),
       onPressed: () {
         setState(() {
           activeImageMap[product.documentId] =
@@ -131,9 +143,9 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     );
   }
 
-  IconButton _buildProductListingImageLeftButton(Product product) {
+  Widget _buildProductListingImageLeftButton(Product product) {
     return IconButton(
-      icon: Icon(Icons.chevron_left, size: 32.0),
+      icon: buildIconWithShadow(Icons.chevron_left),
       onPressed: () {
         setState(() {
           activeImageMap[product.documentId] =
@@ -271,35 +283,46 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
+      color: const Color(0xFF8D8D8D),
       height: constants.imageHeight,
+      width: 500,
       child: _getProductListingImage(product),
     );
   }
 
   Widget _getProductListingImage(Product product) {
-    Widget productImage;
+    var widgetList = <Widget>[];
+
+    if (product.isPublished || (product.imageUrls?.length ?? 0) != 0) {
+      widgetList.addAll([
+        SpinKitThreeBounce(
+          color: Colors.white,
+          size: 16,
+        ),
+      ]);
+    }
+
+    widgetList.add(_getProductImage(product));
+
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: widgetList,
+    );
+  }
+
+  Widget _getProductImage(Product product) {
     if (product.imageUrls?.isEmpty ?? true) {
-      productImage = Image.memory(
+      return Image.memory(
         kTransparentImage,
         height: constants.imageHeight,
       );
     } else {
-      productImage = FadeInImage.memoryNetwork(
+      return FadeInImage.memoryNetwork(
         fit: BoxFit.fill,
         placeholder: kTransparentImage,
         image: product.imageUrls[activeImageMap[product.documentId]],
       );
     }
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      children: <Widget>[
-        SpinKitThreeBounce(
-          color: Colors.white,
-          size: 24,
-        ),
-        productImage,
-      ],
-    );
   }
 
   Widget _buildAppBar(BuildContext context) {
