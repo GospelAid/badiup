@@ -33,7 +33,9 @@ dependencies:
   image_cropper: ^1.1.0
   image_picker: 0.6.0+17
   transparent_image: ^1.0.0
-  
+
+  intl: ^0.15.0
+
   uuid: any
   path_provider: ^1.4.4
   flutter_spinkit: ^4.0.0

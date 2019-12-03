@@ -17,15 +17,9 @@ class _LoginPageState extends State<LoginPage> {
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/login_background.jpeg'),
-                fit: BoxFit.fill,
-              ),
-            ),
+            decoration: _buildBackgroundDecoration(context),
           ),
           Column(
-            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(height: 150),
@@ -33,6 +27,15 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  BoxDecoration _buildBackgroundDecoration(BuildContext context) {
+    return BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/login_background.jpg'),
+        fit: BoxFit.fill,
       ),
     );
   }
@@ -45,29 +48,34 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(
               builder: (context) {
                 return currentSignedInUser.isAdmin() ?
-                  AdminHomePage(title: 'BADI UP'): CustomerHomePage(title: 'BADI UP');
+                  AdminHomePage(title: 'BADI UP') : CustomerHomePage(title: 'BADI UP');
               },
             ),
           );
         });
       },
-      color: Colors.black,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-      highlightElevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      color: Color(0xFF151515),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      highlightElevation: 100,
+      child: Container(
+        padding: EdgeInsets.symmetric( horizontal: 20, vertical: 10 ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image(image: AssetImage("assets/google_logo.png"), height: 35.0),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
+            Image(
+              image: AssetImage("assets/google_logo.png"),
+              height: 20,
+            ),
+            Container(
+              padding: EdgeInsets.only( left: 15 ),
               child: Text(
                 'Login with Google',
                 style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.grey,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFD2D1D1),
                 ),
               ),
             )

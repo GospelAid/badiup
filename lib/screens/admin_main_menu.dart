@@ -1,3 +1,4 @@
+import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:badiup/screens/admin_product_listing_page.dart';
@@ -12,28 +13,37 @@ class AdminMainMenu extends StatefulWidget {
 class _AdminMainMenuState extends State<AdminMainMenu> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        _buildAccountsDrawerHeader(context),
-        _buildDrawerProductsButton(context),
-        _buildDrawerSettingsButton(context),
-        Divider(),
-        _buildDrawerLogoutButton(context),
-      ],
+    return Container(
+      color: paletteBlackColor,
+      child: ListView(
+        children: <Widget>[
+          _buildDrawerHeader(context),
+          Container(
+            padding: EdgeInsets.only( left: 12.0 ),
+            child: _buildDrawerProductTile(context),
+          ),
+          Container(
+            padding: EdgeInsets.only( left: 12.0 ),
+            child: _buildDrawerSettingsTile(context),
+          ),
+          Container(
+            padding: EdgeInsets.only( left: 12.0 ),
+            child: _buildDrawerLogoutTile(context),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildDrawerSettingsButton(BuildContext context) {
-    return FlatButton(
-      onPressed: () {},
-      child: Text('Settings'),
-    );
-  }
-
-  Widget _buildDrawerProductsButton(BuildContext context) {
-    return FlatButton (
-      child: Text('Products'),
-      onPressed: () {
+  Widget _buildDrawerProductTile(BuildContext context) {
+    return ListTile(
+      leading: Icon( Icons.image, color: kPaletteWhite ),
+      title: Text(
+        '商品',
+        textAlign: TextAlign.justify,
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+      ),
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -44,45 +54,102 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
     );
   }
 
-  Widget _buildDrawerLogoutButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric( horizontal: 16.0, ),
-      child: RaisedButton(
-        onPressed: () {
-          signOutGoogle();
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) {
-                return LoginPage();
-              }
-            ),
-            ModalRoute.withName('/')
-          );
-        },
-        child: Text('Logout'),
+  Widget _buildDrawerSettingsTile(BuildContext context) {
+    return ListTile(
+      leading: Icon( Icons.settings, color: kPaletteWhite ),
+      title: Text(
+        '設定',
+        textAlign: TextAlign.justify,
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+      ),
+      onTap: () {
+      },
+    );
+  }
+
+  Widget _buildDrawerLogoutTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.exit_to_app, color: kPaletteWhite ),
+      title: Text(
+        'ログアウト',
+        textAlign: TextAlign.justify,
+        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+      ),
+      onTap: () {
+        signOutGoogle();
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) {
+              return LoginPage();
+            }
+          ),
+          ModalRoute.withName('/')
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawerHeader(BuildContext context) {
+    return Container(
+      height: 120,
+      child: DrawerHeader(
+        decoration: _buildDrawerHeaderDecoration(context),
+        child: Container(
+          padding: EdgeInsets.only( top: 16.0, bottom: 16.0 ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.only( left: 16.0, right: 16.0 ),
+                child: _buildDrawerHeaderAvatar(context),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _buildDrawerHeaderAccountInfo(context),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildAccountsDrawerHeader(BuildContext context) {
-    return UserAccountsDrawerHeader(
-      currentAccountPicture: CircleAvatar(
-        child: Text(
-          currentSignedInUser.name[0],
-          style: TextStyle( fontSize: 40.0 ),
+  List<Widget> _buildDrawerHeaderAccountInfo(BuildContext context) {
+    return <Widget>[
+      Text(
+        currentSignedInUser.name,
+        style: TextStyle(
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
       ),
-      accountName: Text(
-        currentSignedInUser.name,
-        style: TextStyle( fontSize: 20.0, fontWeight: FontWeight.w700),
-      ),
-      accountEmail: Text(
+      Text(
         currentSignedInUser.email,
-        style: TextStyle( fontSize: 15.0 ) 
+        style: TextStyle(
+          color: kPaletteWhite,
+          fontSize: 12,
+        ),
       ),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
+    ];
+  }
+
+  BoxDecoration _buildDrawerHeaderDecoration(BuildContext context) {
+    return BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/drawer_header_background.jpg'),
+        fit: BoxFit.fitWidth,
       ),
+    );
+  }
+
+  Widget _buildDrawerHeaderAvatar(BuildContext context) {
+    return CircleAvatar(
+      child: Icon(Icons.person),
+      foregroundColor: kPaletteWhite,
+      backgroundColor: paletteBlackColor,
     );
   }
 }

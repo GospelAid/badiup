@@ -6,6 +6,7 @@ const double imageHeight = 210;
 class DBCollections {
   static const String users = 'users';
   static const String products = "products";
+  static const String orders = "orders";
 }
 
 class StorageCollections {
