@@ -1,10 +1,12 @@
-import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
-
-import 'package:badiup/models/product_model.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/utilities.dart';
+import 'package:badiup/models/product_model.dart';
+import 'package:badiup/screens/admin_new_product_page.dart';
 
 class AdminProductDetailPage extends StatefulWidget {
   AdminProductDetailPage({
@@ -30,7 +32,23 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     );
   }
 
-  Stack _buildEditButton() {
+  Widget _buildEditButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminNewProductPage(
+              product: widget.product,
+            ),
+          ),
+        );
+      },
+      child: _buildEditButtonIcon(),
+    );
+  }
+
+  Stack _buildEditButtonIcon() {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: <Widget>[
@@ -42,15 +60,10 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
             color: paletteForegroundColor,
           ),
         ),
-        IconButton(
-          icon: Icon(
-            Icons.edit,
-            color: kPaletteWhite,
-          ),
-          iconSize: 40,
-          onPressed: () {
-            // TODO: Navigate to Edit page
-          },
+        Icon(
+          Icons.edit,
+          color: kPaletteWhite,
+          size: 40,
         ),
       ],
     );
@@ -200,10 +213,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
 
   Widget _buildSlideshowRightButton() {
     return IconButton(
-      icon: Icon(
-        Icons.chevron_right,
-        size: 36.0,
-      ),
+      icon: buildIconWithShadow(Icons.chevron_right),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
@@ -215,10 +225,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
 
   Widget _buildSlideshowLeftButton() {
     return IconButton(
-      icon: Icon(
-        Icons.chevron_left,
-        size: 36.0,
-      ),
+      icon: buildIconWithShadow(Icons.chevron_left),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
