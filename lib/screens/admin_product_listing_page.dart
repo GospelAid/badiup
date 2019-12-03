@@ -297,7 +297,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
       widgetList.addAll([
         SpinKitThreeBounce(
           color: Colors.white,
-          size: 24,
+          size: 16,
         ),
       ]);
     }
