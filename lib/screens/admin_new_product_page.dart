@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' show get;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:badiup/colors.dart';
@@ -12,6 +14,11 @@ import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/multi_select_gallery.dart';
+
+enum PublishStatus {
+  Published,
+  Draft,
+}
 
 class PopupMenuChoice {
   PopupMenuChoice({
@@ -24,15 +31,21 @@ class PopupMenuChoice {
 }
 
 class AdminNewProductPage extends StatefulWidget {
-  AdminNewProductPage({Key key, this.title}) : super(key: key);
+  AdminNewProductPage({
+    Key key,
+    this.title,
+    this.product,
+  }) : super(key: key);
 
   final String title;
+  final Product product;
 
   @override
   _AdminNewProductPageState createState() => _AdminNewProductPageState();
 }
 
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
+  bool _updatingExistingProduct = false;
   final _formKey = GlobalKey<FormState>();
 
   List<File> _imageFiles = [];
@@ -41,8 +54,47 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
+  PublishStatus _productPublishStatus = PublishStatus.Draft;
 
   bool _formSubmitInProgress = false;
+
+  @override
+  initState() {
+    super.initState();
+    if (widget.product != null) {
+      _updatingExistingProduct = true;
+
+      _loadProductInfo();
+    }
+  }
+
+  Future _loadProductInfo() async {
+    _nameEditingController.text = widget.product.name;
+    _descriptionEditingController.text = widget.product.description;
+    _priceEditingController.text = widget.product.priceInYen?.toString();
+
+    widget.product.imageUrls?.forEach((imageUrl) async {
+      final directory = await getApplicationDocumentsDirectory();
+      final String name = Uuid().v1();
+      final path = directory.path + "/" + name;
+
+      var response = await get(imageUrl);
+      File imageFile = await File(path).writeAsBytes(
+        response.bodyBytes.buffer.asUint8List(
+          response.bodyBytes.offsetInBytes,
+          response.bodyBytes.lengthInBytes,
+        ),
+      );
+
+      setState(() {
+        _imageFiles.add(imageFile);
+        _indexOfImageInDisplay = _imageFiles.length - 1;
+        _productPublishStatus = widget.product.isPublished
+            ? PublishStatus.Published
+            : PublishStatus.Draft;
+      });
+    });
+  }
 
   Future<bool> _displayConfirmExitDialog() async {
     if (_isFormEmpty()) {
@@ -94,11 +146,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return FlatButton(
       child: Text(
         '保存',
-        // TODO: Use global variable here
-        style: TextStyle(color: const Color(0xFF892C26)),
+        style: TextStyle(color: paletteForegroundColor),
       ),
       onPressed: () async {
-        await _submitForm(false);
+        await _submitForm(PublishStatus.Draft);
         Navigator.pop(context, true);
       },
     );
@@ -196,14 +247,64 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   List<Widget> _buildFormFields(BuildContext context) {
-    return <Widget>[
+    var widgetList = <Widget>[
       _buildMultipleImageUploadField(),
       _buildNameFormField(),
       _buildDescriptionFormField(),
       SizedBox(height: 16.0),
       _buildPriceFormField(),
-      _buildFormButtonBar(),
     ];
+
+    if (_updatingExistingProduct) {
+      widgetList.add(_buildPublishSwitchBar());
+      widgetList.add(_buildSaveChangesButtonBar());
+    } else {
+      widgetList.add(_buildPublishDraftButtonBar());
+    }
+
+    return widgetList;
+  }
+
+  Widget _buildPublishSwitchBar() {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            width: 0.3,
+            color: paletteBlackColor,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "公開する",
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          _buildPublishSwitch(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPublishSwitch() {
+    return Switch(
+      value: _productPublishStatus == PublishStatus.Published,
+      onChanged: (value) {
+        setState(() {
+          _productPublishStatus =
+              value ? PublishStatus.Published : PublishStatus.Draft;
+        });
+      },
+      activeTrackColor: paletteForegroundColor,
+      activeColor: kPaletteWhite,
+    );
   }
 
   Future<void> _pickImages() async {
@@ -308,20 +409,64 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       color: paletteBlackColor,
       icon: Icon(Icons.delete),
       onPressed: () {
-        setState(() {
-          _imageFiles.removeAt(_indexOfImageInDisplay);
-          if (_imageFiles.length != 0) {
-            if (_indexOfImageInDisplay == _imageFiles.length) {
-              _indexOfImageInDisplay--;
-            }
-            _indexOfImageInDisplay =
-                _indexOfImageInDisplay % _imageFiles.length;
-          } else {
-            _indexOfImageInDisplay = 0;
-          }
-        });
+        showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                '画像を削除',
+                style: getAlertStyle(),
+              ),
+              content: Text('本当に削除しますか？この操作は取り消しできません。'),
+              actions: _buildImageDeleteDialogActions(
+                context,
+              ),
+            );
+          },
+        );
       },
     );
+  }
+
+  List<Widget> _buildImageDeleteDialogActions(
+    BuildContext context,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '削除',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+          _deleteImage();
+        },
+      ),
+    ];
+  }
+
+  void _deleteImage() {
+    setState(() {
+      _imageFiles.removeAt(_indexOfImageInDisplay);
+      if (_imageFiles.length != 0) {
+        if (_indexOfImageInDisplay == _imageFiles.length) {
+          _indexOfImageInDisplay--;
+        }
+        _indexOfImageInDisplay = _indexOfImageInDisplay % _imageFiles.length;
+      } else {
+        _indexOfImageInDisplay = 0;
+      }
+    });
   }
 
   Widget _buildImageSliderButtons() {
@@ -569,12 +714,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Widget _buildFormButtonBar() {
+  Widget _buildPublishDraftButtonBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildPublishButton(),
         _buildSaveDraftButton(),
+      ],
+    );
+  }
+
+  Widget _buildSaveChangesButtonBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        _buildSaveChangesButton(),
+        _buildDiscardChangesButton(),
       ],
     );
   }
@@ -593,7 +748,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           key: Key(constants.TestKeys.newProductFormSubmitButton),
           onPressed: () async {
             if (_formIsValid()) {
-              await _submitForm(true);
+              await _submitForm(PublishStatus.Published);
               Navigator.pop(context);
             }
           },
@@ -601,6 +756,76 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildSaveChangesButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
+        ),
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          onPressed: () async {
+            if (_productPublishStatus == PublishStatus.Published) {
+              _displayConfirmSaveChangesDialog();
+            } else if (_productPublishStatus == PublishStatus.Draft) {
+              if (_formIsValid()) {
+                await _submitForm(_productPublishStatus);
+                Navigator.pop(context);
+              }
+            }
+          },
+          child: Text('変更を保存'),
+        ),
+      ),
+    );
+  }
+
+  void _displayConfirmSaveChangesDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'この商品は既に公開されています',
+            style: getAlertStyle(),
+          ),
+          content: Text('変更内容を保存して、上書き公開してもよろしいですか？'),
+          actions: _buildSaveChangesDialogActions(context),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildSaveChangesDialogActions(BuildContext context) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '上書き公開',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          if (_formIsValid()) {
+            await _submitForm(_productPublishStatus);
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ];
   }
 
   Widget _buildSaveDraftButton() {
@@ -617,13 +842,76 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             borderRadius: BorderRadius.circular(5.0),
           ),
           onPressed: () async {
-            await _submitForm(false);
+            await _submitForm(PublishStatus.Draft);
             Navigator.pop(context);
           },
           child: Text('下書き'),
         ),
       ),
     );
+  }
+
+  Widget _buildDiscardChangesButton() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 16.0,
+        ),
+        child: FlatButton(
+          color: Colors.white,
+          textColor: paletteBlackColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          onPressed: () {
+            _displayDiscardChangesDialog();
+          },
+          child: Text('変更を破棄'),
+        ),
+      ),
+    );
+  }
+
+  void _displayDiscardChangesDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '変更を破棄してよろしいですか？',
+            style: getAlertStyle(),
+          ),
+          content: Text('この操作は取り消しできません。'),
+          actions: _buildDiscardChangesDialogActions(context),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildDiscardChangesDialogActions(BuildContext context) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '変更を破棄',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 
   bool _formIsValid() {
@@ -659,7 +947,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Future<void> _submitForm(bool isPublished) async {
+  Future<void> _submitForm(PublishStatus publishStatus) async {
     setState(() {
       _formSubmitInProgress = true;
     });
@@ -668,7 +956,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (_imageFiles.length != 0) {
       _imageUrls = await _uploadImagesToStorage();
     }
-    Product _product = _buildProductModel(_imageUrls, isPublished);
+    Product _product = _buildProductModel(_imageUrls, publishStatus);
 
     await Firestore.instance
         .collection(constants.DBCollections.products)
@@ -711,7 +999,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   Product _buildProductModel(
     List<String> _imageUrls,
-    bool isPublished,
+    PublishStatus publishStatus,
   ) {
     final _product = Product(
       name: _nameEditingController.text,
@@ -719,7 +1007,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       priceInYen: double.tryParse(_priceEditingController.text) ?? 0,
       imageUrls: _imageUrls,
       created: DateTime.now().toUtc(),
-      isPublished: isPublished,
+      isPublished: publishStatus == PublishStatus.Published,
     );
     return _product;
   }
@@ -800,8 +1088,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       FlatButton(
         child: Text(
           '削除',
-          // TODO: Use global variable here
-          style: TextStyle(color: const Color(0xFF892C26)),
+          style: TextStyle(color: paletteForegroundColor),
         ),
         onPressed: () {
           Navigator.pop(context);

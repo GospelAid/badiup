@@ -204,7 +204,14 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
         color: paletteForegroundColor,
       ),
       onPressed: () {
-        // TODO: Navigate to product edit page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminNewProductPage(
+              product: product,
+            ),
+          ),
+        );
       },
     );
   }
