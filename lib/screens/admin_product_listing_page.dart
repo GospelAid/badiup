@@ -301,12 +301,12 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     var widgetList = <Widget>[];
 
     if (product.isPublished || (product.imageUrls?.length ?? 0) != 0) {
-      widgetList.addAll([
+      widgetList.add(
         SpinKitThreeBounce(
           color: Colors.white,
           size: 16,
         ),
-      ]);
+      );
     }
 
     widgetList.add(_getProductImage(product));
