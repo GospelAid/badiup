@@ -47,6 +47,7 @@ class AdminNewProductPage extends StatefulWidget {
 class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _updatingExistingProduct = false;
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey();
 
   List<File> _imageFiles = [];
   int _indexOfImageInDisplay = 0;
@@ -73,6 +74,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     _descriptionEditingController.text = widget.product.description;
     _priceEditingController.text = widget.product.priceInYen?.toString();
 
+    await _loadProductImages();
+
+    setState(() {
+      if (_imageFiles.length > 0) {
+        _indexOfImageInDisplay = _imageFiles.length - 1;
+      }
+
+      _productPublishStatus = widget.product.isPublished
+          ? PublishStatus.Published
+          : PublishStatus.Draft;
+    });
+  }
+
+  Future _loadProductImages() async {
     widget.product.imageUrls?.forEach((imageUrl) async {
       final directory = await getApplicationDocumentsDirectory();
       final String name = Uuid().v1();
@@ -88,10 +103,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
       setState(() {
         _imageFiles.add(imageFile);
-        _indexOfImageInDisplay = _imageFiles.length - 1;
-        _productPublishStatus = widget.product.isPublished
-            ? PublishStatus.Published
-            : PublishStatus.Draft;
       });
     });
   }
@@ -189,6 +200,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         appBar: _buildAppBar(),
         // Build a form to input new product details
         body: _buildNewProductForm(context),
+        key: _scaffoldKey,
       ),
     );
   }
@@ -770,13 +782,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             borderRadius: BorderRadius.circular(5.0),
           ),
           onPressed: () async {
-            if (_productPublishStatus == PublishStatus.Published) {
-              _displayConfirmSaveChangesDialog();
-            } else if (_productPublishStatus == PublishStatus.Draft) {
+            if (widget.product.isPublished) {
               if (_formIsValid()) {
-                await _submitForm(_productPublishStatus);
-                Navigator.pop(context);
+                _displayConfirmSaveChangesDialog(context);
               }
+            } else {
+              await _submitForm(_productPublishStatus);
+              Navigator.pop(context);
             }
           },
           child: Text('変更を保存'),
@@ -785,7 +797,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  void _displayConfirmSaveChangesDialog() {
+  void _displayConfirmSaveChangesDialog(BuildContext context) {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -820,8 +832,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
         onPressed: () async {
           if (_formIsValid()) {
-            await _submitForm(_productPublishStatus);
             Navigator.pop(context);
+            await _submitForm(_productPublishStatus);
+            Navigator.pop(_scaffoldKey.currentContext);
           }
         },
       ),
@@ -958,9 +971,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
     Product _product = _buildProductModel(_imageUrls, publishStatus);
 
-    await Firestore.instance
-        .collection(constants.DBCollections.products)
-        .add(_product.toMap());
+    if (_updatingExistingProduct) {
+      await Firestore.instance
+          .collection(constants.DBCollections.products)
+          .document(widget.product.documentId)
+          .updateData(_product.toMap());
+    } else {
+      await Firestore.instance
+          .collection(constants.DBCollections.products)
+          .add(_product.toMap());
+    }
 
     setState(() {
       _formSubmitInProgress = false;

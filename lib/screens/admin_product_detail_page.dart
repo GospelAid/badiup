@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -195,19 +196,72 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     return thumbnailBorder;
   }
 
-  Widget _buildProductImageSlideshow() {
+  Widget _buildProductListingItemTileImage(Product product) {
+    return Container(
+      color: const Color(0xFF8D8D8D),
+      height: constants.imageHeight,
+      width: 500,
+      child: _getProductListingImage(product),
+    );
+  }
+
+  Widget _getProductListingImage(Product product) {
+    var widgetList = <Widget>[];
+
+    if (product.isPublished || (product.imageUrls?.length ?? 0) != 0) {
+      widgetList.add(
+        SpinKitThreeBounce(
+          color: Colors.white,
+          size: 16,
+        ),
+      );
+    }
+
+    widgetList.add(_getProductImage(product));
+
     return Stack(
       alignment: AlignmentDirectional.center,
-      children: <Widget>[
-        _getProductImageInDisplay(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            _buildSlideshowLeftButton(),
-            _buildSlideshowRightButton(),
-          ],
-        )
-      ],
+      children: widgetList,
+    );
+  }
+
+  Widget _getProductImage(Product product) {
+    Widget productImage;
+    if (widget.product.imageUrls?.isEmpty ?? true) {
+      productImage = Image.memory(
+        kTransparentImage,
+        height: constants.imageHeight,
+      );
+    } else {
+      productImage = FadeInImage.memoryNetwork(
+        fit: BoxFit.contain,
+        placeholder: kTransparentImage,
+        height: constants.imageHeight,
+        image: widget.product.imageUrls[_indexOfImageInDisplay],
+      );
+    }
+    return productImage;
+  }
+
+  Widget _buildProductImageSlideshow() {
+    var widgetList = <Widget>[
+      _buildProductListingItemTileImage(widget.product),
+    ];
+
+    if (widget.product.imageUrls != null &&
+        widget.product.imageUrls.length > 1) {
+      widgetList.add(Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          _buildSlideshowLeftButton(),
+          _buildSlideshowRightButton(),
+        ],
+      ));
+    }
+
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: widgetList,
     );
   }
 
@@ -233,23 +287,5 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
         });
       },
     );
-  }
-
-  Widget _getProductImageInDisplay() {
-    Widget productImage;
-    if (widget.product.imageUrls?.isEmpty ?? true) {
-      productImage = Image.memory(
-        kTransparentImage,
-        height: constants.imageHeight,
-      );
-    } else {
-      productImage = FadeInImage.memoryNetwork(
-        fit: BoxFit.contain,
-        placeholder: kTransparentImage,
-        height: constants.imageHeight,
-        image: widget.product.imageUrls[_indexOfImageInDisplay],
-      );
-    }
-    return productImage;
   }
 }
