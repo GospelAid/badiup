@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +6,7 @@ import 'package:transparent_image/transparent_image.dart';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
@@ -12,10 +14,10 @@ import 'package:badiup/screens/admin_new_product_page.dart';
 class AdminProductDetailPage extends StatefulWidget {
   AdminProductDetailPage({
     Key key,
-    this.product,
+    this.productDocumentId,
   }) : super(key: key);
 
-  final Product product;
+  final String productDocumentId;
 
   @override
   _AdminProductDetailPageState createState() => _AdminProductDetailPageState();
@@ -35,12 +37,17 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
 
   Widget _buildEditButton() {
     return GestureDetector(
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productDetail,
+        "edit",
+      )),
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AdminNewProductPage(
-              product: widget.product,
+              productDocumentId: widget.productDocumentId,
             ),
           ),
         );
@@ -72,39 +79,69 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(widget.product.name),
+      title: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
+            .collection(constants.DBCollections.products)
+            .document(widget.productDocumentId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Text("");
+          }
+          var product = Product.fromSnapshot(snapshot.data);
+
+          return Text(product.name);
+        },
+      ),
     );
   }
 
   Widget _buildProductDetail(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.products)
+          .document(widget.productDocumentId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+        var product = Product.fromSnapshot(snapshot.data);
+
+        return _buildProductDetailInternal(product);
+      },
+    );
+  }
+
+  Padding _buildProductDetailInternal(Product product) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: ListView(
         children: <Widget>[
-          _buildProductImageSlideshow(),
+          _buildProductImageSlideshow(product),
           SizedBox(height: 8.0),
-          _buildThumbnailBar(),
+          _buildThumbnailBar(product),
           SizedBox(height: 24.0),
-          _buildProductTitle(),
+          _buildProductTitle(product),
           SizedBox(height: 8.0),
           Divider(thickness: 1.0, color: const Color(0XFFA2A2A2)),
-          _buildProductDescription(),
+          _buildProductDescription(product),
           SizedBox(height: 8.0),
-          _buildProductPrice(),
+          _buildProductPrice(product),
           SizedBox(height: 100.0),
         ],
       ),
     );
   }
 
-  Widget _buildProductPrice() {
+  Widget _buildProductPrice(Product product) {
     final currencyFormat = NumberFormat("#,##0");
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Text(
-          "¥${currencyFormat.format(widget.product.priceInYen)}",
+          "¥${currencyFormat.format(product.priceInYen)}",
           style: TextStyle(
             color: paletteBlackColor,
             fontSize: 24.0,
@@ -115,9 +152,14 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     );
   }
 
-  Widget _buildProductDescription() {
+  Widget _buildProductDescription(Product product) {
     return Text(
-      widget.product.description,
+      product.description,
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productDetail,
+        "description",
+      )),
       style: TextStyle(
         color: paletteBlackColor,
         fontWeight: FontWeight.w300,
@@ -125,9 +167,14 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     );
   }
 
-  Widget _buildProductTitle() {
+  Widget _buildProductTitle(Product product) {
     return Text(
-      widget.product.name,
+      product.name,
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productDetail,
+        "title",
+      )),
       style: TextStyle(
         color: paletteBlackColor,
         fontSize: 20.0,
@@ -136,30 +183,30 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     );
   }
 
-  Widget _buildThumbnailBar() {
+  Widget _buildThumbnailBar(Product product) {
     return Container(
       height: 40.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: _buildImageThumbnails(),
+        children: _buildImageThumbnails(product),
       ),
     );
   }
 
-  List<Widget> _buildImageThumbnails() {
+  List<Widget> _buildImageThumbnails(Product product) {
     List<Widget> thumbnails = [];
 
-    if (widget.product.imageUrls != null) {
-      for (var i = 0; i < widget.product.imageUrls.length; i++) {
-        thumbnails.add(_buildImageThumbnail(i));
+    if (product.imageUrls != null) {
+      for (var i = 0; i < product.imageUrls.length; i++) {
+        thumbnails.add(_buildImageThumbnail(product, i));
       }
     }
 
     return thumbnails;
   }
 
-  Widget _buildImageThumbnail(int imageIndex) {
-    String imageUrl = widget.product.imageUrls[imageIndex];
+  Widget _buildImageThumbnail(Product product, int imageIndex) {
+    String imageUrl = product.imageUrls[imageIndex];
 
     return GestureDetector(
       key: Key(imageUrl),
@@ -227,7 +274,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
 
   Widget _getProductImage(Product product) {
     Widget productImage;
-    if (widget.product.imageUrls?.isEmpty ?? true) {
+    if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
         kTransparentImage,
         height: constants.imageHeight,
@@ -237,24 +284,23 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
         fit: BoxFit.contain,
         placeholder: kTransparentImage,
         height: constants.imageHeight,
-        image: widget.product.imageUrls[_indexOfImageInDisplay],
+        image: product.imageUrls[_indexOfImageInDisplay],
       );
     }
     return productImage;
   }
 
-  Widget _buildProductImageSlideshow() {
+  Widget _buildProductImageSlideshow(Product product) {
     var widgetList = <Widget>[
-      _buildProductListingItemTileImage(widget.product),
+      _buildProductListingItemTileImage(product),
     ];
 
-    if (widget.product.imageUrls != null &&
-        widget.product.imageUrls.length > 1) {
+    if (product.imageUrls != null && product.imageUrls.length > 1) {
       widgetList.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          _buildSlideshowLeftButton(),
-          _buildSlideshowRightButton(),
+          _buildSlideshowLeftButton(product),
+          _buildSlideshowRightButton(product),
         ],
       ));
     }
@@ -265,25 +311,25 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     );
   }
 
-  Widget _buildSlideshowRightButton() {
+  Widget _buildSlideshowRightButton(Product product) {
     return IconButton(
       icon: buildIconWithShadow(Icons.chevron_right),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
-              (_indexOfImageInDisplay + 1) % widget.product.imageUrls.length;
+              (_indexOfImageInDisplay + 1) % product.imageUrls.length;
         });
       },
     );
   }
 
-  Widget _buildSlideshowLeftButton() {
+  Widget _buildSlideshowLeftButton(Product product) {
     return IconButton(
       icon: buildIconWithShadow(Icons.chevron_left),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
-              (_indexOfImageInDisplay - 1) % widget.product.imageUrls.length;
+              (_indexOfImageInDisplay - 1) % product.imageUrls.length;
         });
       },
     );

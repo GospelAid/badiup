@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:badiup/colors.dart';
 
+import 'package:badiup/colors.dart';
+import 'package:badiup/test_keys.dart';
+import 'package:badiup/models/order_model.dart';
 import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/admin_order_list.dart';
-import 'package:badiup/models/order_model.dart';
 
 class AdminHomePage extends StatefulWidget {
   AdminHomePage({Key key, this.title}) : super(key: key);
@@ -43,19 +44,22 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(
-        'ホーム',
-        style: TextStyle(
-          color: paletteBlackColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        )
-      ),
+      title: Text('ホーム',
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          )),
       centerTitle: true,
       backgroundColor: paletteLightGreyColor,
       elevation: 0.0,
-      iconTheme: IconThemeData( color: paletteBlackColor ),
+      iconTheme: IconThemeData(color: paletteBlackColor),
       leading: IconButton(
+        key: Key(makeTestKeyString(
+          TKUsers.admin,
+          TKScreens.home,
+          "openDrawerButton",
+        )),
         icon: Icon(Icons.menu),
         onPressed: () => _scaffoldKey.currentState.openDrawer(),
       ),
@@ -64,32 +68,33 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric( horizontal: 16.0 ),
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       color: paletteLightGreyColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
             children: <Widget>[
-              Expanded (
+              Expanded(
                 child: Text(
                   '注文',
                   style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.bold, color: paletteBlackColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: paletteBlackColor,
                   ),
                 ),
               ),
               Expanded(
-                child: Container (
-                  height: 35.0,
-                  padding: EdgeInsets.only( left: 16.0 ),
-                  child: _buildAllOrdersButton(context)
-                ),
+                child: Container(
+                    height: 35.0,
+                    padding: EdgeInsets.only(left: 16.0),
+                    child: _buildAllOrdersButton(context)),
               ),
               Expanded(
                 child: Container(
                   height: 35.0,
-                  padding: EdgeInsets.only( left: 16.0 ),
+                  padding: EdgeInsets.only(left: 16.0),
                   child: _buildPendingOrdersButton(context),
                 ),
               ),
@@ -97,10 +102,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.only( top: 16.0 ),
-              child: AdminOrderList(
-                orderStatusToFilter: orderStatusToFilter 
-              ),
+              padding: EdgeInsets.only(top: 16.0),
+              child: AdminOrderList(orderStatusToFilter: orderStatusToFilter),
             ),
           ),
         ],
@@ -137,6 +140,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildPendingOrdersButton(BuildContext context) {
     return RaisedButton(
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.home,
+        "pendingOrdersFilterButton",
+      )),
       elevation: 0.0,
       color: pendingOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
       shape: RoundedRectangleBorder(
@@ -148,7 +156,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
+            color:
+                pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
           ),
         ),
       ),

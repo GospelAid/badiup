@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/multi_select_gallery.dart';
@@ -34,11 +35,11 @@ class AdminNewProductPage extends StatefulWidget {
   AdminNewProductPage({
     Key key,
     this.title,
-    this.product,
+    this.productDocumentId,
   }) : super(key: key);
 
   final String title;
-  final Product product;
+  final String productDocumentId;
 
   @override
   _AdminNewProductPageState createState() => _AdminNewProductPageState();
@@ -48,6 +49,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   bool _updatingExistingProduct = false;
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey();
+  Product _product;
 
   List<File> _imageFiles = [];
   int _indexOfImageInDisplay = 0;
@@ -62,7 +64,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   @override
   initState() {
     super.initState();
-    if (widget.product != null) {
+    if (widget.productDocumentId != null) {
       _updatingExistingProduct = true;
 
       _loadProductInfo();
@@ -70,9 +72,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future _loadProductInfo() async {
-    _nameEditingController.text = widget.product.name;
-    _descriptionEditingController.text = widget.product.description;
-    _priceEditingController.text = widget.product.priceInYen?.toString();
+    _product = Product.fromSnapshot(await Firestore.instance
+        .collection(constants.DBCollections.products)
+        .document(widget.productDocumentId)
+        .get());
+
+    _nameEditingController.text = _product.name;
+    _descriptionEditingController.text = _product.description;
+    _priceEditingController.text = _product.priceInYen?.toString();
 
     await _loadProductImages();
 
@@ -81,14 +88,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         _indexOfImageInDisplay = _imageFiles.length - 1;
       }
 
-      _productPublishStatus = widget.product.isPublished
-          ? PublishStatus.Published
-          : PublishStatus.Draft;
+      _productPublishStatus =
+          _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
     });
   }
 
   Future _loadProductImages() async {
-    widget.product.imageUrls?.forEach((imageUrl) async {
+    _product.imageUrls?.forEach((imageUrl) async {
       final directory = await getApplicationDocumentsDirectory();
       final String name = Uuid().v1();
       final path = directory.path + "/" + name;
@@ -223,6 +229,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
+            key: Key(makeTestKeyString(
+              TKUsers.admin,
+              TKScreens.addProduct,
+              "form",
+            )),
             children: _buildFormFields(context),
           ),
         ),
@@ -384,6 +395,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (_imageFiles != null && _imageFiles.length != 0) {
       stackWidgetList.add(_buildImageDeleteButton());
     }
+
     return Stack(
       alignment: AlignmentDirectional.topEnd,
       children: stackWidgetList,
@@ -509,6 +521,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   Widget _buildPlaceholderImage() {
     return GestureDetector(
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.addProduct,
+        "placeholderImage",
+      )),
       onTap: _pickImages,
       child: Stack(
         alignment: AlignmentDirectional.center,
@@ -574,7 +591,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         child: DecoratedBox(
           decoration: BoxDecoration(color: Colors.white),
           child: IconButton(
-            key: Key(constants.TestKeys.newProductFormImageGallery),
             icon: Icon(Icons.add),
             iconSize: 30.0,
             onPressed: () => _pickImages(),
@@ -634,7 +650,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   Widget _buildDescriptionFormField() {
     return TextFormField(
-      key: Key(constants.TestKeys.newProductFormDescription),
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.addProduct,
+        "description",
+      )),
       controller: _descriptionEditingController,
       keyboardType: TextInputType.multiline,
       maxLines: 10,
@@ -667,7 +687,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return Container(
       width: 120,
       child: TextFormField(
-        key: Key(constants.TestKeys.newProductFormPrice),
+        key: Key(makeTestKeyString(
+          TKUsers.admin,
+          TKScreens.addProduct,
+          "price",
+        )),
         controller: _priceEditingController,
         keyboardType: TextInputType.number,
         style: TextStyle(fontSize: 24.0),
@@ -711,7 +735,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   Widget _buildNameFormField() {
     return TextFormField(
-      key: Key(constants.TestKeys.newProductFormName),
+      key: Key(makeTestKeyString(TKUsers.admin, TKScreens.addProduct, "title")),
       controller: _nameEditingController,
       decoration: InputDecoration(
         labelText: 'タイトル',
@@ -757,7 +781,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
           ),
-          key: Key(constants.TestKeys.newProductFormSubmitButton),
           onPressed: () async {
             if (_formIsValid()) {
               await _submitForm(PublishStatus.Published);
@@ -778,11 +801,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           vertical: 16.0,
         ),
         child: RaisedButton(
+          key: Key(makeTestKeyString(
+            TKUsers.admin,
+            TKScreens.editProduct,
+            "saveChanges",
+          )),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
           ),
           onPressed: () async {
-            if (widget.product.isPublished) {
+            if (_product.isPublished) {
               if (_formIsValid()) {
                 _displayConfirmSaveChangesDialog(context);
               }
@@ -849,6 +877,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           vertical: 16.0,
         ),
         child: FlatButton(
+          key: Key(makeTestKeyString(
+            TKUsers.admin,
+            TKScreens.addProduct,
+            "saveDraft",
+          )),
           color: Colors.white,
           textColor: paletteBlackColor,
           shape: RoundedRectangleBorder(
@@ -969,17 +1002,17 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (_imageFiles.length != 0) {
       _imageUrls = await _uploadImagesToStorage();
     }
-    Product _product = _buildProductModel(_imageUrls, publishStatus);
+    Product _productModel = _buildProductModel(_imageUrls, publishStatus);
 
     if (_updatingExistingProduct) {
       await Firestore.instance
           .collection(constants.DBCollections.products)
-          .document(widget.product.documentId)
-          .updateData(_product.toMap());
+          .document(_product.documentId)
+          .updateData(_productModel.toMap());
     } else {
       await Firestore.instance
           .collection(constants.DBCollections.products)
-          .add(_product.toMap());
+          .add(_productModel.toMap());
     }
 
     setState(() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:badiup/sign_in.dart';
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/screens/admin_home_page.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 
@@ -42,13 +43,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginButton() {
     return RaisedButton(
+      key: Key(makeTestKeyString(TKUsers.user, TKScreens.login, "loginButton")),
       onPressed: () {
         signInWithGoogle().whenComplete(() {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return currentSignedInUser.isAdmin() ?
-                  AdminHomePage(title: 'BADI UP') : CustomerHomePage(title: 'BADI UP');
+                return currentSignedInUser.isAdmin()
+                    ? AdminHomePage(title: 'BADI UP')
+                    : CustomerHomePage(title: 'BADI UP');
               },
             ),
           );
@@ -60,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       highlightElevation: 100,
       child: Container(
-        padding: EdgeInsets.symmetric( horizontal: 20, vertical: 10 ),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -69,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 20,
             ),
             Container(
-              padding: EdgeInsets.only( left: 15 ),
+              padding: EdgeInsets.only(left: 15),
               child: Text(
                 'Login with Google',
                 style: TextStyle(
