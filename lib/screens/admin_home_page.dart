@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/models/order_model.dart';
-import 'package:badiup/screens/admin_main_menu.dart';
 import 'package:badiup/screens/admin_order_list.dart';
+import 'package:badiup/widgets/main_menu.dart';
 
 class AdminHomePage extends StatefulWidget {
   AdminHomePage({Key key, this.title}) : super(key: key);
@@ -37,7 +37,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     return SizedBox(
       width: width * 0.7,
       child: Drawer(
-        child: AdminMainMenu(),
+        child: MainMenu(),
       ),
     );
   }

@@ -1,5 +1,7 @@
-import 'package:badiup/screens/customer_main_menu.dart';
 import 'package:flutter/material.dart';
+
+import 'package:badiup/widgets/main_menu.dart';
+import 'package:badiup/widgets/product_listing.dart';
 
 class CustomerHomePage extends StatefulWidget {
   CustomerHomePage({Key key, this.title}) : super(key: key);
@@ -15,18 +17,20 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Center(
-        child: Text('CUSTOMER HOME PAGE : Product list'),
-      ),
+      body: ProductListing(),
       drawer: _buildDrawer(),
     );
   }
 
-  Drawer _buildDrawer() {
+  Widget _buildDrawer() {
+    double width = MediaQuery.of(context).size.width;
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    return Drawer(
-      key: scaffoldKey,
-      child: CustomerMainMenu(),
+    return SizedBox(
+      width: width * 0.7,
+      child: Drawer(
+        key: scaffoldKey,
+        child: MainMenu(),
+      ),
     );
   }
 
