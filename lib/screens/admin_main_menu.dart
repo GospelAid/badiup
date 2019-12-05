@@ -1,9 +1,10 @@
-import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
+import 'package:badiup/colors.dart';
+import 'package:badiup/sign_in.dart';
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/login_page.dart';
-import 'package:badiup/sign_in.dart';
 
 class AdminMainMenu extends StatefulWidget {
   @override
@@ -19,15 +20,15 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
         children: <Widget>[
           _buildDrawerHeader(context),
           Container(
-            padding: EdgeInsets.only( left: 12.0 ),
+            padding: EdgeInsets.only(left: 12.0),
             child: _buildDrawerProductTile(context),
           ),
           Container(
-            padding: EdgeInsets.only( left: 12.0 ),
+            padding: EdgeInsets.only(left: 12.0),
             child: _buildDrawerSettingsTile(context),
           ),
           Container(
-            padding: EdgeInsets.only( left: 12.0 ),
+            padding: EdgeInsets.only(left: 12.0),
             child: _buildDrawerLogoutTile(context),
           ),
         ],
@@ -37,11 +38,20 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerProductTile(BuildContext context) {
     return ListTile(
-      leading: Icon( Icons.image, color: kPaletteWhite ),
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.drawer,
+        "productListing",
+      )),
+      leading: Icon(Icons.image, color: kPaletteWhite),
       title: Text(
         '商品',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       onTap: () {
         Navigator.push(
@@ -56,35 +66,38 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
   Widget _buildDrawerSettingsTile(BuildContext context) {
     return ListTile(
-      leading: Icon( Icons.settings, color: kPaletteWhite ),
+      leading: Icon(Icons.settings, color: kPaletteWhite),
       title: Text(
         '設定',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      onTap: () {
-      },
+      onTap: () {},
     );
   }
 
   Widget _buildDrawerLogoutTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.exit_to_app, color: kPaletteWhite ),
+      leading: Icon(Icons.exit_to_app, color: kPaletteWhite),
       title: Text(
         'ログアウト',
         textAlign: TextAlign.justify,
-        style: TextStyle( fontSize: 14, color: kPaletteWhite, fontWeight: FontWeight.bold ),
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       onTap: () {
         signOutGoogle();
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) {
-              return LoginPage();
-            }
-          ),
-          ModalRoute.withName('/')
-        );
+            MaterialPageRoute(builder: (context) {
+          return LoginPage();
+        }), ModalRoute.withName('/'));
       },
     );
   }
@@ -95,12 +108,12 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
       child: DrawerHeader(
         decoration: _buildDrawerHeaderDecoration(context),
         child: Container(
-          padding: EdgeInsets.only( top: 16.0, bottom: 16.0 ),
+          padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
-                padding: EdgeInsets.only( left: 16.0, right: 16.0 ),
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
                 child: _buildDrawerHeaderAvatar(context),
               ),
               Expanded(

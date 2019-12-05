@@ -8,6 +8,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
@@ -66,6 +67,11 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     });
 
     return ListView(
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productListing,
+        "list",
+      )),
       children: widgets,
     );
   }
@@ -158,12 +164,17 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildProductListingItemTileInfoPane(Product product) {
     return GestureDetector(
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productListing,
+        "infoPane_" + product.name,
+      )),
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AdminProductDetailPage(
-              product: product,
+              productDocumentId: product.documentId,
             ),
           ),
         );
@@ -208,7 +219,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
           context,
           MaterialPageRoute(
             builder: (context) => AdminNewProductPage(
-              product: product,
+              productDocumentId: product.documentId,
             ),
           ),
         );
@@ -261,6 +272,11 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
   Widget _buildProductInfoPaneTitle(Product product) {
     return Text(
       product.name,
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productListing,
+        "title_" + product.name,
+      )),
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: paletteBlackColor,
@@ -336,7 +352,6 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
     return AppBar(
       title: Text("商品リスト"),
       centerTitle: true,
-      //leading: _buildMenuButton(context),
       actions: <Widget>[
         _buildNewProductButton(context),
       ],
@@ -345,18 +360,22 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildNewProductButton(BuildContext context) {
     return IconButton(
-      key: Key(constants.TestKeys.newProductButton),
+      key: Key(makeTestKeyString(
+        TKUsers.admin,
+        TKScreens.productListing,
+        "addNew",
+      )),
       icon: Icon(
         Icons.add,
         semanticLabel: 'new_product',
       ),
-      onPressed: () => {
+      onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AdminNewProductPage(),
           ),
-        ),
+        );
       },
     );
   }
