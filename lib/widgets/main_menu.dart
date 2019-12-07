@@ -1,3 +1,4 @@
+import 'package:badiup/screens/customer_home_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:badiup/colors.dart';
@@ -6,37 +7,53 @@ import 'package:badiup/test_keys.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/login_page.dart';
 
-class AdminMainMenu extends StatefulWidget {
+class MainMenu extends StatefulWidget {
   @override
-  _AdminMainMenuState createState() => _AdminMainMenuState();
+  _MainMenuState createState() => _MainMenuState();
 }
 
-class _AdminMainMenuState extends State<AdminMainMenu> {
+class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
       color: paletteBlackColor,
       child: ListView(
-        children: <Widget>[
-          _buildDrawerHeader(context),
-          Container(
-            padding: EdgeInsets.only(left: 12.0),
-            child: _buildDrawerProductTile(context),
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 12.0),
-            child: _buildDrawerSettingsTile(context),
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 12.0),
-            child: _buildDrawerLogoutTile(context),
-          ),
-        ],
+        children: _buildMenuElements(context),
       ),
     );
   }
 
-  Widget _buildDrawerProductTile(BuildContext context) {
+  List<Widget> _buildMenuElements(BuildContext context) {
+    var widgetList = <Widget>[
+      _buildDrawerHeader(context),
+      Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerProductListingTile(context),
+      ),
+    ];
+
+    if (!currentSignedInUser.isAdmin()) {
+      widgetList.add(Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerCartTile(context),
+      ));
+    }
+
+    widgetList.addAll(<Widget>[
+      Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerSettingsTile(context),
+      ),
+      Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerLogoutTile(context),
+      ),
+    ]);
+
+    return widgetList;
+  }
+
+  Widget _buildDrawerProductListingTile(BuildContext context) {
     return ListTile(
       key: Key(makeTestKeyString(
         TKUsers.admin,
@@ -57,9 +74,29 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminProductListingPage(),
+            builder: (context) => currentSignedInUser.isAdmin()
+                ? AdminProductListingPage()
+                : CustomerHomePage(),
           ),
         );
+      },
+    );
+  }
+
+  Widget _buildDrawerCartTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.shopping_cart, color: kPaletteWhite),
+      title: Text(
+        '買い物かごを見る',
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        // TODO: Navigate to cart page
       },
     );
   }
