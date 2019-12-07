@@ -50,7 +50,7 @@ void main() {
       });
       print('Tapped add new product');
 
-      var productName = _getPrefixedString("testp");
+      var productName = _getPrefixedString("テスト賞品");
 
       await driver.tap(find.byValueKey(makeTestKeyString(
         TKUsers.admin,
