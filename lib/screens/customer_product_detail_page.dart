@@ -26,9 +26,7 @@ class CustomerProductDetailPage extends StatefulWidget {
 
 class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   QuantityController quantityController = QuantityController(value: 1);
-  ScrollController scrollController = ScrollController();
-  ScrollPhysics scrollPhysics = ScrollPhysics();
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,8 +37,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
 
   Widget _buildBody() {
     return ListView(
-      controller: scrollController,
-      physics: scrollPhysics,
       children: <Widget>[
         ProductDetail(productDocumentId: widget.productDocumentId),
         Padding(

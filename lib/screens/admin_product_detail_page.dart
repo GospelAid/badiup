@@ -25,8 +25,13 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: ProductDetail(
-        productDocumentId: widget.productDocumentId,
+      body: ListView(
+        children: <Widget>[
+          ProductDetail(
+            productDocumentId: widget.productDocumentId,
+          ),
+          SizedBox(height: 100),
+        ],
       ),
       floatingActionButton: _buildEditButton(),
     );
