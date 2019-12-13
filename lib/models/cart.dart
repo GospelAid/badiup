@@ -1,6 +1,10 @@
 class Cart {
   List<CartItem> items;
 
+  Cart({
+    this.items,
+  });
+
   Map<String, dynamic> toMap() {
     return {
       'items': items.map((item) => item.toMap()).toList(),
@@ -10,7 +14,7 @@ class Cart {
   Cart.fromMap(Map<String, dynamic> map) {
     items = map['items']
         .map<CartItem>(
-            (cartItem) => CartItem.fromMap(cartItem.cast<String, CartItem>()))
+            (cartItem) => CartItem.fromMap(cartItem.cast<String, dynamic>()))
         .toList();
   }
 }
@@ -18,6 +22,11 @@ class Cart {
 class CartItem {
   String productDocumentId;
   int quantity;
+
+  CartItem({
+    this.productDocumentId,
+    this.quantity,
+  });
 
   Map<String, dynamic> toMap() {
     return {

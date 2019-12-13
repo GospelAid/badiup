@@ -1,19 +1,19 @@
 import 'dart:collection';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:transparent_image/transparent_image.dart';
-
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
+import 'package:badiup/models/user_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
 import 'package:badiup/screens/customer_product_detail_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ProductListing extends StatefulWidget {
   @override
@@ -50,7 +50,15 @@ class _ProductListingState extends State<ProductListing> {
   ) {
     List<Widget> widgets = List<Widget>();
     snapshots.asMap().forEach((index, data) {
-      widgets.add(_buildProductListingItem(context, index, data));
+      final product = Product.fromSnapshot(data);
+
+      // If current signed in user is a customer and
+      // the product is unpublished, then
+      // don't show the product
+      if (!(currentSignedInUser.role == RoleType.customer &&
+          !product.isPublished)) {
+        widgets.add(_buildProductListingItem(context, index, product));
+      }
     });
 
     return ListView(
@@ -66,10 +74,8 @@ class _ProductListingState extends State<ProductListing> {
   Widget _buildProductListingItem(
     BuildContext context,
     int index,
-    DocumentSnapshot data,
+    Product product,
   ) {
-    final product = Product.fromSnapshot(data);
-
     activeImageMap.putIfAbsent(product.documentId, () => 0);
 
     return Container(

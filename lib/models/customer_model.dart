@@ -44,7 +44,7 @@ class Customer extends User {
             (address) => Address.fromMap(address.cast<String, Address>()))
         .toList();
     if (map['cart'] != null) {
-      cart = Cart.fromMap(map['cart'].cast<String, Cart>());
+      cart = Cart.fromMap(map['cart'].cast<String, dynamic>());
     }
   }
 
