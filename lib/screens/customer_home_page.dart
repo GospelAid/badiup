@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-
+import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/main_menu.dart';
 import 'package:badiup/widgets/product_listing.dart';
+import 'package:flutter/material.dart';
 
 class CustomerHomePage extends StatefulWidget {
   CustomerHomePage({Key key, this.title}) : super(key: key);
@@ -38,6 +38,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     return AppBar(
       title: Text("BADI UP"),
       centerTitle: true,
+      actions: <Widget>[
+        CartButton(),
+      ],
     );
   }
 }

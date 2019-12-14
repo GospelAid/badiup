@@ -12,7 +12,7 @@ import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 
 class ProductDetail extends StatefulWidget {
-ProductDetail({
+  ProductDetail({
     Key key,
     this.productDocumentId,
   }) : super(key: key);
@@ -25,7 +25,7 @@ ProductDetail({
 
 class _ProductDetailState extends State<ProductDetail> {
   int _indexOfImageInDisplay = 0;
-  
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -44,10 +44,10 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  Padding _buildProductDetailInternal(Product product) {
+  Widget _buildProductDetailInternal(Product product) {
     return Padding(
       padding: EdgeInsets.all(16.0),
-      child: ListView(
+      child: Column(
         children: <Widget>[
           _buildProductImageSlideshow(product),
           SizedBox(height: 8.0),
@@ -59,7 +59,6 @@ class _ProductDetailState extends State<ProductDetail> {
           _buildProductDescription(product),
           SizedBox(height: 8.0),
           _buildProductPrice(product),
-          SizedBox(height: 100.0),
         ],
       ),
     );
@@ -84,33 +83,45 @@ class _ProductDetailState extends State<ProductDetail> {
   }
 
   Widget _buildProductDescription(Product product) {
-    return Text(
-      product.description,
-      key: Key(makeTestKeyString(
-        TKUsers.admin,
-        TKScreens.productDetail,
-        "description",
-      )),
-      style: TextStyle(
-        color: paletteBlackColor,
-        fontWeight: FontWeight.w300,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            product.description,
+            key: Key(makeTestKeyString(
+              TKUsers.admin,
+              TKScreens.productDetail,
+              "description",
+            )),
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildProductTitle(Product product) {
-    return Text(
-      product.name,
-      key: Key(makeTestKeyString(
-        TKUsers.admin,
-        TKScreens.productDetail,
-        "title",
-      )),
-      style: TextStyle(
-        color: paletteBlackColor,
-        fontSize: 20.0,
-        fontWeight: FontWeight.w600,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          product.name,
+          key: Key(makeTestKeyString(
+            TKUsers.admin,
+            TKScreens.productDetail,
+            "title",
+          )),
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 20.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
