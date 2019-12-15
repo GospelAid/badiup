@@ -1,11 +1,11 @@
-import 'package:badiup/screens/customer_home_page.dart';
-import 'package:flutter/material.dart';
-
 import 'package:badiup/colors.dart';
 import 'package:badiup/sign_in.dart';
-import 'package:badiup/test_keys.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
+import 'package:badiup/screens/cart_page.dart';
+import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/login_page.dart';
+import 'package:badiup/test_keys.dart';
+import 'package:flutter/material.dart';
 
 class MainMenu extends StatefulWidget {
   @override
@@ -96,7 +96,14 @@ class _MainMenuState extends State<MainMenu> {
         ),
       ),
       onTap: () {
-        // TODO: Navigate to cart page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return CartPage();
+            },
+          ),
+        );
       },
     );
   }

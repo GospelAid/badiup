@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 class Order{
   final String documentId;
@@ -8,6 +9,7 @@ class Order{
   final DateTime placedDate;
   final String details;
   final String trackingUrl;
+  final String orderId;
 
   Order({
     this.documentId,
@@ -17,6 +19,7 @@ class Order{
     this.placedDate,
     this.details,
     this.trackingUrl,
+    this.orderId,
   });
 
   double getOrderPrice() {
@@ -43,6 +46,7 @@ class Order{
       'placedDate': placedDate,
       'details': details,
       'trackingUrl': trackingUrl,
+      'orderId': orderId,
     };
     map['items'] = items.map(
       (item) => item.toMap()
@@ -60,10 +64,15 @@ class Order{
       items = map['items'].map<OrderItem>(
         (item) => OrderItem.fromMap( item.cast<String, dynamic>() )
       ).toList(),
-      documentId = documentId;
+      documentId = documentId,
+      orderId = map['orderId'];
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
     : this.fromMap(snapshot.data, snapshot.documentID);
+
+  static String generateOrderId() {
+    return Uuid().v4().substring(0, 6).toUpperCase();
+  }
 }
 
 class OrderItem{
