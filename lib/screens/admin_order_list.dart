@@ -21,6 +21,7 @@ class _AdminOrderListState extends State<AdminOrderList> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.orders)
+          .orderBy('placedDate', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
