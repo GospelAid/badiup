@@ -1,3 +1,9 @@
+import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/screens/admin_home_page.dart';
+import 'package:badiup/screens/customer_home_page.dart';
+import 'package:badiup/sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/login_page.dart';
@@ -9,7 +15,40 @@ class BadiUpApp extends StatelessWidget {
     return MaterialApp(
       title: 'Badi Up',
       theme: _kAppTheme,
-      home: LoginPage(),
+      home: FutureBuilder<FirebaseUser>(
+          future: FirebaseAuth.instance.currentUser(),
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<FirebaseUser> snapshot,
+          ) {
+            if (snapshot.hasData) {
+              return _buildHomePage(snapshot);
+            }
+
+            return LoginPage();
+          }),
+    );
+  }
+
+  Widget _buildHomePage(
+    AsyncSnapshot<FirebaseUser> snapshot,
+  ) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.users)
+          .document(snapshot.data.email)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+
+        updateCurrentSignedInUser(snapshot.data);
+
+        return currentSignedInUser.isAdmin()
+            ? AdminHomePage(title: 'BADI UP')
+            : CustomerHomePage(title: 'BADI UP');
+      },
     );
   }
 }

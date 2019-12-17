@@ -9,7 +9,6 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/user_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
 
-
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final db = Firestore.instance;
@@ -34,32 +33,31 @@ Future<String> signInWithGoogle() async {
   assert(user.uid == currentUser.uid);
 
   // check if user already exists
-  final DocumentSnapshot userSnapshot =
-    await db.collection(constants.DBCollections.users)
-            .document(user.email)
-            .get();
+  final DocumentSnapshot userSnapshot = await db
+      .collection(constants.DBCollections.users)
+      .document(user.email)
+      .get();
 
-  if ( userSnapshot.exists ) {
+  if (userSnapshot.exists) {
     // user exists, retrieve user data from firestore
-    retrieveUserFromFirestore( userSnapshot: userSnapshot );
+    updateCurrentSignedInUser(userSnapshot);
   } else {
     // user not exists, create a new user
-    await addUserToFirestore( user: user );
+    await addUserToFirestore(user: user);
   }
 
   return 'signInWithGoogle succeeded: $user';
 }
 
-void signOutGoogle() async{
+void signOutGoogle() async {
   currentSignedInUser = User();
   await googleSignIn.signOut();
   print('user signed out');
 }
 
-
 // retrieve user data from Firestore
-void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
-  switch ( User.fromSnapshot(userSnapshot).role ) {
+void updateCurrentSignedInUser(DocumentSnapshot userSnapshot) {
+  switch (User.fromSnapshot(userSnapshot).role) {
     case RoleType.admin:
       currentSignedInUser = Admin.fromSnapshot(userSnapshot);
       break;
@@ -72,7 +70,7 @@ void retrieveUserFromFirestore( {DocumentSnapshot userSnapshot} ) {
 }
 
 // add user to firestore, email as document ID
-Future<void> addUserToFirestore({ FirebaseUser user }) async {
+Future<void> addUserToFirestore({FirebaseUser user}) async {
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
     email: user.email,
@@ -82,7 +80,8 @@ Future<void> addUserToFirestore({ FirebaseUser user }) async {
     shippingAddresses: List<Address>(),
     created: DateTime.now().toUtc(),
   );
-  await db.collection( constants.DBCollections.users )
-          .document( user.email )
-          .setData( currentSignedInUser.toMap() );
+  await db
+      .collection(constants.DBCollections.users)
+      .document(user.email)
+      .setData(currentSignedInUser.toMap());
 }
