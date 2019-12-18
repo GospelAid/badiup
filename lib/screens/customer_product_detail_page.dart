@@ -26,7 +26,7 @@ class CustomerProductDetailPage extends StatefulWidget {
 
 class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   QuantityController quantityController = QuantityController(value: 1);
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +93,9 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  void _navigateToCartPage() {
+  Future<void> _navigateToCartPage() async {
+    await _addToCart();
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -132,7 +134,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  void _addToCart() async {
+  Future<void> _addToCart() async {
     var customer = Customer.fromSnapshot(await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
