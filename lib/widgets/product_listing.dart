@@ -97,13 +97,15 @@ class _ProductListingState extends State<ProductListing> {
     Product product,
     int index,
   ) {
+    var pageController = PageController(viewportFraction: 1.0);
+
     var widgetList = <Widget>[
-      _buildProductListingItemTileImage(product),
+      _buildProductListingItemTileImage(product, pageController),
     ];
 
     if ((product.imageUrls?.length ?? 0) > 1) {
       widgetList.add(
-        _buildProductListingImageSliderButtons(product),
+        _buildProductListingImageSliderButtons(product, pageController),
       );
     }
 
@@ -119,38 +121,49 @@ class _ProductListingState extends State<ProductListing> {
     );
   }
 
-  Widget _buildProductListingImageSliderButtons(Product product) {
+  Widget _buildProductListingImageSliderButtons(
+    Product product,
+    PageController pageController,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        _buildProductListingImageLeftButton(product),
-        _buildProductListingImageRightButton(product),
+        activeImageMap[product.documentId] == 0
+            ? Container()
+            : _buildProductListingImageLeftButton(product, pageController),
+        activeImageMap[product.documentId] == product.imageUrls.length - 1
+            ? Container()
+            : _buildProductListingImageRightButton(product, pageController),
       ],
     );
   }
 
-  Widget _buildProductListingImageRightButton(Product product) {
+  Widget _buildProductListingImageRightButton(
+    Product product,
+    PageController pageController,
+  ) {
     return IconButton(
       icon: buildIconWithShadow(Icons.chevron_right),
       onPressed: () {
-        setState(() {
-          activeImageMap[product.documentId] =
-              (activeImageMap[product.documentId] + 1) %
-                  product.imageUrls.length;
-        });
+        pageController.nextPage(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
       },
     );
   }
 
-  Widget _buildProductListingImageLeftButton(Product product) {
+  Widget _buildProductListingImageLeftButton(
+    Product product,
+    PageController pageController,
+  ) {
     return IconButton(
       icon: buildIconWithShadow(Icons.chevron_left),
       onPressed: () {
-        setState(() {
-          activeImageMap[product.documentId] =
-              (activeImageMap[product.documentId] - 1) %
-                  product.imageUrls.length;
-        });
+        pageController.previousPage(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
       },
     );
   }
@@ -227,7 +240,7 @@ class _ProductListingState extends State<ProductListing> {
     );
   }
 
-  IconButton _buildProductInfoPaneEditButton(Product product) {
+  Widget _buildProductInfoPaneEditButton(Product product) {
     return IconButton(
       icon: Icon(
         Icons.edit,
@@ -246,7 +259,7 @@ class _ProductListingState extends State<ProductListing> {
     );
   }
 
-  Expanded _buildProductInfoPaneDescription(Product product) {
+  Widget _buildProductInfoPaneDescription(Product product) {
     return Expanded(
       child: Text(
         product.description,
@@ -310,16 +323,22 @@ class _ProductListingState extends State<ProductListing> {
     );
   }
 
-  Widget _buildProductListingItemTileImage(Product product) {
+  Widget _buildProductListingItemTileImage(
+    Product product,
+    PageController pageController,
+  ) {
     return Container(
       color: const Color(0xFF8D8D8D),
       height: constants.imageHeight,
       width: 500,
-      child: _getProductListingImage(product),
+      child: _getProductListingImage(product, pageController),
     );
   }
 
-  Widget _getProductListingImage(Product product) {
+  Widget _getProductListingImage(
+    Product product,
+    PageController pageController,
+  ) {
     var widgetList = <Widget>[];
 
     if (product.isPublished || (product.imageUrls?.length ?? 0) != 0) {
@@ -331,7 +350,9 @@ class _ProductListingState extends State<ProductListing> {
       );
     }
 
-    widgetList.add(_getProductImage(product));
+    widgetList.add(
+      _buildProductImagePageView(pageController, product),
+    );
 
     return Stack(
       alignment: AlignmentDirectional.center,
@@ -339,7 +360,25 @@ class _ProductListingState extends State<ProductListing> {
     );
   }
 
-  Widget _getProductImage(Product product) {
+  Widget _buildProductImagePageView(
+    PageController pageController,
+    Product product,
+  ) {
+    return PageView.builder(
+      controller: pageController,
+      itemCount: product.imageUrls.length,
+      itemBuilder: (BuildContext context, int itemIndex) {
+        return _getProductImage(product, itemIndex);
+      },
+      onPageChanged: (index) {
+        setState(() {
+          activeImageMap[product.documentId] = index;
+        });
+      },
+    );
+  }
+
+  Widget _getProductImage(Product product, int imageIndex) {
     if (product.imageUrls?.isEmpty ?? true) {
       return Image.memory(
         kTransparentImage,
@@ -349,7 +388,7 @@ class _ProductListingState extends State<ProductListing> {
       return FadeInImage.memoryNetwork(
         fit: BoxFit.fill,
         placeholder: kTransparentImage,
-        image: product.imageUrls[activeImageMap[product.documentId]],
+        image: product.imageUrls[imageIndex],
       );
     }
   }
