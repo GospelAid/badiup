@@ -17,7 +17,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _loginInProgress
-          ? LinearProgressIndicator()
+          ? LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(paletteForegroundColor),
+              backgroundColor: paletteLightGreyColor,
+            )
           : Stack(
               fit: StackFit.expand,
               children: <Widget>[
@@ -62,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _loginInProgress = true;
     });
-    
+
     signInWithGoogle().whenComplete(() {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -73,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           },
         ),
       );
-    
+
       setState(() {
         _loginInProgress = false;
       });
