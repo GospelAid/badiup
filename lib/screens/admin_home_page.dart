@@ -6,6 +6,12 @@ import 'package:badiup/models/order_model.dart';
 import 'package:badiup/screens/admin_order_list.dart';
 import 'package:badiup/widgets/main_menu.dart';
 
+enum OrderFilterButtons {
+  all,
+  undispatched,
+  dispatched,
+}
+
 class AdminHomePage extends StatefulWidget {
   AdminHomePage({Key key, this.title}) : super(key: key);
 
@@ -17,6 +23,8 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  OrderFilterButtons selectedOrderButton = OrderFilterButtons.all;
 
   bool allOrdersButtonSelected = true;
   bool pendingOrdersButtonSelected = false;
@@ -75,99 +83,105 @@ class _AdminHomePageState extends State<AdminHomePage> {
         children: <Widget>[
           Row(
             children: <Widget>[
-              Expanded(
-                child: Text(
-                  '注文',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: paletteBlackColor,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                    height: 35.0,
-                    padding: EdgeInsets.only(left: 16.0),
-                    child: _buildAllOrdersButton(context)),
-              ),
-              Expanded(
-                child: Container(
-                  height: 35.0,
-                  padding: EdgeInsets.only(left: 16.0),
-                  child: _buildPendingOrdersButton(context),
-                ),
-              ),
+              _buildOrdersTitle(),
+              SizedBox(width: 64),
+              _buildOrderFilterButton(context, OrderFilterButtons.all),
+              _buildOrderFilterButton(context, OrderFilterButtons.undispatched),
+              _buildOrderFilterButton(context, OrderFilterButtons.dispatched),
             ],
           ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.only(top: 16.0),
-              child: AdminOrderList(orderStatusToFilter: orderStatusToFilter),
-            ),
-          ),
+          _buildOrderList(),
         ],
       ),
     );
   }
 
-  Widget _buildAllOrdersButton(BuildContext context) {
-    return RaisedButton(
-      elevation: 0.0,
-      color: allOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
+  Widget _buildOrderList() {
+    return Expanded(
       child: Container(
-        child: Text(
-          '全て',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: allOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
-          ),
-        ),
+        padding: EdgeInsets.only(top: 16.0),
+        child: AdminOrderList(orderStatusToFilter: orderStatusToFilter),
       ),
-      onPressed: () {
-        setState(() {
-          allOrdersButtonSelected = true;
-          pendingOrdersButtonSelected = false;
-          orderStatusToFilter = OrderStatus.all;
-        });
-      },
     );
   }
 
-  Widget _buildPendingOrdersButton(BuildContext context) {
-    return RaisedButton(
-      key: Key(makeTestKeyString(
-        TKUsers.admin,
-        TKScreens.home,
-        "pendingOrdersFilterButton",
-      )),
-      elevation: 0.0,
-      color: pendingOrdersButtonSelected ? paletteDarkRedColor : kPaletteWhite,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
+  Widget _buildOrderFilterButton(
+    BuildContext context,
+    OrderFilterButtons buttonIdentity,
+  ) {
+    return Expanded(
       child: Container(
-        child: Text(
-          '保留中',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color:
-                pendingOrdersButtonSelected ? kPaletteWhite : paletteBlackColor,
+        height: 35.0,
+        padding: EdgeInsets.only(left: 8.0),
+        child: RaisedButton(
+          elevation: 0.0,
+          color: buttonIdentity == selectedOrderButton
+              ? paletteDarkRedColor
+              : kPaletteWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
           ),
+          child: _buildOrderFilterButtonText(buttonIdentity),
+          onPressed: () {
+            setState(() {
+              selectedOrderButton = buttonIdentity;
+              orderStatusToFilter = _getOrderStatusFilterValue(buttonIdentity);
+            });
+          },
         ),
       ),
-      onPressed: () {
-        setState(() {
-          allOrdersButtonSelected = false;
-          pendingOrdersButtonSelected = true;
-          orderStatusToFilter = OrderStatus.pending;
-        });
-      },
+    );
+  }
+
+  Widget _buildOrderFilterButtonText(OrderFilterButtons buttonIdentity) {
+    return Container(
+      child: Text(
+        _getOrderFilterButtonText(buttonIdentity),
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: buttonIdentity == selectedOrderButton
+              ? kPaletteWhite
+              : paletteBlackColor,
+        ),
+      ),
+    );
+  }
+
+  OrderStatus _getOrderStatusFilterValue(OrderFilterButtons button) {
+    switch (button) {
+      case OrderFilterButtons.all:
+        return OrderStatus.all;
+      case OrderFilterButtons.undispatched:
+        return OrderStatus.pending;
+      case OrderFilterButtons.dispatched:
+        return OrderStatus.dispatched;
+      default:
+        return OrderStatus.all;
+    }
+  }
+
+  String _getOrderFilterButtonText(OrderFilterButtons button) {
+    switch (button) {
+      case OrderFilterButtons.all:
+        return '全て';
+      case OrderFilterButtons.undispatched:
+        return '未発送';
+      case OrderFilterButtons.dispatched:
+        return '発送済';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildOrdersTitle() {
+    return Text(
+      '注文',
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: paletteBlackColor,
+      ),
     );
   }
 }
