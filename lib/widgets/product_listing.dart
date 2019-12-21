@@ -304,20 +304,22 @@ class _ProductListingState extends State<ProductListing> {
   Widget _buildProductInfoPaneTitle(Product product) {
     var _padding = currentSignedInUser.isAdmin() ? 0.0 : 8.0;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: _padding),
-      child: Text(
-        product.name,
-        key: Key(makeTestKeyString(
-          TKUsers.admin,
-          TKScreens.productListing,
-          "title_" + product.name,
-        )),
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: paletteBlackColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 16.0,
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: _padding),
+        child: Text(
+          product.name,
+          key: Key(makeTestKeyString(
+            TKUsers.admin,
+            TKScreens.productListing,
+            "title_" + product.name,
+          )),
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 16.0,
+          ),
         ),
       ),
     );
