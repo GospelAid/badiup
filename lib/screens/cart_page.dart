@@ -582,6 +582,7 @@ class _CartPageState extends State<CartPage> {
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
         product.name,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: paletteBlackColor,
           fontWeight: FontWeight.w600,

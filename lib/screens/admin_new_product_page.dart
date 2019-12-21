@@ -740,7 +740,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       decoration: InputDecoration(
         labelText: 'タイトル',
       ),
-      maxLength: 10,
+      maxLength: 20,
       validator: (value) {
         if (value.isEmpty) {
           return 'Name cannot be empty';

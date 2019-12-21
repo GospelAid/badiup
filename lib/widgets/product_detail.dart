@@ -108,17 +108,19 @@ class _ProductDetailState extends State<ProductDetail> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Text(
-          product.name,
-          key: Key(makeTestKeyString(
-            TKUsers.admin,
-            TKScreens.productDetail,
-            "title",
-          )),
-          style: TextStyle(
-            color: paletteBlackColor,
-            fontSize: 20.0,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            product.name,
+            key: Key(makeTestKeyString(
+              TKUsers.admin,
+              TKScreens.productDetail,
+              "title",
+            )),
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
