@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:badiup/colors.dart';
-import 'package:badiup/test_keys.dart';
 import 'package:badiup/models/order_model.dart';
-import 'package:badiup/screens/admin_order_list.dart';
+import 'package:badiup/test_keys.dart';
 import 'package:badiup/widgets/main_menu.dart';
+import 'package:badiup/widgets/order_list.dart';
+import 'package:flutter/material.dart';
 
 enum OrderFilterButtons {
   all,
@@ -90,6 +89,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               _buildOrderFilterButton(context, OrderFilterButtons.dispatched),
             ],
           ),
+          SizedBox(height: 8),
           _buildOrderList(),
         ],
       ),
@@ -100,7 +100,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     return Expanded(
       child: Container(
         padding: EdgeInsets.only(top: 16.0),
-        child: AdminOrderList(orderStatusToFilter: orderStatusToFilter),
+        child: OrderList(orderStatusToFilter: orderStatusToFilter),
       ),
     );
   }
@@ -111,7 +111,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   ) {
     return Expanded(
       child: Container(
-        height: 35.0,
+        height: 40.0,
         padding: EdgeInsets.only(left: 8.0),
         child: RaisedButton(
           elevation: 0.0,
