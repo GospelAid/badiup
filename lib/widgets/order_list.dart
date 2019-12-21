@@ -6,16 +6,16 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/order_model.dart';
 
-class AdminOrderList extends StatefulWidget {
-  AdminOrderList({Key key, this.orderStatusToFilter}) : super(key: key);
+class OrderList extends StatefulWidget {
+  OrderList({Key key, this.orderStatusToFilter}) : super(key: key);
 
   final OrderStatus orderStatusToFilter;
 
   @override
-  _AdminOrderListState createState() => _AdminOrderListState();
+  _OrderListState createState() => _OrderListState();
 }
 
-class _AdminOrderListState extends State<AdminOrderList> {
+class _OrderListState extends State<OrderList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -53,16 +53,51 @@ class _AdminOrderListState extends State<AdminOrderList> {
 
   Widget _buildOrderListItem(BuildContext context, Order order) {
     return Container(
-      padding: EdgeInsets.only(bottom: 16.0),
-      child: Container(
-        height: 73.0,
-        decoration: BoxDecoration(
-          color: kPaletteWhite,
-          borderRadius: BorderRadius.circular(0.0),
-        ),
-        child: _buildOrderListTile(order),
+      padding: EdgeInsets.only(bottom: 12.0),
+      child: Stack(
+        alignment: AlignmentDirectional.topStart,
+        children: <Widget>[
+          Container(
+            height: 73.0,
+            decoration: BoxDecoration(
+              color: kPaletteWhite,
+            ),
+            child: _buildOrderListTile(order),
+          ),
+          _buildOrderStatus(order),
+        ],
       ),
     );
+  }
+
+  Widget _buildOrderStatus(Order order) {
+    return Container(
+      height: 20,
+      width: 50,
+      decoration: BoxDecoration(
+        color: Color(0xFFEFEFEF),
+      ),
+      child: Center(
+        child: Text(
+          _getOrderStatusText(order.status),
+          style: TextStyle(
+            color: paletteForegroundColor,
+            fontSize: 11,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getOrderStatusText(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return '未発送';
+      case OrderStatus.dispatched:
+        return '発送済';
+      default:
+        return '';
+    }
   }
 
   Widget _buildOrderListTile(Order order) {
@@ -70,43 +105,36 @@ class _AdminOrderListState extends State<AdminOrderList> {
       title: _buildOrderTitle(order),
       subtitle: _buildOrderSubtitle(order),
       trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           _buildOrderPlacedDate(order),
-          _buildOrderStatus(order),
         ],
       ),
       onTap: () {},
     );
   }
 
-  Widget _buildOrderStatus(Order order) {
-    return Text(
-      order.getOrderStatusText(),
-      style: TextStyle(
-        fontSize: 10,
-        color: paletteDarkRedColor,
-      ),
-    );
-  }
-
   Widget _buildOrderPlacedDate(Order order) {
-    return Text(
-      DateFormat('yyyy年MM月dd日').format(order.placedDate),
-      style: TextStyle(
-        fontSize: 14,
-        color: paletteBlackColor,
-        fontWeight: FontWeight.bold,
+    return Padding(
+      padding: EdgeInsets.only(top: 4),
+      child: Text(
+        DateFormat('yyyy.MM.dd').format(order.placedDate),
+        style: TextStyle(
+          fontSize: 12,
+          color: paletteBlackColor,
+        ),
       ),
     );
   }
 
   Widget _buildOrderSubtitle(Order order) {
+    final currencyFormat = NumberFormat("#,##0");
+
     return Text(
-      order.getOrderPrice().toString(),
+      "¥${currencyFormat.format(order.getOrderPrice())}",
       style: TextStyle(
-        fontSize: 18,
+        fontSize: 20,
         color: paletteDarkRedColor,
         fontWeight: FontWeight.bold,
       ),
@@ -114,11 +142,15 @@ class _AdminOrderListState extends State<AdminOrderList> {
   }
 
   Widget _buildOrderTitle(Order order) {
-    return Text(
-      order.orderId,
-      style: TextStyle(
-        fontSize: 10,
-        color: paletteBlackColor,
+    return Padding(
+      padding: EdgeInsets.only(top: 22),
+      child: Text(
+        order.orderId,
+        style: TextStyle(
+          fontSize: 12,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
