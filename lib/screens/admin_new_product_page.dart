@@ -359,6 +359,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           ratioX: 1.64,
           ratioY: 1.0,
         ),
+        iosUiSettings: IOSUiSettings(rotateButtonsHidden: true),
         androidUiSettings: AndroidUiSettings(
           toolbarColor: paletteForegroundColor,
           toolbarWidgetColor: kPaletteWhite,
