@@ -459,8 +459,7 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildCartItem(CartItem item) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      height: 150,
+      padding: EdgeInsets.only(top: 12, left: 12, right: 12),
       child: StreamBuilder<DocumentSnapshot>(
         stream: Firestore.instance
             .collection(constants.DBCollections.products)
@@ -480,6 +479,7 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildCartItemRow(Product product, int quantity) {
     return Container(
+      padding: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: const Color(0xFFA2A2A2)),
@@ -489,57 +489,142 @@ class _CartPageState extends State<CartPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _buildProductImage(product),
-          _buildProductInfo(product),
-          _buildQuantitySelector(product.documentId, quantity),
-          _buildDeleteButton(product.documentId),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _buildDeleteButton(product.documentId, product.name),
+                _buildProductTitle(product),
+                // TODO: Add size and color info here
+                Text("　"),
+                _buildPriceAndQuantitySelectorRow(product, quantity),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDeleteButton(String productDocumentId) {
-    return Padding(
-      padding: EdgeInsets.only(left: 4),
-      child: GestureDetector(
-        onTap: () async {
-          var customer = Customer.fromSnapshot(await db
-              .collection(constants.DBCollections.users)
-              .document(currentSignedInUser.email)
-              .get());
-
-          int productIndex = customer.cart.items.indexWhere(
-              (item) => item.productDocumentId == productDocumentId);
-          customer.cart.items.removeAt(productIndex);
-
-          await db
-              .collection(constants.DBCollections.users)
-              .document(currentSignedInUser.email)
-              .updateData(customer.toMap());
-        },
-        child: Icon(Icons.delete),
-      ),
+  Widget _buildPriceAndQuantitySelectorRow(Product product, int quantity) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        _buildProductPrice(product),
+        _buildQuantitySelector(product.documentId, quantity),
+      ],
     );
   }
 
-  Widget _buildProductInfo(Product product) {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildProductTitle(product),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildDeleteButton(String productDocumentId, String productName) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(left: 4),
+          child: GestureDetector(
+            onTap: () => _showConfirmDeleteDialog(
+              productName,
+              productDocumentId,
+            ),
+            child: Row(
               children: <Widget>[
-                // TODO: Size / Color goes here
-                Text(""),
-                _buildProductPrice(product),
+                Text("削除", style: TextStyle(color: kPaletteWhite)),
+                Icon(Icons.close, color: kPaletteWhite),
               ],
-            )
-          ],
+            ),
+          ),
         ),
+      ],
+    );
+  }
+
+  void _showConfirmDeleteDialog(String productName, String productDocumentId) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '買い物カゴから削除します',
+            style: getAlertStyle(),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('この商品を買い物カゴから削除してもよろしいですか？'),
+              Text(
+                '・$productName',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          actions: _buildDeleteDialogActions(context, productDocumentId),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildDeleteDialogActions(
+    BuildContext context,
+    String productDocumentId,
+  ) {
+    return <Widget>[
+      FlatButton(
+        child: Text('キャンセル', style: TextStyle(color: paletteBlackColor)),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
+      FlatButton(
+        child: Text('削除する', style: TextStyle(color: paletteForegroundColor)),
+        onPressed: () async {
+          Navigator.pop(context);
+          await _deleteItemFromCart(productDocumentId);
+        },
+      ),
+    ];
+  }
+
+  Future<void> _deleteItemFromCart(String productDocumentId) async {
+    var customer = Customer.fromSnapshot(await db
+        .collection(constants.DBCollections.users)
+        .document(currentSignedInUser.email)
+        .get());
+
+    int productIndex = customer.cart.items.indexWhere(
+      (item) => item.productDocumentId == productDocumentId,
+    );
+    customer.cart.items.removeAt(productIndex);
+
+    await db
+        .collection(constants.DBCollections.users)
+        .document(currentSignedInUser.email)
+        .updateData(customer.toMap());
+  }
+
+  Widget _buildProductTitle(Product product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: 40),
+            child: Text(
+              product.name,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -560,9 +645,15 @@ class _CartPageState extends State<CartPage> {
           .document(currentSignedInUser.email)
           .updateData(customer.toMap());
     });
-    return QuantitySelector(
-      controller: controller,
-      orientation: Orientation.portrait,
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        QuantitySelector(
+          controller: controller,
+          orientation: Orientation.landscape,
+        ),
+      ],
     );
   }
 
@@ -573,20 +664,6 @@ class _CartPageState extends State<CartPage> {
         color: paletteBlackColor,
         fontWeight: FontWeight.w600,
         fontSize: 18,
-      ),
-    );
-  }
-
-  Widget _buildProductTitle(Product product) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Text(
-        product.name,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: paletteBlackColor,
-          fontWeight: FontWeight.w600,
-        ),
       ),
     );
   }
