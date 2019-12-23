@@ -43,11 +43,17 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgetList = <Widget>[
-      _buildIncreaseQuantityButton(),
-      _buildQuantityDisplay(),
-      _buildDecreaseQuantityButton(),
-    ];
+    List<Widget> widgetList = widget.orientation == Orientation.landscape
+        ? <Widget>[
+            _buildDecreaseQuantityButton(),
+            _buildQuantityDisplay(),
+            _buildIncreaseQuantityButton(),
+          ]
+        : <Widget>[
+            _buildIncreaseQuantityButton(),
+            _buildQuantityDisplay(),
+            _buildDecreaseQuantityButton(),
+          ];
 
     return Padding(
       padding: EdgeInsets.all(0),
@@ -110,8 +116,8 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             color: paletteForegroundColor,
             borderRadius: widget.orientation == Orientation.landscape
                 ? BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5),
+                    topRight: Radius.circular(5),
+                    bottomRight: Radius.circular(5),
                   )
                 : BorderRadius.only(
                     topLeft: Radius.circular(5),
@@ -152,8 +158,8 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             color: paletteBlackColor,
             borderRadius: widget.orientation == Orientation.landscape
                 ? BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5),
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
                   )
                 : BorderRadius.only(
                     bottomLeft: Radius.circular(5),
