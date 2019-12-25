@@ -993,10 +993,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _formSubmitInProgress = true;
     });
 
-    List<String> _imageUrls;
-    if (_productImages.length != 0) {
-      _imageUrls = await _uploadImagesToStorage();
-    }
+    List<String> _imageUrls = await _uploadImagesToStorage();
     Product _productModel = _buildProductModel(_imageUrls, publishStatus);
 
     if (_updatingExistingProduct) {
@@ -1016,34 +1013,35 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future<List<String>> _uploadImagesToStorage() async {
-    final FirebaseStorage _storage = FirebaseStorage(
-      storageBucket: config.firebaseStorageUri,
-    );
-
-    List<String> imageUrls = [];
+    List<Future<String>> imageUrls = [];
 
     for (var i = 0; i < _productImages.length; i++) {
       if (_productImages[i] is File) {
-        final StorageReference ref = _storage
-            .ref()
-            .child(
-              constants.StorageCollections.images,
-            )
-            .child(
-              constants.StorageCollections.products,
-            )
-            .child('${Uuid().v1()}.png');
-
-        final StorageUploadTask uploadTask =
-            ref.putFile(_productImages[i] as File);
-        final StorageTaskSnapshot snapshot = await uploadTask.onComplete;
-        imageUrls.add(await snapshot.ref.getDownloadURL() as String);
+        imageUrls.add(_uploadImageAndGetUrl(_productImages[i] as File));
       } else {
-        imageUrls.add(_productImages[i] as String);
+        imageUrls.add(Future(() => _productImages[i] as String));
       }
     }
 
-    return imageUrls;
+    return Future.wait(imageUrls);
+  }
+
+  Future<String> _uploadImageAndGetUrl(File imageFile) async {
+    FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: config.firebaseStorageUri);
+
+    StorageReference ref = _storage
+        .ref()
+        .child(constants.StorageCollections.images)
+        .child(constants.StorageCollections.products)
+        .child('${Uuid().v1()}.png');
+
+    StorageUploadTask uploadTask = ref.putFile(imageFile);
+    StorageTaskSnapshot snapshot = await uploadTask.onComplete;
+
+    String url = await snapshot.ref.getDownloadURL() as String;
+
+    return url;
   }
 
   Product _buildProductModel(
