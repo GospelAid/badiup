@@ -130,8 +130,8 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget _buildThumbnailBar(Product product) {
     return Container(
       height: 40.0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
         children: _buildImageThumbnails(product),
       ),
     );

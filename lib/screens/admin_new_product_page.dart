@@ -1,20 +1,18 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' show get;
-import 'package:image_cropper/image_cropper.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
-import 'package:badiup/test_keys.dart';
-import 'package:badiup/utilities.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/screens/multi_select_gallery.dart';
+import 'package:badiup/test_keys.dart';
+import 'package:badiup/utilities.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:uuid/uuid.dart';
 
 enum PublishStatus {
   Published,
@@ -51,7 +49,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _scaffoldKey = GlobalKey();
   Product _product;
 
-  List<File> _imageFiles = [];
+  List<Object> _productImages = [];
   int _indexOfImageInDisplay = 0;
 
   final _nameEditingController = TextEditingController();
@@ -71,7 +69,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
   }
 
-  Future _loadProductInfo() async {
+  Future<void> _loadProductInfo() async {
     _product = Product.fromSnapshot(await Firestore.instance
         .collection(constants.DBCollections.products)
         .document(widget.productDocumentId)
@@ -81,35 +79,15 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     _descriptionEditingController.text = _product.description;
     _priceEditingController.text = _product.priceInYen?.toString();
 
-    await _loadProductImages();
-
     setState(() {
-      if (_imageFiles.length > 0) {
-        _indexOfImageInDisplay = _imageFiles.length - 1;
+      _productImages.addAll(_product.imageUrls);
+
+      if (_productImages.length > 0) {
+        _indexOfImageInDisplay = _productImages.length - 1;
       }
 
       _productPublishStatus =
           _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
-    });
-  }
-
-  Future _loadProductImages() async {
-    _product.imageUrls?.forEach((imageUrl) async {
-      final directory = await getApplicationDocumentsDirectory();
-      final String name = Uuid().v1();
-      final path = directory.path + "/" + name;
-
-      var response = await get(imageUrl);
-      File imageFile = await File(path).writeAsBytes(
-        response.bodyBytes.buffer.asUint8List(
-          response.bodyBytes.offsetInBytes,
-          response.bodyBytes.lengthInBytes,
-        ),
-      );
-
-      setState(() {
-        _imageFiles.add(imageFile);
-      });
     });
   }
 
@@ -141,7 +119,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   bool _isFormEmpty() {
-    return (_imageFiles?.length == 0 ?? true) &&
+    return (_productImages?.length == 0 ?? true) &&
         (_nameEditingController?.text == "" ?? true) &&
         (_descriptionEditingController?.text == "" ?? true) &&
         (_priceEditingController?.text == "" ?? true);
@@ -342,8 +320,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
       if (croppedImages != null && croppedImages.length != 0) {
         setState(() {
-          _imageFiles.addAll(croppedImages);
-          _indexOfImageInDisplay = _imageFiles.length - 1;
+          _productImages.addAll(croppedImages);
+          _indexOfImageInDisplay = _productImages.length - 1;
         });
       }
     }
@@ -393,7 +371,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildInnerStackForImageDisplay(),
     ];
 
-    if (_imageFiles != null && _imageFiles.length != 0) {
+    if (_productImages != null && _productImages.length != 0) {
       stackWidgetList.add(_buildImageDeleteButton());
     }
 
@@ -403,21 +381,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Stack _buildInnerStackForImageDisplay() {
-    Widget _imageToDisplay;
+  Widget _buildInnerStackForImageDisplay() {
+    var stackWidgetList = <Widget>[
+      _buildImageForDisplay(),
+    ];
 
-    if (_imageFiles?.length == 0 ?? true) {
-      _imageToDisplay = _buildPlaceholderImage();
-    } else {
-      _imageToDisplay = Image.file(
-        _imageFiles[_indexOfImageInDisplay],
-        fit: BoxFit.fill,
-      );
-    }
-
-    var stackWidgetList = <Widget>[_imageToDisplay];
-
-    if (_imageFiles != null && _imageFiles.length > 1) {
+    if (_productImages != null && _productImages.length > 1) {
       stackWidgetList.add(
         _buildImageSliderButtons(),
       );
@@ -427,6 +396,28 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       alignment: AlignmentDirectional.center,
       children: stackWidgetList,
     );
+  }
+
+  Widget _buildImageForDisplay() {
+    Widget _imageToDisplay;
+
+    if (_productImages?.length == 0 ?? true) {
+      _imageToDisplay = _buildPlaceholderImage();
+    } else {
+      _imageToDisplay = _productImages[_indexOfImageInDisplay] is File
+          ? Image.file(
+              _productImages[_indexOfImageInDisplay] as File,
+              fit: BoxFit.fill,
+            )
+          : FadeInImage.memoryNetwork(
+              fit: BoxFit.contain,
+              placeholder: kTransparentImage,
+              height: constants.imageHeight,
+              image: _productImages[_indexOfImageInDisplay] as String,
+            );
+    }
+
+    return _imageToDisplay;
   }
 
   IconButton _buildImageDeleteButton() {
@@ -482,12 +473,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   void _deleteImage() {
     setState(() {
-      _imageFiles.removeAt(_indexOfImageInDisplay);
-      if (_imageFiles.length != 0) {
-        if (_indexOfImageInDisplay == _imageFiles.length) {
+      _productImages.removeAt(_indexOfImageInDisplay);
+      if (_productImages.length != 0) {
+        if (_indexOfImageInDisplay == _productImages.length) {
           _indexOfImageInDisplay--;
         }
-        _indexOfImageInDisplay = _indexOfImageInDisplay % _imageFiles.length;
+        _indexOfImageInDisplay = _indexOfImageInDisplay % _productImages.length;
       } else {
         _indexOfImageInDisplay = 0;
       }
@@ -503,7 +494,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           onPressed: () {
             setState(() {
               _indexOfImageInDisplay =
-                  (_indexOfImageInDisplay - 1) % _imageFiles.length;
+                  (_indexOfImageInDisplay - 1) % _productImages.length;
             });
           },
         ),
@@ -512,7 +503,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           onPressed: () {
             setState(() {
               _indexOfImageInDisplay =
-                  (_indexOfImageInDisplay + 1) % _imageFiles.length;
+                  (_indexOfImageInDisplay + 1) % _productImages.length;
             });
           },
         ),
@@ -567,16 +558,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         children: _buildImageThumbnails(),
         onReorder: (oldIndex, newIndex) {
           setState(() {
-            if (newIndex > _imageFiles.length) {
-              newIndex = _imageFiles.length;
+            if (newIndex > _productImages.length) {
+              newIndex = _productImages.length;
             }
             if (oldIndex < newIndex) {
               newIndex--;
             }
 
-            File item = _imageFiles[oldIndex];
-            _imageFiles.remove(item);
-            _imageFiles.insert(newIndex, item);
+            Object item = _productImages[oldIndex];
+            _productImages.remove(item);
+            _productImages.insert(newIndex, item);
             _indexOfImageInDisplay = newIndex;
           });
         },
@@ -604,7 +595,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   List<Widget> _buildImageThumbnails() {
     List<Widget> thumbnails = [];
 
-    for (var i = 0; i < _imageFiles.length; i++) {
+    for (var i = 0; i < _productImages.length; i++) {
       thumbnails.add(_buildImageThumbnail(i));
     }
 
@@ -612,10 +603,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildImageThumbnail(int thumbnailIndex) {
-    var imageFile = _imageFiles[thumbnailIndex];
+    var imageObject = _productImages[thumbnailIndex];
 
     return GestureDetector(
-      key: Key(imageFile.path),
+      key:
+          Key(imageObject is File ? imageObject.path : (imageObject as String)),
       onTap: () {
         setState(() {
           _indexOfImageInDisplay = thumbnailIndex;
@@ -628,7 +620,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: FileImage(imageFile),
+              image: imageObject is File
+                  ? FileImage(imageObject)
+                  : NetworkImage(imageObject as String),
               fit: BoxFit.cover,
             ),
             border: _buildThumbnailBorder(thumbnailIndex),
@@ -962,7 +956,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   bool _formIsValid() {
-    if (_imageFiles.length == 0) {
+    if (_productImages.length == 0) {
       _buildImageMandatoryDialog();
       return false;
     }
@@ -999,10 +993,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _formSubmitInProgress = true;
     });
 
-    List<String> _imageUrls;
-    if (_imageFiles.length != 0) {
-      _imageUrls = await _uploadImagesToStorage();
-    }
+    List<String> _imageUrls = await _uploadImagesToStorage();
     Product _productModel = _buildProductModel(_imageUrls, publishStatus);
 
     if (_updatingExistingProduct) {
@@ -1022,33 +1013,35 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Future<List<String>> _uploadImagesToStorage() async {
-    final FirebaseStorage _storage =
-        FirebaseStorage(storageBucket: config.firebaseStorageUri);
+    List<Future<String>> imageUrls = [];
 
-    List<String> imageUrls = [];
-
-    for (var i = 0; i < _imageFiles.length; i++) {
-      final String uuid = Uuid().v1();
-
-      final StorageReference ref = _storage
-          .ref()
-          .child(
-            constants.StorageCollections.images,
-          )
-          .child(
-            constants.StorageCollections.products,
-          )
-          .child('$uuid.png');
-
-      final StorageUploadTask uploadTask = ref.putFile(
-        _imageFiles[i],
-      );
-      final StorageTaskSnapshot snapshot = await uploadTask.onComplete;
-      final imageUrl = await snapshot.ref.getDownloadURL() as String;
-      imageUrls.add(imageUrl);
+    for (var i = 0; i < _productImages.length; i++) {
+      if (_productImages[i] is File) {
+        imageUrls.add(_uploadImageAndGetUrl(_productImages[i] as File));
+      } else {
+        imageUrls.add(Future(() => _productImages[i] as String));
+      }
     }
 
-    return imageUrls;
+    return Future.wait(imageUrls);
+  }
+
+  Future<String> _uploadImageAndGetUrl(File imageFile) async {
+    FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: config.firebaseStorageUri);
+
+    StorageReference ref = _storage
+        .ref()
+        .child(constants.StorageCollections.images)
+        .child(constants.StorageCollections.products)
+        .child('${Uuid().v1()}.png');
+
+    StorageUploadTask uploadTask = ref.putFile(imageFile);
+    StorageTaskSnapshot snapshot = await uploadTask.onComplete;
+
+    String url = await snapshot.ref.getDownloadURL() as String;
+
+    return url;
   }
 
   Product _buildProductModel(
