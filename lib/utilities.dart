@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget buildIconWithShadow(IconData iconData) {
+Widget buildIconWithShadow(IconData iconData, {double iconSize = 24.0}) {
   return Stack(
     children: <Widget>[
       Positioned(
@@ -8,13 +8,13 @@ Widget buildIconWithShadow(IconData iconData) {
         top: 2.0,
         child: Icon(
           iconData,
-          size: 32,
+          size: iconSize,
           color: Colors.black54,
         ),
       ),
       Icon(
         iconData,
-        size: 32,
+        size: iconSize,
         color: Colors.white,
       ),
     ],

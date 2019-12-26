@@ -143,7 +143,7 @@ class _ProductListingState extends State<ProductListing> {
     PageController pageController,
   ) {
     return IconButton(
-      icon: buildIconWithShadow(Icons.chevron_right),
+      icon: buildIconWithShadow(Icons.chevron_right, iconSize: 32),
       onPressed: () {
         pageController.nextPage(
           duration: Duration(milliseconds: 500),
@@ -158,7 +158,7 @@ class _ProductListingState extends State<ProductListing> {
     PageController pageController,
   ) {
     return IconButton(
-      icon: buildIconWithShadow(Icons.chevron_left),
+      icon: buildIconWithShadow(Icons.chevron_left, iconSize: 32),
       onPressed: () {
         pageController.previousPage(
           duration: Duration(milliseconds: 500),

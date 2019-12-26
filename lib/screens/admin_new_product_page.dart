@@ -371,13 +371,32 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildInnerStackForImageDisplay(),
     ];
 
-    if (_productImages != null && _productImages.length != 0) {
-      stackWidgetList.add(_buildImageDeleteButton());
+    if (_productImages != null && _productImages.length > 1) {
+      stackWidgetList.add(_buildImageSliderButtons());
     }
 
     return Stack(
-      alignment: AlignmentDirectional.topEnd,
+      alignment: AlignmentDirectional.center,
       children: stackWidgetList,
+    );
+  }
+
+  Widget _buildOpacityLayerForDeleteButton() {
+    return Opacity(
+      opacity: 0.61,
+      child: Container(
+        height: constants.imageHeight / 2,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Colors.transparent,
+              paletteBlackColor,
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -386,14 +405,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildImageForDisplay(),
     ];
 
-    if (_productImages != null && _productImages.length > 1) {
-      stackWidgetList.add(
-        _buildImageSliderButtons(),
-      );
+    if (_productImages != null && _productImages.length != 0) {
+      stackWidgetList.add(_buildOpacityLayerForDeleteButton());
+      stackWidgetList.add(_buildImageDeleteButton());
     }
 
     return Stack(
-      alignment: AlignmentDirectional.center,
+      alignment: AlignmentDirectional.topEnd,
       children: stackWidgetList,
     );
   }
@@ -420,10 +438,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return _imageToDisplay;
   }
 
-  IconButton _buildImageDeleteButton() {
+  Widget _buildImageDeleteButton() {
     return IconButton(
-      color: paletteBlackColor,
-      icon: Icon(Icons.delete),
+      color: kPaletteWhite,
+      icon: buildIconWithShadow(Icons.delete),
       onPressed: () {
         showDialog<void>(
           context: context,
@@ -490,7 +508,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         IconButton(
-          icon: buildIconWithShadow(Icons.chevron_left),
+          icon: buildIconWithShadow(Icons.chevron_left, iconSize: 32),
           onPressed: () {
             setState(() {
               _indexOfImageInDisplay =
@@ -499,7 +517,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           },
         ),
         IconButton(
-          icon: buildIconWithShadow(Icons.chevron_right),
+          icon: buildIconWithShadow(Icons.chevron_right, iconSize: 32),
           onPressed: () {
             setState(() {
               _indexOfImageInDisplay =
