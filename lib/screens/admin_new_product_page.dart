@@ -219,10 +219,11 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
 
     var widgetList = List<Widget>();
+    widgetList.add(form);
+
     if (_formSubmitInProgress) {
       widgetList.add(_buildFormSubmitInProgressIndicator());
     }
-    widgetList.add(form);
 
     return Stack(
       children: widgetList,
