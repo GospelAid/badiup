@@ -1,4 +1,4 @@
-package com.example.badiup
+package com.gospelaid.badiup
 
 import android.Manifest
 import android.content.pm.PackageManager
