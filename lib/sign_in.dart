@@ -16,6 +16,11 @@ User currentSignedInUser = User();
 
 Future<String> signInWithGoogle() async {
   final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+
+  if (googleSignInAccount == null) {
+    return null;
+  }
+
   final GoogleSignInAuthentication googleSignInAuthentication =
       await googleSignInAccount.authentication;
 

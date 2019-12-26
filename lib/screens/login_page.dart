@@ -61,12 +61,14 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _doLogin(BuildContext context) {
+  void _doLogin(BuildContext context) async {
     setState(() {
       _loginInProgress = true;
     });
 
-    signInWithGoogle().whenComplete(() {
+    var result = await signInWithGoogle();
+
+    if (result != null) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
@@ -76,10 +78,10 @@ class _LoginPageState extends State<LoginPage> {
           },
         ),
       );
+    }
 
-      setState(() {
-        _loginInProgress = false;
-      });
+    setState(() {
+      _loginInProgress = false;
     });
   }
 
