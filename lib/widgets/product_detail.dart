@@ -257,7 +257,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Widget _buildSlideshowRightButton(Product product) {
     return IconButton(
-      icon: buildIconWithShadow(Icons.chevron_right),
+      icon: buildIconWithShadow(Icons.chevron_right, iconSize: 32),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
@@ -269,7 +269,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Widget _buildSlideshowLeftButton(Product product) {
     return IconButton(
-      icon: buildIconWithShadow(Icons.chevron_left),
+      icon: buildIconWithShadow(Icons.chevron_left, iconSize: 32),
       onPressed: () {
         setState(() {
           _indexOfImageInDisplay =
