@@ -36,32 +36,50 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Widget _buildBody() {
-    return ListView(
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
-        ProductDetail(productDocumentId: widget.productDocumentId),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: QuantitySelector(
-            controller: quantityController,
-            orientation: Orientation.landscape,
-            iconSize: 32,
-          ),
+        ListView(
+          children: <Widget>[
+            ProductDetail(productDocumentId: widget.productDocumentId),
+            SizedBox(height: 150),
+          ],
         ),
-        _buildCartActionsBar(),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildQuantitySelector(),
+            _buildCartActionsBar(),
+          ],
+        ),
       ],
     );
   }
 
+  Widget _buildQuantitySelector() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: QuantitySelector(
+        controller: quantityController,
+        orientation: Orientation.landscape,
+        iconSize: 32,
+      ),
+    );
+  }
+
   Widget _buildCartActionsBar() {
-    return Row(
-      children: <Widget>[
-        _buildAddToCartButton(),
-        Container(
-          width: 2,
-          color: kPaletteWhite,
-        ),
-        _buildGoToCartButton(),
-      ],
+    return Container(
+      height: 64,
+      child: Row(
+        children: <Widget>[
+          _buildAddToCartButton(),
+          Container(
+            width: 2,
+            color: kPaletteWhite,
+          ),
+          _buildGoToCartButton(),
+        ],
+      ),
     );
   }
 
