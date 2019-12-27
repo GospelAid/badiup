@@ -196,6 +196,10 @@ class _MainMenuState extends State<MainMenu> {
   BoxDecoration _buildDrawerHeaderDecoration(BuildContext context) {
     return BoxDecoration(
       image: DecorationImage(
+        colorFilter: ColorFilter.mode(
+          paletteBlackColor.withOpacity(.65),
+          BlendMode.dstATop,
+        ),
         image: AssetImage('assets/drawer_header_background.jpg'),
         fit: BoxFit.fitWidth,
       ),
