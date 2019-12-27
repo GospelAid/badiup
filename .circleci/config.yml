@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter
+      - image: cirrusci/flutter:v1.9.1-hotfix.6
     steps:
       - checkout
       - run:
