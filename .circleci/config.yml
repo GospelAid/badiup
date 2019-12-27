@@ -1,16 +1,21 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: cirrusci/flutter
+    macos:
+      xcode: "10.3.0"
     steps:
       - checkout
       - run:
+          name: Install Flutter
+          command: |
+            git clone https://github.com/flutter/flutter.git
+            cd flutter
+            git checkout tags/v1.9.1+hotfix.6
+            export PATH="$PATH:`pwd`/flutter/bin"
+            flutter precache
+      - run:
           name: Run Flutter doctor
           command: flutter doctor
-      # - run:
-      #     name: Build the Android version
-      #     command: flutter build apk
-      # - run:
-      #     name: Build the iOS version
-      #     command: flutter build ios
+      - run:
+          name: Build the iOS version
+          command: flutter build ios
