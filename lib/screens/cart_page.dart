@@ -329,7 +329,7 @@ class _CartPageState extends State<CartPage> {
       height: 38,
       width: 74,
       child: FlatButton(
-        color: Color(0xFFF5D8D6),
+        color: paletteRoseColor,
         child: Text(
           "変更",
           style: TextStyle(
