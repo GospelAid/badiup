@@ -24,18 +24,31 @@ class _LoginPageState extends State<LoginPage> {
           : Stack(
               fit: StackFit.expand,
               children: <Widget>[
-                Container(
-                  decoration: _buildBackgroundDecoration(context),
-                ),
+                Container(decoration: _buildBackgroundDecoration(context)),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: 150),
+                    SizedBox(height: 100),
+                    _buildBadiUpLogo(),
+                    SizedBox(height: 32),
                     _buildLoginButton(context),
                   ],
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildBadiUpLogo() {
+    return Container(
+      height: 77,
+      width: 249,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/badiup_logo.png'),
+          fit: BoxFit.fill,
+        ),
+      ),
     );
   }
 
@@ -98,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             padding: EdgeInsets.only(left: 15),
             child: Text(
-              'Login with Google',
+              'Google でログイン',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
