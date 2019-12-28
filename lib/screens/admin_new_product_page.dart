@@ -55,6 +55,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
+  Category _productCategory;
   PublishStatus _productPublishStatus = PublishStatus.Draft;
 
   bool _formSubmitInProgress = false;
@@ -85,6 +86,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       if (_productImages.length > 0) {
         _indexOfImageInDisplay = _productImages.length - 1;
       }
+
+      _productCategory = _product.category;
 
       _productPublishStatus =
           _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
@@ -255,6 +258,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildDescriptionFormField(),
       SizedBox(height: 16.0),
       _buildPriceFormField(),
+      SizedBox(height: 32.0),
+      _buildCategoryFormField(),
     ];
 
     if (_updatingExistingProduct) {
@@ -265,6 +270,51 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
 
     return widgetList;
+  }
+
+  Widget _buildCategoryFormField() {
+    var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      alignment: AlignmentDirectional.centerStart,
+      decoration: BoxDecoration(
+        border: Border(top: _borderSide, bottom: _borderSide),
+      ),
+      child: _buildCategoryButton(),
+    );
+  }
+
+  Widget _buildCategoryButton() {
+    var _textStyle = TextStyle(
+      color: paletteBlackColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    );
+
+    return ButtonTheme(
+      child: DropdownButton<Category>(
+        isExpanded: true,
+        value: _productCategory,
+        icon: Icon(Icons.keyboard_arrow_down),
+        iconSize: 32,
+        elevation: 2,
+        style: _textStyle,
+        underline: Container(height: 0, color: paletteBlackColor),
+        onChanged: (Category newValue) {
+          setState(() {
+            _productCategory = newValue;
+          });
+        },
+        items:
+            Category.values.map<DropdownMenuItem<Category>>((Category value) {
+          return DropdownMenuItem<Category>(
+            value: value,
+            child: Text("カテゴリ：" + getDisplayText(value), style: _textStyle),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   Widget _buildPublishSwitchBar() {
@@ -541,9 +591,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: <Widget>[
-          Container(
-            color: const Color(0xFF8D8D8D),
-          ),
+          Container(color: paletteDarkGreyColor),
           Text(
             "写真を選択してください",
             style: TextStyle(
@@ -1074,6 +1122,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       imageUrls: _imageUrls,
       created: DateTime.now().toUtc(),
       isPublished: publishStatus == PublishStatus.Published,
+      category: _productCategory,
     );
     return _product;
   }

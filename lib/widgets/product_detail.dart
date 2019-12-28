@@ -59,8 +59,28 @@ class _ProductDetailState extends State<ProductDetail> {
           _buildProductDescription(product),
           SizedBox(height: 8.0),
           _buildProductPrice(product),
+          SizedBox(height: 8.0),
+          _buildProductCategory(product.category),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductCategory(Category category) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(8),
+          alignment: AlignmentDirectional.center,
+          height: 40,
+          color: paletteDarkGreyColor,
+          child: Text(
+            getDisplayText(category),
+            style: TextStyle(color: kPaletteWhite),
+          ),
+        ),
+      ],
     );
   }
 
@@ -189,7 +209,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
-      color: const Color(0xFF8D8D8D),
+      color: paletteDarkGreyColor,
       height: constants.imageHeight,
       width: 500,
       child: _getProductListingImage(product),

@@ -18,6 +18,8 @@ const paletteBlackColor = const Color(0xFF151515);
 const paletteLightGreyColor = const Color(0xFFD2D1D1);
 const paletteDarkRedColor = const Color(0xFF892C26);
 const paletteForegroundColor = const Color(0xFF892C26);
+const paletteDarkGreyColor = const Color(0xFF8D8D8D);
+const paletteRoseColor = const Color(0xFFF5D8D6);
 
 TextStyle getAlertStyle() {
   return TextStyle(

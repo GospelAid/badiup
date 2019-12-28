@@ -23,6 +23,9 @@ class ProductListing extends StatefulWidget {
 class _ProductListingState extends State<ProductListing> {
   // product.documentId -> index of image to display
   HashMap activeImageMap = HashMap<String, int>();
+  List<String> _categoryFilters = [];
+  bool _isFilterMenuOpen = false;
+  final String _archivedText = "アーカイブ";
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +52,10 @@ class _ProductListingState extends State<ProductListing> {
     List<DocumentSnapshot> snapshots,
   ) {
     List<Widget> widgets = List<Widget>();
-    snapshots.asMap().forEach((index, data) {
-      final product = Product.fromSnapshot(data);
 
-      // If current signed in user is a customer and
-      // the product is unpublished, then
-      // don't show the product
-      if (!(currentSignedInUser.role == RoleType.customer &&
-          !product.isPublished)) {
-        widgets.add(_buildProductListingItem(context, index, product));
-      }
+    widgets.add(_buildCategoryFilterMenu());
+    snapshots.asMap().forEach((index, data) {
+      _addProductToWidgetListInDisplay(data, widgets, context, index);
     });
 
     return ListView(
@@ -68,6 +65,124 @@ class _ProductListingState extends State<ProductListing> {
         "list",
       )),
       children: widgets,
+    );
+  }
+
+  void _addProductToWidgetListInDisplay(
+    DocumentSnapshot data,
+    List<Widget> widgets,
+    BuildContext context,
+    int index,
+  ) {
+    final product = Product.fromSnapshot(data);
+
+    // Show only published products if current user is customer
+    // Otherwise, show all products
+    if (!(currentSignedInUser.role == RoleType.customer &&
+        !product.isPublished)) {
+      // If no category filters are selected, show all products
+      if (_categoryFilters.isEmpty ||
+          // If one of more category filters are selected, show all products that match the filters
+          _categoryFilters.contains(getDisplayText(product.category)) ||
+          // Show archived products only if the current user is admin
+          (currentSignedInUser.isAdmin() &&
+              !product.isPublished &&
+              _categoryFilters.contains(_archivedText))) {
+        widgets.add(_buildProductListingItem(context, index, product));
+      }
+    }
+  }
+
+  Widget _buildCategoryFilterMenu() {
+    List<Widget> _columnWidgetList = <Widget>[
+      _buildCategoryFilterMenuButton(),
+    ];
+
+    if (_isFilterMenuOpen) {
+      _columnWidgetList.add(_buildCategoryFilterMenuOptions());
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isFilterMenuOpen = !_isFilterMenuOpen;
+          });
+        },
+        child: Column(
+          children: _columnWidgetList,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilterMenuOptions() {
+    List<Widget> _widgetList = [];
+
+    List<String> _filters =
+        Category.values.map((c) => getDisplayText(c)).toList();
+    if (currentSignedInUser.isAdmin()) {
+      _filters.add(_archivedText);
+    }
+
+    _filters.forEach((_categoryFilterText) {
+      _widgetList.add(_buildCategoryFilterChip(_categoryFilterText));
+    });
+
+    return Wrap(
+      spacing: 5,
+      runSpacing: -10,
+      children: _widgetList,
+    );
+  }
+
+  Widget _buildCategoryFilterChip(String _categoryFilterText) {
+    bool _isSelected = _categoryFilters.contains(_categoryFilterText);
+
+    return RawChip(
+      showCheckmark: false,
+      padding: EdgeInsets.zero,
+      backgroundColor: kPaletteWhite,
+      selectedColor: paletteRoseColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      label: Text(
+        _categoryFilterText,
+        style: TextStyle(
+          color: _isSelected ? paletteForegroundColor : paletteBlackColor,
+        ),
+      ),
+      selected: _isSelected,
+      onSelected: (value) {
+        setState(() {
+          if (value) {
+            _categoryFilters.add(_categoryFilterText);
+          } else {
+            _categoryFilters.removeWhere((c) => c == _categoryFilterText);
+          }
+        });
+      },
+    );
+  }
+
+  Widget _buildCategoryFilterMenuButton() {
+    return Row(
+      children: <Widget>[
+        Text(
+          "カテゴリを選ぶ",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: _isFilterMenuOpen
+              ? Icon(Icons.keyboard_arrow_up)
+              : Icon(Icons.keyboard_arrow_down),
+        ),
+      ],
     );
   }
 
@@ -330,7 +445,7 @@ class _ProductListingState extends State<ProductListing> {
     PageController pageController,
   ) {
     return Container(
-      color: const Color(0xFF8D8D8D),
+      color: paletteDarkGreyColor,
       height: constants.imageHeight,
       width: 500,
       child: _getProductListingImage(product, pageController),
