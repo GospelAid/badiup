@@ -295,7 +295,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return ButtonTheme(
       child: DropdownButton<Category>(
         isExpanded: true,
-        value: _productCategory,
+        value: _productCategory ?? Category.misc,
         icon: Icon(Icons.keyboard_arrow_down),
         iconSize: 32,
         elevation: 2,
