@@ -1,3 +1,4 @@
+import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum Category {
@@ -34,6 +35,7 @@ class Product {
   final String documentId;
   final bool isPublished;
   final Category category;
+  final List<Stock> stockList;
 
   Product({
     this.name,
@@ -44,18 +46,23 @@ class Product {
     this.documentId,
     this.isPublished,
     this.category,
+    this.stockList,
   });
 
   Map<String, dynamic> toMap() {
-    return {
+    Map<String, dynamic> map = {
       'name': name,
       'description': description,
       'priceInYen': priceInYen,
       'imageUrls': imageUrls,
       'created': created,
       'isPublished': isPublished,
-      'category': category.index,
+      'category': category?.index,
     };
+
+    map['stockList'] = stockList?.map((stock) => stock.toMap())?.toList();
+
+    return map;
   }
 
   Product.fromMap(Map<String, dynamic> map, String documentId)
@@ -66,7 +73,12 @@ class Product {
         imageUrls = map['imageUrls']?.cast<String>(),
         created = map['created'].toDate(),
         isPublished = map['isPublished'],
-        category = Category.values[map['category']],
+        category =
+            map['category'] != null ? Category.values[map['category']] : null,
+        stockList = map['stockList']
+            ?.map<Stock>(
+                (stock) => Stock.fromMap(stock.cast<String, dynamic>()))
+            ?.toList(),
         documentId = documentId;
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
