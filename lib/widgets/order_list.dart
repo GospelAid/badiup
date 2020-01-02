@@ -55,7 +55,7 @@ class _OrderListState extends State<OrderList> {
     return Container(
       padding: EdgeInsets.only(bottom: 12.0),
       child: Stack(
-        alignment: AlignmentDirectional.topStart,
+        alignment: AlignmentDirectional.bottomEnd,
         children: <Widget>[
           Container(
             height: 73.0,
@@ -102,8 +102,8 @@ class _OrderListState extends State<OrderList> {
 
   Widget _buildOrderListTile(Order order) {
     return ListTile(
-      title: _buildOrderTitle(order),
-      subtitle: _buildOrderSubtitle(order),
+      title: _buildOrderId(order),
+      subtitle: _buildOrderPrice(order),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -128,22 +128,34 @@ class _OrderListState extends State<OrderList> {
     );
   }
 
-  Widget _buildOrderSubtitle(Order order) {
+  Widget _buildOrderPrice(Order order) {
     final currencyFormat = NumberFormat("#,##0");
 
-    return Text(
-      "¥${currencyFormat.format(order.getOrderPrice())}",
-      style: TextStyle(
-        fontSize: 20,
-        color: paletteDarkRedColor,
-        fontWeight: FontWeight.bold,
-      ),
+    return Row(
+      children: <Widget>[
+        Text(
+          "¥${currencyFormat.format(order.getOrderPrice())}",
+          style: TextStyle(
+            fontSize: 20,
+            color: paletteDarkRedColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          "（税込）",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 14.0,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildOrderTitle(Order order) {
+  Widget _buildOrderId(Order order) {
     return Padding(
-      padding: EdgeInsets.only(top: 22),
+      padding: EdgeInsets.only(top: 16),
       child: Text(
         order.orderId,
         style: TextStyle(
