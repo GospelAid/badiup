@@ -66,23 +66,23 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  Widget _buildProductCategory(Category category) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.all(8),
-          alignment: AlignmentDirectional.center,
-          height: 40,
-          color: paletteDarkGreyColor,
-          child: Text(
-            getDisplayText(category),
-            style: TextStyle(color: kPaletteWhite),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildProductCategory(Category category) => category != null
+      ? Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8),
+              alignment: AlignmentDirectional.center,
+              height: 40,
+              color: paletteDarkGreyColor,
+              child: Text(
+                getDisplayText(category),
+                style: TextStyle(color: kPaletteWhite),
+              ),
+            ),
+          ],
+        )
+      : Container();
 
   Widget _buildProductPrice(Product product) {
     final currencyFormat = NumberFormat("#,##0");
@@ -95,6 +95,14 @@ class _ProductDetailState extends State<ProductDetail> {
           style: TextStyle(
             color: paletteForegroundColor,
             fontSize: 24.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          "（税込）",
+          style: TextStyle(
+            color: Color(0xFF888888),
+            fontSize: 16.0,
             fontWeight: FontWeight.w600,
           ),
         ),
