@@ -60,6 +60,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _descriptionEditingController = TextEditingController();
   Category _productCategory;
 
+  bool _shouldDisplayStock = false;
   LinkedHashMap<StockIdentifier, int> _productStockMap =
       LinkedHashMap<StockIdentifier, int>(equals: (
     StockIdentifier id1,
@@ -282,6 +283,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildPriceFormField(),
       SizedBox(height: 32.0),
       _buildCategoryFormField(),
+      SizedBox(height: 4.0),
+      _buildDisplayStockSwitch(),
       SizedBox(height: 16.0),
     ];
 
@@ -296,25 +299,76 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return _getSliverList(widgetList1, widgetList2);
   }
 
+  Widget _buildDisplayStockSwitch() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _shouldDisplayStock = !_shouldDisplayStock;
+        });
+      },
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              width: 0.3,
+              color:
+                  _shouldDisplayStock ? Colors.transparent : paletteBlackColor,
+            ),
+          ),
+        ),
+        child: _buildDisplayStockSwitchInternal(),
+      ),
+    );
+  }
+
+  Widget _buildDisplayStockSwitchInternal() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          "詳細",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Icon(
+          _shouldDisplayStock
+              ? Icons.keyboard_arrow_up
+              : Icons.keyboard_arrow_down,
+          size: 32,
+        ),
+      ],
+    );
+  }
+
   List<Widget> _getSliverList(
     List<Widget> widgetList1,
     List<Widget> widgetList2,
   ) {
-    return <Widget>[
+    List<Widget> sliverList = <Widget>[
       SliverList(delegate: SliverChildListDelegate(widgetList1)),
-      SliverGrid(
+    ];
+
+    if (_shouldDisplayStock) {
+      sliverList.add(SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
         ),
-        delegate: SliverChildListDelegate(_buildStockFormField()),
-      ),
-      SliverList(delegate: SliverChildListDelegate(widgetList2)),
-    ];
+        delegate: SliverChildListDelegate(_buildStockList()),
+      ));
+    }
+
+    sliverList.add(SliverList(delegate: SliverChildListDelegate(widgetList2)));
+
+    return sliverList;
   }
 
-  List<Widget> _buildStockFormField() {
+  List<Widget> _buildStockList() {
     List<Widget> _widgetList = [];
 
     _productStockMap.forEach((stockIdentifier, quantity) {
@@ -491,7 +545,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       child: DropdownButton<Category>(
         isExpanded: true,
         value: _productCategory ?? Category.misc,
-        icon: Icon(Icons.keyboard_arrow_down),
+        icon: Icon(Icons.keyboard_arrow_down, color: paletteBlackColor),
         iconSize: 32,
         elevation: 2,
         style: _textStyle,
