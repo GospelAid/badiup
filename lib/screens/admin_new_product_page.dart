@@ -1,12 +1,15 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
+import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/screens/multi_select_gallery.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
+import 'package:badiup/widgets/stock_selector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -56,6 +59,16 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _priceEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
   Category _productCategory;
+
+  bool _shouldDisplayStock = false;
+  LinkedHashMap<StockIdentifier, int> _productStockMap =
+      LinkedHashMap<StockIdentifier, int>(equals: (
+    StockIdentifier id1,
+    StockIdentifier id2,
+  ) {
+    return id1.color == id2.color && id1.size == id2.size;
+  });
+
   PublishStatus _productPublishStatus = PublishStatus.Draft;
 
   bool _formSubmitInProgress = false;
@@ -88,6 +101,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       }
 
       _productCategory = _product.category;
+
+      _product.stockList.forEach((stock) {
+        _productStockMap.putIfAbsent(stock.identifier, () => stock.quantity);
+      });
 
       _productPublishStatus =
           _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
@@ -205,20 +222,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
-      child: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            key: Key(makeTestKeyString(
-              TKUsers.admin,
-              TKScreens.addProduct,
-              "form",
-            )),
-            children: _buildFormFields(context),
-          ),
-        ),
-      ),
+      child: _buildNewProductFormInternal(context),
     );
 
     var widgetList = List<Widget>();
@@ -230,6 +234,25 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
     return Stack(
       children: widgetList,
+    );
+  }
+
+  Widget _buildNewProductFormInternal(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CustomScrollView(
+          key: Key(
+            makeTestKeyString(
+              TKUsers.admin,
+              TKScreens.addProduct,
+              "form",
+            ),
+          ),
+          slivers: _buildFormFields(context),
+        ),
+      ),
     );
   }
 
@@ -252,7 +275,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   List<Widget> _buildFormFields(BuildContext context) {
-    var widgetList = <Widget>[
+    var widgetList1 = <Widget>[
       _buildMultipleImageUploadField(),
       _buildNameFormField(),
       _buildDescriptionFormField(),
@@ -260,16 +283,242 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildPriceFormField(),
       SizedBox(height: 32.0),
       _buildCategoryFormField(),
+      SizedBox(height: 4.0),
+      _buildDisplayStockSwitch(),
+      SizedBox(height: 16.0),
     ];
 
+    List<Widget> widgetList2 = [];
     if (_updatingExistingProduct) {
-      widgetList.add(_buildPublishSwitchBar());
-      widgetList.add(_buildSaveChangesButtonBar());
+      widgetList2.add(_buildPublishSwitchBar());
+      widgetList2.add(_buildSaveChangesButtonBar());
     } else {
-      widgetList.add(_buildPublishDraftButtonBar());
+      widgetList2.add(_buildPublishDraftButtonBar());
     }
 
-    return widgetList;
+    return _getSliverList(widgetList1, widgetList2);
+  }
+
+  Widget _buildDisplayStockSwitch() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _shouldDisplayStock = !_shouldDisplayStock;
+        });
+      },
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              width: 0.3,
+              color:
+                  _shouldDisplayStock ? Colors.transparent : paletteBlackColor,
+            ),
+          ),
+        ),
+        child: _buildDisplayStockSwitchInternal(),
+      ),
+    );
+  }
+
+  Widget _buildDisplayStockSwitchInternal() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          "詳細",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Icon(
+          _shouldDisplayStock
+              ? Icons.keyboard_arrow_up
+              : Icons.keyboard_arrow_down,
+          size: 32,
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _getSliverList(
+    List<Widget> widgetList1,
+    List<Widget> widgetList2,
+  ) {
+    List<Widget> sliverList = <Widget>[
+      SliverList(delegate: SliverChildListDelegate(widgetList1)),
+    ];
+
+    if (_shouldDisplayStock) {
+      sliverList.add(SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+        ),
+        delegate: SliverChildListDelegate(_buildStockList()),
+      ));
+    }
+
+    sliverList.add(SliverList(delegate: SliverChildListDelegate(widgetList2)));
+
+    return sliverList;
+  }
+
+  List<Widget> _buildStockList() {
+    List<Widget> _widgetList = [];
+
+    _productStockMap.forEach((stockIdentifier, quantity) {
+      _widgetList.add(_buildStockItem(Stock(
+        identifier: stockIdentifier,
+        quantity: quantity,
+      )));
+    });
+
+    _widgetList.add(_buildAddStockButton());
+
+    return _widgetList;
+  }
+
+  Widget _buildAddStockButton() {
+    return GestureDetector(
+      onTap: _addStockToMap,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(color: paletteGreyColor),
+        ),
+        child: Icon(Icons.add, size: 60, color: paletteGreyColor),
+      ),
+    );
+  }
+
+  void _addStockToMap() async {
+    Stock newStock = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => StockSelector()),
+    );
+
+    if (newStock != null) {
+      var id = _productStockMap.keys.firstWhere(
+        (key) =>
+            key.color == newStock.identifier.color &&
+            key.size == newStock.identifier.size,
+        orElse: () => null,
+      );
+
+      if (id != null) {
+        _productStockMap[id] += newStock.quantity;
+      } else {
+        _productStockMap.putIfAbsent(
+          newStock.identifier,
+          () => newStock.quantity,
+        );
+      }
+    }
+  }
+
+  Future<void> _updateStockInMap(Stock stock) async {
+    Stock updatedStock = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StockSelector(productStock: stock),
+      ),
+    );
+
+    if (updatedStock != null) {
+      var id = _productStockMap.keys.firstWhere(
+        (key) =>
+            key.color == updatedStock.identifier.color &&
+            key.size == updatedStock.identifier.size,
+        orElse: () => null,
+      );
+
+      if (id != null) {
+        _productStockMap[id] = updatedStock.quantity;
+      }
+    }
+  }
+
+  Widget _buildStockItem(Stock stock) {
+    return GestureDetector(
+      onTap: () async {
+        await _updateStockInMap(stock);
+      },
+      child: Container(
+        alignment: AlignmentDirectional.center,
+        decoration: BoxDecoration(
+          color: getDisplayColorForItemColor(stock.identifier.color),
+          border: stock.identifier.color == ItemColor.na
+              ? Border.all(color: paletteGreyColor)
+              : null,
+        ),
+        child: Stack(
+          alignment: AlignmentDirectional.topStart,
+          children: <Widget>[
+            _buildStockItemQuantity(stock),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[_buildStockItemText(stock)],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStockItemQuantity(Stock stock) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          alignment: AlignmentDirectional.center,
+          height: 20,
+          width: 40,
+          color: paletteForegroundColor,
+          child: Text(
+            "残" + stock.quantity.toString(),
+            style: TextStyle(
+              color: kPaletteWhite,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStockItemText(Stock stock) {
+    Color _color = getDisplayTextColorForItemColor(stock.identifier.color);
+
+    return Padding(
+      padding: EdgeInsets.all(12),
+      child: Column(
+        children: <Widget>[
+          Text(
+            getDisplayTextForItemSize(stock.identifier.size),
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.w600,
+              color: _color,
+            ),
+          ),
+          Text(
+            getDisplayTextForItemColor(stock.identifier.color),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _color,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCategoryFormField() {
@@ -295,8 +544,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return ButtonTheme(
       child: DropdownButton<Category>(
         isExpanded: true,
-        value: _productCategory,
-        icon: Icon(Icons.keyboard_arrow_down),
+        value: _productCategory ?? Category.misc,
+        icon: Icon(Icons.keyboard_arrow_down, color: paletteBlackColor),
         iconSize: 32,
         elevation: 2,
         style: _textStyle,
@@ -1123,6 +1372,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       created: DateTime.now().toUtc(),
       isPublished: publishStatus == PublishStatus.Published,
       category: _productCategory,
+      stockList: _productStockMap.entries
+          .map((e) => Stock(identifier: e.key, quantity: e.value))
+          .toList(),
     );
     return _product;
   }
