@@ -23,7 +23,7 @@ class MainActivity: FlutterActivity() {
     val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
     if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), permissionCode)
+      ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
     } else {
       checkGallery()
     }
@@ -57,7 +57,7 @@ class MainActivity: FlutterActivity() {
   }
 
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-    if (requestCode == permissionCode
+    if (requestCode == 1
         && grantResults.isNotEmpty()
         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
       checkGallery()
