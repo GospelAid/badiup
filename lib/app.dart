@@ -60,7 +60,7 @@ ThemeData _buildAppTheme() {
   return base.copyWith(
     accentColor: kPaletteWhite,
     primaryColor: paletteBlackColor,
-    scaffoldBackgroundColor: const Color(0xFFD2D0D1),
+    scaffoldBackgroundColor: paletteGreyColor3,
     cardColor: kPaletteWhite,
     textSelectionColor: kPalettePurple100,
     errorColor: kPaletteRed,
