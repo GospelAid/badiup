@@ -58,6 +58,7 @@ class _ProductListingState extends State<ProductListing> {
     });
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       key: Key(makeTestKeyString(
         TKUsers.admin,
         TKScreens.productListing,
@@ -66,11 +67,8 @@ class _ProductListingState extends State<ProductListing> {
       children: [
         _buildCategoryFilterMenu(),
         Expanded(
-          child: ListView.builder(
-            itemCount: widgets.length,
-            itemBuilder: (BuildContext context, int index){
-              return widgets[index];
-            },
+          child: ListView(
+            children: widgets,
           ),
         ),
       ],
