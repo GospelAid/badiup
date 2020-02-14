@@ -66,13 +66,13 @@ class _ProductListingState extends State<ProductListing> {
       children: [
         _buildCategoryFilterMenu(),
         Expanded(
-          child:ListView.builder(
+          child: ListView.builder(
             itemCount: widgets.length,
             itemBuilder: (BuildContext context, int index){
               return widgets[index];
             },
-          )
-        )
+          ),
+        ),
       ],
     );
   }
