@@ -53,18 +53,25 @@ class _ProductListingState extends State<ProductListing> {
   ) {
     List<Widget> widgets = List<Widget>();
 
-    widgets.add(_buildCategoryFilterMenu());
     snapshots.asMap().forEach((index, data) {
       _addProductToWidgetListInDisplay(data, widgets, context, index);
     });
 
-    return ListView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       key: Key(makeTestKeyString(
         TKUsers.admin,
         TKScreens.productListing,
         "list",
       )),
-      children: widgets,
+      children: [
+        _buildCategoryFilterMenu(),
+        Expanded(
+          child: ListView(
+            children: widgets,
+          ),
+        ),
+      ],
     );
   }
 
