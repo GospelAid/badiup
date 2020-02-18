@@ -23,6 +23,7 @@ const paletteRoseColor = const Color(0xFFF5D8D6);
 const paletteBrownColor = const Color(0xFF6F5850);
 const paletteGreyColor = const Color(0xFF707070);
 const paletteGreyColor2 = const Color(0xFF767575);
+const paletteGreyColor3 = const Color(0xFFD2D0D1);
 
 TextStyle getAlertStyle() {
   return TextStyle(

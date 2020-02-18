@@ -25,11 +25,14 @@ class CustomerProductDetailPage extends StatefulWidget {
 }
 
 class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   QuantityController quantityController = QuantityController(value: 1);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(context),
       body: _buildBody(),
     );
@@ -164,6 +167,22 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
         .updateData(customer.toMap());
+
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.fixed,
+        content: Container(
+          alignment: AlignmentDirectional.centerStart,
+          height: 40,
+          child: Text("商品をかごに追加しました"),
+        ),
+        action: SnackBarAction(
+          textColor: paletteGreyColor3,
+          label: "OK",
+          onPressed: () {},
+        ),
+      ),
+    );
   }
 
   void _updateCartModel(Customer customer) {
