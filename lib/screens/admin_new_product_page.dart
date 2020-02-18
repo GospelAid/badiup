@@ -461,7 +461,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           alignment: AlignmentDirectional.topStart,
           children: <Widget>[
             _buildStockItemQuantity(stock),
-            _buildStockItemDeletionButton(stock),
+            _buildDeleteStockItemButton(stock),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[_buildStockItemText(stock)],
@@ -494,7 +494,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Widget _buildStockItemDeletionButton(Stock stock) {
+  Widget _buildDeleteStockItemButton(Stock stock) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
@@ -508,11 +508,54 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               color: stock.identifier.color == ItemColor.black ? paletteGreyColor : paletteBlackColor,
               size: 20
             ),
-            onPressed: null,
+            onPressed: () {
+              _displayDeleteStockItemDialog();
+            },
           ),
         ),
       ],
     );
+  }
+
+  void _displayDeleteStockItemDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '削除してよろしいですか？',
+            style: getAlertStyle(),
+          ),
+          content: Text('この操作は取り消しできません。'),
+          actions: _buildDeleteStockItemDialogActions(context),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildDeleteStockItemDialogActions(BuildContext context) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '削除',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          // Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ),
+    ];
   }
 
   Widget _buildStockItemText(Stock stock) {
