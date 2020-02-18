@@ -461,6 +461,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           alignment: AlignmentDirectional.topStart,
           children: <Widget>[
             _buildStockItemQuantity(stock),
+            _buildStockItemDeletionButton(stock),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[_buildStockItemText(stock)],
@@ -487,6 +488,27 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStockItemDeletionButton(Stock stock) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Container(
+          alignment: AlignmentDirectional.center,
+          height: 20,
+          width: 30,
+          child: IconButton(
+            icon: Icon(
+              Icons.delete,
+              color: stock.identifier.color == ItemColor.black ? paletteGreyColor : paletteBlackColor,
+              size: 20
+            ),
+            onPressed: null,
           ),
         ),
       ],
