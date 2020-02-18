@@ -509,7 +509,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
               size: 20
             ),
             onPressed: () {
-              _displayDeleteStockItemDialog();
+              _displayDeleteStockItemDialog(stock);
             },
           ),
         ),
@@ -517,7 +517,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  void _displayDeleteStockItemDialog() {
+  void _displayDeleteStockItemDialog(Stock stock) {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -528,13 +528,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             style: getAlertStyle(),
           ),
           content: Text('この操作は取り消しできません。'),
-          actions: _buildDeleteStockItemDialogActions(context),
+          actions: _buildDeleteStockItemDialogActions(context, stock),
         );
       },
     );
   }
 
-  List<Widget> _buildDeleteStockItemDialogActions(BuildContext context) {
+  List<Widget> _buildDeleteStockItemDialogActions(BuildContext context, Stock stock) {
     return <Widget>[
       FlatButton(
         child: Text(
@@ -551,8 +551,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           style: TextStyle(color: paletteForegroundColor),
         ),
         onPressed: () async {
-          // Navigator.pop(context);
-          // Navigator.pop(context);
+          setState(() {
+            _productStockMap.remove(stock.identifier);
+          });
+          Navigator.pop(context);
         },
       ),
     ];
