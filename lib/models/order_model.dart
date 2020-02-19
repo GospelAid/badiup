@@ -33,7 +33,9 @@ class Order{
       case OrderStatus.all:
         return '全て';
       case OrderStatus.pending:
-        return '保留中';
+        return '未発送';
+      case OrderStatus.dispatched:
+        return '発送済';
       default:
         return 'その他';
     }
