@@ -500,13 +500,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       children: <Widget>[
         Container(
           alignment: AlignmentDirectional.center,
-          height: 20,
-          width: 30,
+          height: 35,
+          width: 32,
           child: IconButton(
+            padding: EdgeInsets.all(0.0),
             icon: Icon(
               Icons.delete,
               color: stock.identifier.color == ItemColor.black ? paletteGreyColor : paletteBlackColor,
-              size: 20
+              size: 22
             ),
             onPressed: () {
               _displayDeleteStockItemDialog(stock);
