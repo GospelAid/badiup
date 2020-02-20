@@ -455,7 +455,12 @@ class _ProductListingState extends State<ProductListing> {
       color: paletteDarkGreyColor,
       height: constants.imageHeight,
       width: 500,
-      child: _getProductListingImage(product, pageController),
+      child: Stack(
+        children: <Widget>[
+          _getProductListingImage(product, pageController),
+          _getProductStockQuantityTag(product)          
+        ],
+      ),
     );
   }
 
@@ -517,3 +522,22 @@ class _ProductListingState extends State<ProductListing> {
     }
   }
 }
+
+  StatelessWidget _getProductStockQuantityTag(
+    Product product
+  ){
+    int totalQty = 0;
+    product.stockList.forEach( (stockObj) => totalQty = totalQty + stockObj.quantity);
+    return  Container(
+      height: 30,
+      width: 60,
+      color: paletteForegroundColor,
+      child: Center(
+        child: Text(
+          totalQty <= 999 ? "残"+totalQty.toString() : "残999+" ,
+          textAlign: TextAlign.center,
+          style:  TextStyle(color:Colors.white),
+        ),
+      ),
+    );  
+  }
