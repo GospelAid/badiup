@@ -461,6 +461,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           alignment: AlignmentDirectional.topStart,
           children: <Widget>[
             _buildStockItemQuantity(stock),
+            _buildDeleteStockItemButton(stock),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[_buildStockItemText(stock)],
@@ -491,6 +492,73 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
       ],
     );
+  }
+
+  Widget _buildDeleteStockItemButton(Stock stock) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Container(
+          alignment: AlignmentDirectional.center,
+          height: 35,
+          width: 32,
+          child: IconButton(
+            padding: EdgeInsets.all(0.0),
+            icon: Icon(
+              Icons.delete,
+              color: stock.identifier.color == ItemColor.black ? paletteGreyColor : paletteBlackColor,
+              size: 22
+            ),
+            onPressed: () {
+              _displayDeleteStockItemDialog(stock);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _displayDeleteStockItemDialog(Stock stock) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '削除してよろしいですか？',
+            style: getAlertStyle(),
+          ),
+          content: Text('この操作は取り消しできません。'),
+          actions: _buildDeleteStockItemDialogActions(context, stock),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildDeleteStockItemDialogActions(BuildContext context, Stock stock) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '削除',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          setState(() {
+            _productStockMap.remove(stock.identifier);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 
   Widget _buildStockItemText(Stock stock) {
