@@ -524,15 +524,15 @@ class _ProductListingState extends State<ProductListing> {
 
   Widget _getProductStockQuantityTag(Product product) {
     int totalQuantity = 0;
-    product.stockList.forEach(
-        (stockObj) => totalQuantity = totalQuantity + stockObj.quantity);
+    product.stockList
+        .forEach((stock) => totalQuantity = totalQuantity + stock.quantity);
     return Container(
       height: 30,
       width: 60,
       color: paletteForegroundColor,
       child: Center(
         child: Text(
-          totalQuantity <= 999 ? "残" + totalQuantity.toString() : "残999+",
+          "残" + (totalQuantity <= 999 ? totalQuantity.toString() : "999+"),
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white),
         ),
