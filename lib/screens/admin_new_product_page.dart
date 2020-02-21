@@ -105,13 +105,18 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       }
 
       _productCategory = _product.category;
-      _productStockType = _product.stock.stockType;
 
-      _product.stock.items.forEach((stock) {
-        _productStockMap.putIfAbsent(
-            StockIdentifier(color: stock.color, size: stock.size),
-            () => stock.quantity);
-      });
+      if (_product.stock != null) {
+        _productStockType = _product.stock.stockType;
+
+        _product.stock.items.forEach((stock) {
+          _productStockMap.putIfAbsent(
+              StockIdentifier(color: stock.color, size: stock.size),
+              () => stock.quantity);
+        });
+      } else {
+        _productStockType = StockType.sizeAndColor;
+      }
 
       _productPublishStatus =
           _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
