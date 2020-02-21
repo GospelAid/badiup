@@ -4,15 +4,32 @@ import 'package:flutter/material.dart';
 enum ItemColor {
   black,
   brown,
-  na,
   white,
 }
 
 enum ItemSize {
   large,
   medium,
-  na,
   small,
+}
+
+enum StockType {
+  sizeAndColor,
+  sizeOnly,
+  colorOnly,
+}
+
+String getDisplayTextForStockType(StockType stockType) {
+  switch (stockType) {
+    case StockType.colorOnly:
+      return "色のみ選択";
+    case StockType.sizeAndColor:
+      return "サイズと色を選択";
+    case StockType.sizeOnly:
+      return "サイズのみ選択";
+    default:
+      return "";
+  }
 }
 
 String getDisplayTextForItemColor(ItemColor itemColor) {
@@ -21,8 +38,6 @@ String getDisplayTextForItemColor(ItemColor itemColor) {
       return "ブラック";
     case ItemColor.brown:
       return "ブラウン";
-    case ItemColor.na:
-      return "無し";
     case ItemColor.white:
       return "ホワイト";
     default:
@@ -36,8 +51,6 @@ Color getDisplayColorForItemColor(ItemColor itemColor) {
       return paletteBlackColor;
     case ItemColor.brown:
       return paletteBrownColor;
-    case ItemColor.na:
-      return Colors.transparent;
     case ItemColor.white:
       return kPaletteWhite;
     default:
@@ -51,8 +64,6 @@ Color getDisplayTextColorForItemColor(ItemColor itemColor) {
       return kPaletteWhite;
     case ItemColor.brown:
       return kPaletteWhite;
-    case ItemColor.na:
-      return paletteGreyColor2;
     case ItemColor.white:
       return paletteGreyColor2;
     default:
@@ -66,13 +77,39 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
       return "L";
     case ItemSize.medium:
       return "M";
-    case ItemSize.na:
-      return "x";
     case ItemSize.small:
       return "S";
     default:
       return "";
   }
+}
+
+// TODO: Use StockIdentifier
+class StockItem {
+  final ItemColor color;
+  final ItemSize size;
+  final int quantity;
+
+  StockItem({
+    this.color,
+    this.size,
+    this.quantity,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'color': color.index,
+      'size': size.index,
+      'quantity': quantity,
+    };
+  }
+
+  StockItem.fromMap(Map<String, dynamic> map)
+      : assert(map['color'] != null),
+        assert(map['size'] != null),
+        color = ItemColor.values[map['color']],
+        size = ItemSize.values[map['size']],
+        quantity = map['quantity'];
 }
 
 class StockIdentifier {
@@ -99,24 +136,25 @@ class StockIdentifier {
 }
 
 class Stock {
-  final StockIdentifier identifier;
-  final int quantity;
+  final List<StockItem> items;
+  final StockType stockType;
 
   Stock({
-    this.identifier,
-    this.quantity,
+    this.items,
+    this.stockType,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'identifier': identifier.toMap(),
-      'quantity': quantity,
+      'items': items?.map((item) => item.toMap())?.toList(),
+      'stockType': stockType.index,
     };
   }
 
   Stock.fromMap(Map<String, dynamic> map)
-      : identifier = StockIdentifier.fromMap(
-          map['identifier'].cast<String, dynamic>(),
-        ),
-        quantity = map['quantity'];
+      : items = map['items']
+            ?.map<StockItem>(
+                (stock) => StockItem.fromMap(stock.cast<String, dynamic>()))
+            ?.toList(),
+        stockType = StockType.values[map['stockType']];
 }

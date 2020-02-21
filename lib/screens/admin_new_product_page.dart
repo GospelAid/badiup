@@ -59,6 +59,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _priceEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
   Category _productCategory;
+  StockType _productStockType;
 
   bool _shouldDisplayStock = false;
   LinkedHashMap<StockIdentifier, int> _productStockMap =
@@ -79,11 +80,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (widget.productDocumentId != null) {
       _updatingExistingProduct = true;
 
-      _loadProductInfo();
+      _loadProductInfoFromDb();
+    } else {
+      _productCategory = Category.misc;
+      _productStockType = StockType.sizeAndColor;
     }
   }
 
-  Future<void> _loadProductInfo() async {
+  Future<void> _loadProductInfoFromDb() async {
     _product = Product.fromSnapshot(await Firestore.instance
         .collection(constants.DBCollections.products)
         .document(widget.productDocumentId)
@@ -101,9 +105,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       }
 
       _productCategory = _product.category;
+      _productStockType = _product.stock.stockType;
 
-      _product.stockList.forEach((stock) {
-        _productStockMap.putIfAbsent(stock.identifier, () => stock.quantity);
+      _product.stock.items.forEach((stock) {
+        _productStockMap.putIfAbsent(
+            StockIdentifier(color: stock.color, size: stock.size),
+            () => stock.quantity);
       });
 
       _productPublishStatus =
@@ -283,6 +290,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildPriceFormField(),
       SizedBox(height: 32.0),
       _buildCategoryFormField(),
+      _buildStockTypeFormField(),
       SizedBox(height: 4.0),
       _buildDisplayStockSwitch(),
       SizedBox(height: 16.0),
@@ -372,8 +380,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<Widget> _widgetList = [];
 
     _productStockMap.forEach((stockIdentifier, quantity) {
-      _widgetList.add(_buildStockItem(Stock(
-        identifier: stockIdentifier,
+      _widgetList.add(_buildStockItem(StockItem(
+        color: stockIdentifier.color,
+        size: stockIdentifier.size,
         quantity: quantity,
       )));
     });
@@ -398,73 +407,77 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   void _addStockToMap() async {
-    Stock newStock = await Navigator.push(
+    StockItem newStockItem = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StockSelector()),
+      MaterialPageRoute(
+          builder: (context) => StockSelector(
+                productStockType: _productStockType,
+              )),
     );
 
-    if (newStock != null) {
+    if (newStockItem != null) {
       var id = _productStockMap.keys.firstWhere(
         (key) =>
-            key.color == newStock.identifier.color &&
-            key.size == newStock.identifier.size,
+            key.color == newStockItem.color && key.size == newStockItem.size,
         orElse: () => null,
       );
 
       if (id != null) {
-        _productStockMap[id] += newStock.quantity;
+        _productStockMap[id] += newStockItem.quantity;
       } else {
         _productStockMap.putIfAbsent(
-          newStock.identifier,
-          () => newStock.quantity,
+          StockIdentifier(color: newStockItem.color, size: newStockItem.size),
+          () => newStockItem.quantity,
         );
       }
     }
   }
 
-  Future<void> _updateStockInMap(Stock stock) async {
-    Stock updatedStock = await Navigator.push(
+  Future<void> _updateStockInMap(StockItem stockItem) async {
+    StockItem updatedStockItem = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StockSelector(productStock: stock),
+        builder: (context) => StockSelector(productStockItem: stockItem),
       ),
     );
 
-    if (updatedStock != null) {
+    if (updatedStockItem != null) {
       var id = _productStockMap.keys.firstWhere(
         (key) =>
-            key.color == updatedStock.identifier.color &&
-            key.size == updatedStock.identifier.size,
+            key.color == updatedStockItem.color &&
+            key.size == updatedStockItem.size,
         orElse: () => null,
       );
 
       if (id != null) {
-        _productStockMap[id] = updatedStock.quantity;
+        _productStockMap[id] = updatedStockItem.quantity;
       }
     }
   }
 
-  Widget _buildStockItem(Stock stock) {
+  Widget _buildStockItem(StockItem stockItem) {
     return GestureDetector(
       onTap: () async {
-        await _updateStockInMap(stock);
+        await _updateStockInMap(stockItem);
       },
       child: Container(
         alignment: AlignmentDirectional.center,
         decoration: BoxDecoration(
-          color: getDisplayColorForItemColor(stock.identifier.color),
-          border: stock.identifier.color == ItemColor.na
+          color: _productStockType == StockType.sizeOnly
+              ? Colors.transparent
+              : getDisplayColorForItemColor(stockItem.color),
+          border: _productStockType == StockType.sizeOnly
               ? Border.all(color: paletteGreyColor)
               : null,
         ),
         child: Stack(
           alignment: AlignmentDirectional.topStart,
           children: <Widget>[
-            _buildStockItemQuantity(stock),
-            _buildDeleteStockItemButton(stock),
+            _buildStockItemQuantity(stockItem),
+            _buildDeleteStockItemButton(stockItem),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[_buildStockItemText(stock)],
+              children: <Widget>[_buildStockItemText(stockItem)],
             ),
           ],
         ),
@@ -472,7 +485,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Widget _buildStockItemQuantity(Stock stock) {
+  Widget _buildStockItemQuantity(StockItem stockItem) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -482,7 +495,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           width: 40,
           color: paletteForegroundColor,
           child: Text(
-            "残" + stock.quantity.toString(),
+            "残" + stockItem.quantity.toString(),
             style: TextStyle(
               color: kPaletteWhite,
               fontSize: 13,
@@ -494,7 +507,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  Widget _buildDeleteStockItemButton(Stock stock) {
+  Widget _buildDeleteStockItemButton(StockItem stockItem) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
@@ -504,13 +517,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           width: 32,
           child: IconButton(
             padding: EdgeInsets.all(0.0),
-            icon: Icon(
-              Icons.delete,
-              color: stock.identifier.color == ItemColor.black ? paletteGreyColor : paletteBlackColor,
-              size: 22
-            ),
+            icon: Icon(Icons.delete,
+                color: _productStockType != StockType.sizeOnly &&
+                        stockItem.color == ItemColor.black
+                    ? paletteGreyColor
+                    : paletteBlackColor,
+                size: 22),
             onPressed: () {
-              _displayDeleteStockItemDialog(stock);
+              _displayDeleteStockItemDialog(stockItem);
             },
           ),
         ),
@@ -518,7 +532,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
-  void _displayDeleteStockItemDialog(Stock stock) {
+  void _displayDeleteStockItemDialog(StockItem stockItem) {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -529,13 +543,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             style: getAlertStyle(),
           ),
           content: Text('この操作は取り消しできません。'),
-          actions: _buildDeleteStockItemDialogActions(context, stock),
+          actions: _buildDeleteStockItemDialogActions(context, stockItem),
         );
       },
     );
   }
 
-  List<Widget> _buildDeleteStockItemDialogActions(BuildContext context, Stock stock) {
+  List<Widget> _buildDeleteStockItemDialogActions(
+      BuildContext context, StockItem stockItem) {
     return <Widget>[
       FlatButton(
         child: Text(
@@ -553,7 +568,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
         onPressed: () async {
           setState(() {
-            _productStockMap.remove(stock.identifier);
+            _productStockMap.remove(StockIdentifier(
+              color: stockItem.color,
+              size: stockItem.size,
+            ));
           });
           Navigator.pop(context);
         },
@@ -561,31 +579,58 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     ];
   }
 
-  Widget _buildStockItemText(Stock stock) {
-    Color _color = getDisplayTextColorForItemColor(stock.identifier.color);
+  Widget _buildStockItemText(StockItem stockItem) {
+    Color _color = _productStockType == StockType.sizeOnly
+        ? paletteGreyColor2
+        : getDisplayTextColorForItemColor(stockItem.color);
 
     return Padding(
       padding: EdgeInsets.all(12),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
-            getDisplayTextForItemSize(stock.identifier.size),
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.w600,
-              color: _color,
-            ),
-          ),
-          Text(
-            getDisplayTextForItemColor(stock.identifier.color),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: _color,
-            ),
-          ),
+          _productStockType == StockType.colorOnly
+              ? Container()
+              : Text(
+                  getDisplayTextForItemSize(stockItem.size),
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.w600,
+                    color: _color,
+                  ),
+                ),
+          _productStockType == StockType.sizeOnly
+              ? Container()
+              : Text(
+                  getDisplayTextForItemColor(stockItem.color),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _color,
+                  ),
+                ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStockTypeFormField() {
+    var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
+    var _textStyle = TextStyle(
+      color: paletteBlackColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    );
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      alignment: AlignmentDirectional.centerStart,
+      decoration: BoxDecoration(
+        border: _productStockMap.isEmpty ? Border(bottom: _borderSide) : null,
+      ),
+      child: _productStockMap.isEmpty
+          ? _buildStockTypePicker(_textStyle)
+          : _buildStockTypeDisplay(_textStyle),
     );
   }
 
@@ -599,6 +644,45 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         border: Border(top: _borderSide, bottom: _borderSide),
       ),
       child: _buildCategoryButton(),
+    );
+  }
+
+  Widget _buildStockTypeDisplay(TextStyle textStyle) {
+    var controller = TextEditingController(
+      text: "カテゴリタイプ：" + getDisplayTextForStockType(_productStockType),
+    );
+
+    return TextField(
+      readOnly: true,
+      controller: controller,
+      style: textStyle,
+    );
+  }
+
+  Widget _buildStockTypePicker(TextStyle textStyle) {
+    return ButtonTheme(
+      child: DropdownButton<StockType>(
+        isExpanded: true,
+        value: _productStockType ?? StockType.sizeAndColor,
+        icon: Icon(Icons.keyboard_arrow_down, color: paletteBlackColor),
+        iconSize: 32,
+        elevation: 2,
+        style: textStyle,
+        underline: Container(height: 0, color: paletteBlackColor),
+        onChanged: (StockType newValue) {
+          setState(() {
+            _productStockType = newValue;
+          });
+        },
+        items: StockType.values
+            .map<DropdownMenuItem<StockType>>((StockType value) {
+          return DropdownMenuItem<StockType>(
+            value: value,
+            child: Text("カテゴリタイプ：" + getDisplayTextForStockType(value),
+                style: textStyle),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -1440,9 +1524,15 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       created: DateTime.now().toUtc(),
       isPublished: publishStatus == PublishStatus.Published,
       category: _productCategory,
-      stockList: _productStockMap.entries
-          .map((e) => Stock(identifier: e.key, quantity: e.value))
-          .toList(),
+      stock: Stock(
+          items: _productStockMap.entries
+              .map((e) => StockItem(
+                    color: e.key.color,
+                    size: e.key.size,
+                    quantity: e.value,
+                  ))
+              .toList(),
+          stockType: _productStockType),
     );
     return _product;
   }
