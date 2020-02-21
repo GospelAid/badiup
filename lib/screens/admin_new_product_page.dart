@@ -568,10 +568,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
         onPressed: () async {
           setState(() {
-            _productStockMap.remove(StockIdentifier(
-              color: stockItem.color,
-              size: stockItem.size,
-            ));
+            _productStockMap.removeWhere((key, q) =>
+                key.color == stockItem.color && key.size == stockItem.size);
           });
           Navigator.pop(context);
         },
