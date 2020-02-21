@@ -52,7 +52,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildBody(BuildContext context) {
     return Container(
       color: paletteLightGreyColor,
-      child: Column(
+      child: ListView(
         children: <Widget>[
           _buildOrderPlacedDateText(),
           _buildOrderStatusDescriptionBar(),
@@ -143,29 +143,97 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       ),
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _buildProductImage(product),
-          //Column(),
-
+          Container(
+            height: 75.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  product.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: paletteBlackColor,
+                  ),
+                ),
+                Text(
+                  'Mサイズ/ピンク',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    color: paletteBlackColor,
+                  ),
+                ),
+                Text(
+                  "¥${NumberFormat("#,##0").format(orderItems[product.documentId].price)}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: paletteBlackColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.only( left: 50.0 ),
+            height: 85.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        color: kPaletteWhite,
+                        height: 30,
+                        width: 40,
+                        alignment: Alignment.center,
+                        child: Text(
+                          orderItems[product.documentId].quantity.toString(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: paletteBlackColor,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        ' 点',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                          color: paletteBlackColor,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // TODO _buildProductImage() can become an utility function
   Widget _buildProductImage(Product product) {
     Widget productImage;
     if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
         kTransparentImage,
-        height: 100,
-        width: 100,
+        height: 85,
+        width: 85,
       );
     } else {
       productImage = FadeInImage.memoryNetwork(
         fit: BoxFit.cover,
-        height: 100,
-        width: 100,
+        height: 85,
+        width: 85,
         placeholder: kTransparentImage,
         image: product.imageUrls.first,
       );
