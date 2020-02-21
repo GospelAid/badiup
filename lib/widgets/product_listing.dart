@@ -451,15 +451,18 @@ class _ProductListingState extends State<ProductListing> {
     Product product,
     PageController pageController,
   ) {
+    List<Widget> _widgetList = [
+      _getProductListingImage(product, pageController),
+    ];
+    if (currentSignedInUser.isAdmin()) {
+      _widgetList.add(_getProductStockQuantityTag(product));
+    }
     return Container(
       color: paletteDarkGreyColor,
       height: constants.imageHeight,
       width: 500,
       child: Stack(
-        children: <Widget>[
-          _getProductListingImage(product, pageController),
-          _getProductStockQuantityTag(product)
-        ],
+        children: _widgetList,
       ),
     );
   }
@@ -524,8 +527,9 @@ class _ProductListingState extends State<ProductListing> {
 
   Widget _getProductStockQuantityTag(Product product) {
     int totalQuantity = 0;
-    product.stockList
+    product.stock.items
         .forEach((stock) => totalQuantity = totalQuantity + stock.quantity);
+    print(totalQuantity);
     return Container(
       height: 30,
       width: 60,
