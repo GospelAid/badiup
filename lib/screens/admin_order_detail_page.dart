@@ -56,7 +56,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         children: <Widget>[
           _buildOrderPlacedDateText(),
           _buildOrderStatusDescriptionBar(),
-          _buildOrderItemBlocks(context),
+          _buildOrderItemList(),
           _buildOrderPriceDescriptionBar(),
         ],
       ),
@@ -106,7 +106,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderItemBlocks(BuildContext context) {
+  Widget _buildOrderItemList() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: StreamBuilder<QuerySnapshot>(
@@ -118,23 +118,19 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             return LinearProgressIndicator();
           }
 
-          return _buildOrderItemList(context, snapshot.data.documents);
+          return Column(
+            children: snapshot.data.documents.where(
+              (snapshot) => orderItems.keys.contains(snapshot.documentID)
+            ).map(
+              (snapshot) => _buildOrderItemListRow(Product.fromSnapshot(snapshot))
+            ).toList(),
+          );
         }
       ),
     ); 
   }
 
-  Widget _buildOrderItemList(BuildContext context, List<DocumentSnapshot> snapshots) {
-    return Column(
-      children: snapshots.where(
-        (snapshot) => orderItems.keys.contains(snapshot.documentID)
-      ).map(
-        (snapshot) => _buildOrderItemListItem(context, Product.fromSnapshot(snapshot))
-      ).toList(),
-    );
-  }
-
-  Widget _buildOrderItemListItem(BuildContext context, Product product) {
+  Widget _buildOrderItemListRow(Product product) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -146,76 +142,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _buildProductImage(product),
-          Container(
-            height: 75.0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  product.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: paletteBlackColor,
-                  ),
-                ),
-                Text(
-                  'Mサイズ/ピンク',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                    color: paletteBlackColor,
-                  ),
-                ),
-                Text(
-                  "¥${NumberFormat("#,##0").format(orderItems[product.documentId].price)}",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: paletteBlackColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.only( left: 50.0 ),
-            height: 85.0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        color: kPaletteWhite,
-                        height: 30,
-                        width: 40,
-                        alignment: Alignment.center,
-                        child: Text(
-                          orderItems[product.documentId].quantity.toString(),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: paletteBlackColor,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        ' 点',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                          color: paletteBlackColor,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildOrderItemTextInfo(product),
+          _buildOrderItemQuantity(product),
         ],
       ),
     );
@@ -242,6 +170,98 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
       child: productImage,
+    );
+  }
+
+  Widget _buildOrderItemTextInfo(Product product) {
+    return Container(
+      height: 75,
+      padding: EdgeInsets.only( right: 50.0 ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildProductName(product),
+          _buildProductStockItem(product),
+          _buildOrderItemPrice(product),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductName(Product product) {
+    return Container(
+      child: Text(
+        product.name,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: paletteBlackColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductStockItem(Product product) {
+    return Container(
+      child: Text(
+        'Mサイズ/ピンク',
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w300,
+          color: paletteBlackColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderItemPrice(Product product) {
+    return Container(
+      child: Text(
+        "¥${NumberFormat("#,##0").format(orderItems[product.documentId].price)}",
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: paletteBlackColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderItemQuantity(Product product) {
+    return Container(
+      height: 85,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                color: kPaletteWhite,
+                height: 30,
+                width: 40,
+                alignment: Alignment.center,
+                child: Text(
+                  orderItems[product.documentId].quantity.toString(),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: paletteBlackColor,
+                  ),
+                ),
+              ),
+              Text(
+                ' 点',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: paletteBlackColor,
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 
