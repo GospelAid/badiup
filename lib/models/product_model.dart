@@ -35,7 +35,7 @@ class Product {
   final String documentId;
   final bool isPublished;
   final Category category;
-  final List<Stock> stockList;
+  final Stock stock;
 
   Product({
     this.name,
@@ -46,11 +46,11 @@ class Product {
     this.documentId,
     this.isPublished,
     this.category,
-    this.stockList,
+    this.stock,
   });
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {
+    return {
       'name': name,
       'description': description,
       'priceInYen': priceInYen,
@@ -58,11 +58,8 @@ class Product {
       'created': created,
       'isPublished': isPublished,
       'category': category?.index,
+      'stock': stock.toMap(),
     };
-
-    map['stockList'] = stockList?.map((stock) => stock.toMap())?.toList();
-
-    return map;
   }
 
   Product.fromMap(Map<String, dynamic> map, String documentId)
@@ -75,10 +72,7 @@ class Product {
         isPublished = map['isPublished'],
         category =
             map['category'] != null ? Category.values[map['category']] : null,
-        stockList = map['stockList']
-            ?.map<Stock>(
-                (stock) => Stock.fromMap(stock.cast<String, dynamic>()))
-            ?.toList(),
+        stock = map['stock'] != null ? Stock.fromMap(map['stock'].cast<String, dynamic>()) : null,
         documentId = documentId;
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
