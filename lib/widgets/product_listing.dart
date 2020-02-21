@@ -458,7 +458,7 @@ class _ProductListingState extends State<ProductListing> {
       child: Stack(
         children: <Widget>[
           _getProductListingImage(product, pageController),
-          _getProductStockQuantityTag(product)          
+          _getProductStockQuantityTag(product)
         ],
       ),
     );
@@ -521,23 +521,22 @@ class _ProductListingState extends State<ProductListing> {
       );
     }
   }
-}
 
-  StatelessWidget _getProductStockQuantityTag(
-    Product product
-  ){
-    int totalQty = 0;
-    product.stockList.forEach( (stockObj) => totalQty = totalQty + stockObj.quantity);
-    return  Container(
+  Widget _getProductStockQuantityTag(Product product) {
+    int totalQuantity = 0;
+    product.stockList.forEach(
+        (stockObj) => totalQuantity = totalQuantity + stockObj.quantity);
+    return Container(
       height: 30,
       width: 60,
       color: paletteForegroundColor,
       child: Center(
         child: Text(
-          totalQty <= 999 ? "残"+totalQty.toString() : "残999+" ,
+          totalQuantity <= 999 ? "残" + totalQuantity.toString() : "残999+",
           textAlign: TextAlign.center,
-          style:  TextStyle(color:Colors.white),
+          style: TextStyle(color: Colors.white),
         ),
       ),
-    );  
+    );
   }
+}
