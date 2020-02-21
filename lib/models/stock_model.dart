@@ -84,7 +84,6 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
   }
 }
 
-// TODO: Use StockIdentifier
 class StockItem {
   final ItemColor color;
   final ItemSize size;
