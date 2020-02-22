@@ -1,3 +1,4 @@
+import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -341,37 +342,49 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       padding: EdgeInsets.only(
         top: 12.0, left: 24.0, right: 24.0, bottom: 36.0
       ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            alignment: Alignment.center,
-            child: Text(
-              "注文者情報",
-              style: TextStyle(
-                fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
-              )
-            ),
-          ),
-          SizedBox(height: 24.0),
-          _buildBuyerName(),
-          SizedBox(height: 12.0),
-          _buildBuyerAddress(),
-          SizedBox(height: 6.0),
-          _buildBuyerPhone(),
-          SizedBox(height: 6.0),
-          _buildBuyerEmail(),
-        ],
-      ),
+      child: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
+            .collection(constants.DBCollections.users)
+            .document(widget.order.customerId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LinearProgressIndicator();
+          }
+          Customer buyer = Customer.fromSnapshot(snapshot.data);
+          return Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment.center,
+                child: Text(
+                  "注文者情報",
+                  style: TextStyle(
+                    fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
+                  )
+                ),
+              ),
+              SizedBox(height: 24.0),
+              _buildBuyerName(buyer),
+              SizedBox(height: 12.0),
+              _buildBuyerAddress(buyer),
+              SizedBox(height: 6.0),
+              _buildBuyerPhone(buyer),
+              SizedBox(height: 6.0),
+              _buildBuyerEmail(buyer),
+            ],
+          );
+        }
+      )
     );
   }
 
-  Widget _buildBuyerName() {
+  Widget _buildBuyerName(Customer buyer) {
     return Container(
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
           Text(
-            "Sato Yukiko",
+            buyer.name,
             style: TextStyle(
               fontSize: 16,
               color: paletteBlackColor,
@@ -391,7 +404,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerAddress() {
+  Widget _buildBuyerAddress(Customer buyer) {
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,7 +438,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerPhone() {
+  Widget _buildBuyerPhone(Customer buyer) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only( top: 6.0 ),
@@ -454,7 +467,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerEmail() {
+  Widget _buildBuyerEmail(Customer buyer) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only( top: 6.0 ),
@@ -473,7 +486,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           ),
           SizedBox(width: 16.0),
           Text(
-            "xxx@.com",
+            buyer.email,
             style: TextStyle(
               fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
             )
