@@ -220,7 +220,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderItemPrice(OrderItem orderItem, Product product) {
     return Container(
       child: Text(
-        "¥${NumberFormat("#,##0").format(orderItem.price)}",
+        "¥" + NumberFormat("#,##0").format(orderItem.price),
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -288,7 +288,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             ),
             Container(
               child: Text(
-                "¥${NumberFormat("#,##0").format(widget.order.getOrderPrice())}",
+                "¥" + NumberFormat("#,##0").format( widget.order.getOrderPrice() ),
                 style: TextStyle(
                   color: paletteDarkRedColor,
                   fontSize: 16,
@@ -416,22 +416,26 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             ),
           ),
           SizedBox(width: 30.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "〒1580083",
-                style: TextStyle(
-                  fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  // buyer.shippingAddresses[0].postCode
+                  "〒1580083",
+                  style: TextStyle(
+                    fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                  ),
                 ),
-              ),
-              Text(
-                "東京都世田谷区奥沢2-46-13",
-                style: TextStyle(
-                  fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                Text(
+                  // buyer.shippingAddresses[0].line
+                  "東京都世田谷区奥沢2-46-13",
+                  style: TextStyle(
+                    fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -457,7 +461,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           ),
           SizedBox(width: 16.0),
           Text(
-            "023456789",
+            // buyer.phoneNumber
+            "0123456789",
             style: TextStyle(
               fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
             )
@@ -485,11 +490,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             )
           ),
           SizedBox(width: 16.0),
-          Text(
-            buyer.email,
-            style: TextStyle(
-              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
-            )
+          Expanded(
+            child: Text(
+              buyer.email,
+              style: TextStyle(
+                fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+              )
+            ),
           ),
         ],
       ),
@@ -514,9 +521,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             child: Text(
               "お届け先",
               style: TextStyle(
-                fontSize: 18,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.bold,
+                fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
               )
             ),
           ),
@@ -531,6 +536,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     return Container(
       alignment: Alignment.centerLeft,
       child: Text(
+        // widget.order.shippingAddress
         "上記と同じ",
         style: TextStyle(
           fontSize: 16,
@@ -563,6 +569,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           Container(
             alignment: Alignment.centerLeft,
             child: Text(
+              // widget.order.shippingMethod
               "ゆうパック　通常配送（3~5日程度）",
               style: TextStyle(
                 fontSize: 16,
