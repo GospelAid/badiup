@@ -18,14 +18,9 @@ class AdminOrderDetailPage extends StatefulWidget {
 }
 
 class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
-  Map<String, OrderItem> orderItems = Map<String, OrderItem>();
 
   @override
   Widget build(BuildContext context) {
-    widget.order.items.forEach( (item) {
-      orderItems[item.productId] = item;
-    } );
-
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildBody(context),
@@ -58,6 +53,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           _buildOrderStatusDescriptionBar(),
           _buildOrderItemList(),
           _buildOrderPriceDescriptionBar(),
+          SizedBox(height: 60.0),
+          _buildBuyerDetails(),
         ],
       ),
     );
@@ -119,18 +116,21 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           }
 
           return Column(
-            children: snapshot.data.documents.where(
-              (snapshot) => orderItems.keys.contains(snapshot.documentID)
-            ).map(
-              (snapshot) => _buildOrderItemListRow(Product.fromSnapshot(snapshot))
-            ).toList(),
+            children: widget.order.items.map( (orderItem) {
+              DocumentSnapshot productSnapshot = snapshot.data.documents.firstWhere(
+                (snapshot) => snapshot.documentID == orderItem.productId
+              );
+              return _buildOrderItemListRow(
+                orderItem, Product.fromSnapshot(productSnapshot)
+              );
+            }).toList(),
           );
         }
       ),
     ); 
   }
 
-  Widget _buildOrderItemListRow(Product product) {
+  Widget _buildOrderItemListRow(OrderItem orderItem, Product product) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -142,8 +142,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _buildProductImage(product),
-          _buildOrderItemTextInfo(product),
-          _buildOrderItemQuantity(product),
+          _buildOrderItemTextInfo(orderItem, product),
+          _buildOrderItemQuantity(orderItem, product),
         ],
       ),
     );
@@ -173,7 +173,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderItemTextInfo(Product product) {
+  Widget _buildOrderItemTextInfo(OrderItem orderItem, Product product) {
     return Container(
       height: 75,
       padding: EdgeInsets.only( right: 50.0 ),
@@ -182,8 +182,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _buildProductName(product),
-          _buildProductStockItem(product),
-          _buildOrderItemPrice(product),
+          _buildOrderItemColorSize(orderItem, product),
+          _buildOrderItemPrice(orderItem, product),
         ],
       ),
     );
@@ -202,10 +202,11 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildProductStockItem(Product product) {
+  Widget _buildOrderItemColorSize(OrderItem orderItem, Product product) {
     return Container(
       child: Text(
-        'Mサイズ/ピンク',
+        // orderItem.color.toString() + '/' + orderItem.size.toString(),
+        '?サイズ/なにいろ',
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w300,
@@ -215,10 +216,10 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderItemPrice(Product product) {
+  Widget _buildOrderItemPrice(OrderItem orderItem, Product product) {
     return Container(
       child: Text(
-        "¥${NumberFormat("#,##0").format(orderItems[product.documentId].price)}",
+        "¥${NumberFormat("#,##0").format(orderItem.price)}",
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -228,7 +229,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderItemQuantity(Product product) {
+  Widget _buildOrderItemQuantity(OrderItem orderItem, Product product) {
     return Container(
       height: 85,
       child: Column(
@@ -242,7 +243,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                 width: 40,
                 alignment: Alignment.center,
                 child: Text(
-                  orderItems[product.documentId].quantity.toString(),
+                  orderItem.quantity.toString(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -268,7 +269,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderPriceDescriptionBar() {
     return Container(
       padding: EdgeInsets.symmetric( horizontal: 16.0 ),
-      height: 40.0,
+      height: 40,
       child: Container(
         color: kPaletteWhite,
         child: Row(
@@ -300,4 +301,265 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
+  Widget _buildBuyerDetails() {
+    return Container(
+      decoration: BoxDecoration(
+        color: kPaletteWhite,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          _buildGreyBar(),
+          _buildBuyerContactInfoBox(),
+          _buildShippingAddressInfoBox(),
+          _buildShippingMethodInfoBox(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGreyBar() {
+    return Container(
+      padding: EdgeInsets.only( top: 24.0 ),
+        child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFEFEF),
+          borderRadius: BorderRadius.all( Radius.circular(40) ),
+        ),
+        height: 8,
+        width: 115,
+      ),
+    );
+
+  }
+
+  Widget _buildBuyerContactInfoBox() {
+    return Container(
+      padding: EdgeInsets.only(
+        top: 12.0, left: 24.0, right: 24.0, bottom: 36.0
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "注文者情報",
+              style: TextStyle(
+                fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
+              )
+            ),
+          ),
+          SizedBox(height: 24.0),
+          _buildBuyerName(),
+          SizedBox(height: 12.0),
+          _buildBuyerAddress(),
+          SizedBox(height: 6.0),
+          _buildBuyerPhone(),
+          SizedBox(height: 6.0),
+          _buildBuyerEmail(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerName() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: <Widget>[
+          Text(
+            "Sato Yukiko",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w600,
+            )
+          ),
+          Text(
+            " 様",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerAddress() {
+    return Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            "住所",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            ),
+          ),
+          SizedBox(width: 30.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "〒1580083",
+                style: TextStyle(
+                  fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                ),
+              ),
+              Text(
+                "東京都世田谷区奥沢2-46-13",
+                style: TextStyle(
+                  fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerPhone() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.only( top: 6.0 ),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide( color: Color(0xFFEFEFEF) ),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Text(
+            "連絡先",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            )
+          ),
+          SizedBox(width: 16.0),
+          Text(
+            "023456789",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerEmail() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.only( top: 6.0 ),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide( color: Color(0xFFEFEFEF) ),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Text(
+            "メール",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            )
+          ),
+          SizedBox(width: 16.0),
+          Text(
+            "xxx@.com",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShippingAddressInfoBox() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color(0xFFA2A2A2)),
+          bottom: BorderSide(color: Color(0xFFA2A2A2)),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        top: 12.0, left: 24.0, right: 24.0, bottom: 36.0
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "お届け先",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              )
+            ),
+          ),
+          SizedBox(height: 25.0),
+          _buildShippingAddressInfo(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShippingAddressInfo() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        "上記と同じ",
+        style: TextStyle(
+          fontSize: 16,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.w300,
+        )
+      ),
+    );
+  }
+
+  Widget _buildShippingMethodInfoBox() {
+    return Container(
+      padding: EdgeInsets.only(
+        top: 12.0, left: 24.0, right: 24.0, bottom: 50.0
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "配送方法",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              )
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "ゆうパック　通常配送（3~5日程度）",
+              style: TextStyle(
+                fontSize: 16,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              )
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
