@@ -71,7 +71,8 @@ class CartButton extends StatelessWidget {
         var customer = Customer.fromSnapshot(snapshot.data);
         int itemCount = (customer.cart == null)
             ? 0
-            : customer.cart.items.fold(0, (a, b) => a + b.quantity);
+            : customer.cart.items
+                .fold(0, (a, b) => a + (b.stockRequest?.quantity ?? 0));
 
         return Text(
           itemCount.toString(),

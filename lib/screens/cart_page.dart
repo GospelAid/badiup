@@ -1,12 +1,16 @@
+import 'dart:collection';
+
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
-import 'package:badiup/models/cart.dart';
+import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/models/product_model.dart';
+import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/order_success_page.dart';
 import 'package:badiup/sign_in.dart';
+import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/quantity_selector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +28,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   final currencyFormat = NumberFormat("#,##0");
   bool paymentCompleted = false;
+  bool _formSubmitInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,15 @@ class _CartPageState extends State<CartPage> {
       appBar: AppBar(
         title: Text("買い物かご"),
       ),
-      body: _buildCartItemListing(),
+      body: Stack(
+        alignment: AlignmentDirectional.center,
+        children: <Widget>[
+          _buildCartItemListing(),
+          _formSubmitInProgress
+              ? buildFormSubmitInProgressIndicator()
+              : Container(),
+        ],
+      ),
     );
   }
 
@@ -57,8 +70,8 @@ class _CartPageState extends State<CartPage> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            _buildCartItemListingInternal(customer.cart.items),
-            _buildProcessOrderButton(context),
+            _buildCartItemListingInternal(customer.cart),
+            _buildProcessOrderButton(context, customer.cart),
           ],
         );
       },
@@ -83,12 +96,22 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildProcessOrderButton(BuildContext context) {
+  Widget _buildProcessOrderButton(BuildContext context, Cart cart) {
     return BannerButton(
       text: paymentCompleted ? "注文を確定する" : "ご購入手続きへ",
       onTap: () async {
         if (paymentCompleted) {
+          setState(() {
+            _formSubmitInProgress = true;
+          });
+
+          await _updateProductStock(cart);
           String orderId = await _placeOrder();
+
+          setState(() {
+            _formSubmitInProgress = false;
+          });
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -176,6 +199,89 @@ class _CartPageState extends State<CartPage> {
     return orderRequest.orderId;
   }
 
+  Future _updateProductStock(Cart cart) async {
+    HashMap<String, List<StockItem>> _hashMap =
+        HashMap<String, List<StockItem>>();
+
+    for (var i = 0; i < cart.items.length; i++) {
+      var _cartItem = cart.items[i];
+      if (_hashMap.containsKey(_cartItem.productDocumentId)) {
+        _hashMap[_cartItem.productDocumentId].add(_cartItem.stockRequest);
+      } else {
+        _hashMap[_cartItem.productDocumentId] = [_cartItem.stockRequest];
+      }
+    }
+
+    for (var productIndex = 0;
+        productIndex < _hashMap.keys.length;
+        productIndex++) {
+      var _productDocumentId = _hashMap.keys.elementAt(productIndex);
+      await _updateProductStockForDocumentId(
+        _hashMap[_productDocumentId],
+        _productDocumentId,
+      );
+    }
+  }
+
+  Future _updateProductStockForDocumentId(
+    List<StockItem> _productStockRequestList,
+    String _productDocumentId,
+  ) async {
+    var _product = Product.fromSnapshot(await db
+        .collection(constants.DBCollections.products)
+        .document(_productDocumentId)
+        .get());
+
+    for (var stockIndex = 0;
+        stockIndex < _productStockRequestList.length;
+        stockIndex++) {
+      var _productStockRequest = _productStockRequestList[stockIndex];
+
+      StockItem _productStockItem = _getProductStockItem(
+        _product,
+        _productStockRequest,
+      );
+
+      // TODO: handle case when final stock becomes < 1
+      if (_productStockItem != null) {
+        _productStockItem.quantity -= _productStockRequest.quantity;
+      }
+    }
+
+    await Firestore.instance
+        .collection(constants.DBCollections.products)
+        .document(_productDocumentId)
+        .updateData(_product.toMap());
+  }
+
+  StockItem _getProductStockItem(
+    Product _product,
+    StockItem _productStockRequest,
+  ) {
+    StockItem _productStockItem;
+
+    if (_product.stock.stockType == StockType.sizeAndColor) {
+      _productStockItem = _product.stock.items.firstWhere(
+        (stockItem) =>
+            stockItem.size == _productStockRequest.size &&
+            stockItem.color == _productStockRequest.color,
+        orElse: () => null,
+      );
+    } else if (_product.stock.stockType == StockType.sizeOnly) {
+      _productStockItem = _product.stock.items.firstWhere(
+        (stockItem) => stockItem.size == _productStockRequest.size,
+        orElse: () => null,
+      );
+    } else if (_product.stock.stockType == StockType.colorOnly) {
+      _productStockItem = _product.stock.items.firstWhere(
+        (stockItem) => stockItem.color == _productStockRequest.color,
+        orElse: () => null,
+      );
+    }
+
+    return _productStockItem;
+  }
+
   Future<Order> _getOrderRequest(Customer customer) async {
     Order orderRequest = Order(
       orderId: Order.generateOrderId(),
@@ -194,19 +300,20 @@ class _CartPageState extends State<CartPage> {
 
       orderRequest.items.add(OrderItem(
         productId: cartItem.productDocumentId,
-        quantity: cartItem.quantity,
-        price: product.priceInYen * cartItem.quantity,
+        stockRequest: cartItem.stockRequest,
+        price: product.priceInYen * cartItem.stockRequest.quantity,
       ));
     }
     return orderRequest;
   }
 
-  Widget _buildCartItemListingInternal(List<CartItem> items) {
+  Widget _buildCartItemListingInternal(Cart cart) {
     List<Widget> widgetList = [];
-    items.forEach((item) => widgetList.add(_buildCartItem(item)));
+
+    cart.items.forEach((item) => widgetList.add(_buildCartItem(item)));
 
     widgetList.add(SizedBox(height: 50));
-    widgetList.add(_buildSummary(items));
+    widgetList.add(_buildSummary());
 
     return Expanded(
       child: ListView(
@@ -215,7 +322,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildSummary(List<CartItem> items) {
+  Widget _buildSummary() {
     return StreamBuilder<DocumentSnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.users)
@@ -238,7 +345,8 @@ class _CartPageState extends State<CartPage> {
             }
 
             return _buildSummaryContents(
-                _calculateSubTotalPrice(snapshot2, customer));
+              _calculateSubTotalPrice(snapshot2, customer),
+            );
           },
         );
       },
@@ -362,7 +470,9 @@ class _CartPageState extends State<CartPage> {
   }
 
   double _calculateSubTotalPrice(
-      AsyncSnapshot<QuerySnapshot> snapshot2, Customer customer) {
+    AsyncSnapshot<QuerySnapshot> snapshot2,
+    Customer customer,
+  ) {
     List<Product> productList = [];
     snapshot2.data.documents.forEach((productDoc) {
       productList.add(Product.fromSnapshot(productDoc));
@@ -372,8 +482,8 @@ class _CartPageState extends State<CartPage> {
 
     double _subTotalPrice = 0.0;
     customer.cart.items.forEach((cartItem) {
-      _subTotalPrice +=
-          productPriceMap[cartItem.productDocumentId] * cartItem.quantity;
+      _subTotalPrice += productPriceMap[cartItem.productDocumentId] *
+          cartItem.stockRequest.quantity;
     });
     return _subTotalPrice;
   }
@@ -471,13 +581,13 @@ class _CartPageState extends State<CartPage> {
           }
           var product = Product.fromSnapshot(snapshot.data);
 
-          return _buildCartItemRow(product, item.quantity);
+          return _buildCartItemRow(product, item.stockRequest);
         },
       ),
     );
   }
 
-  Widget _buildCartItemRow(Product product, int quantity) {
+  Widget _buildCartItemRow(Product product, StockItem stockRequest) {
     return Container(
       padding: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -497,14 +607,39 @@ class _CartPageState extends State<CartPage> {
               children: <Widget>[
                 _buildDeleteButton(product.documentId, product.name),
                 _buildProductTitle(product),
-                // TODO: Add size and color info here
-                Text("　"),
-                _buildPriceAndQuantitySelectorRow(product, quantity),
+                _buildCartItemCaptionText(product, stockRequest),
+                _buildPriceAndQuantitySelectorRow(
+                  product,
+                  stockRequest.quantity,
+                ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCartItemCaptionText(Product product, StockItem stockRequest) {
+    String _captionText = "";
+
+    if (product.stock.stockType == StockType.sizeAndColor ||
+        product.stock.stockType == StockType.sizeOnly) {
+      _captionText += getDisplayTextForItemSize(stockRequest.size) + "サイズ";
+    }
+
+    if (product.stock.stockType == StockType.sizeAndColor) {
+      _captionText += "/";
+    }
+
+    if (product.stock.stockType == StockType.sizeAndColor ||
+        product.stock.stockType == StockType.colorOnly) {
+      _captionText += getDisplayTextForItemColor(stockRequest.color);
+    }
+
+    return Text(
+      _captionText,
+      style: TextStyle(color: paletteBlackColor, fontWeight: FontWeight.w300),
     );
   }
 
@@ -638,7 +773,8 @@ class _CartPageState extends State<CartPage> {
 
       int productIndex = customer.cart.items
           .indexWhere((item) => item.productDocumentId == productDocumentId);
-      customer.cart.items[productIndex].quantity = controller.quantity;
+      customer.cart.items[productIndex].stockRequest.quantity =
+          controller.quantity;
 
       await db
           .collection(constants.DBCollections.users)

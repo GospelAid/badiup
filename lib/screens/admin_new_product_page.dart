@@ -241,7 +241,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     widgetList.add(form);
 
     if (_formSubmitInProgress) {
-      widgetList.add(_buildFormSubmitInProgressIndicator());
+      widgetList.add(buildFormSubmitInProgressIndicator());
     }
 
     return Stack(
@@ -266,24 +266,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
       ),
     );
-  }
-
-  Widget _buildFormSubmitInProgressIndicator() {
-    var modal = Stack(
-      children: [
-        Opacity(
-          opacity: 0.5,
-          child: const ModalBarrier(
-            dismissible: false,
-            color: Colors.black,
-          ),
-        ),
-        Center(
-          child: CircularProgressIndicator(),
-        ),
-      ],
-    );
-    return modal;
   }
 
   List<Widget> _buildFormFields(BuildContext context) {

@@ -218,8 +218,6 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
       color: paletteDarkGreyColor,
-      height: constants.imageHeight,
-      width: 500,
       child: _getProductListingImage(product),
     );
   }
@@ -255,7 +253,6 @@ class _ProductDetailState extends State<ProductDetail> {
       productImage = FadeInImage.memoryNetwork(
         fit: BoxFit.contain,
         placeholder: kTransparentImage,
-        height: constants.imageHeight,
         image: product.imageUrls[_indexOfImageInDisplay],
       );
     }
