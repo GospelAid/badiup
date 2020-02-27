@@ -82,11 +82,15 @@ class _ProductListingState extends State<ProductListing> {
     int index,
   ) {
     final product = Product.fromSnapshot(data);
+    int _productQuantity = (product.stock == null)
+        ? 0
+        : product.stock.items.fold(0, (a, b) => a + (b?.quantity ?? 0));
 
     // Show only published products if current user is customer
     // Otherwise, show all products
     if (!(currentSignedInUser.role == RoleType.customer &&
-        !product.isPublished)) {
+            !product.isPublished) &&
+        _productQuantity > 0) {
       // If no category filters are selected, show all products
       if (_categoryFilters.isEmpty ||
           // If one of more category filters are selected, show all products that match the filters
@@ -451,11 +455,19 @@ class _ProductListingState extends State<ProductListing> {
     Product product,
     PageController pageController,
   ) {
+    List<Widget> _widgetList = [
+      _getProductListingImage(product, pageController),
+    ];
+    if (currentSignedInUser.isAdmin()) {
+      _widgetList.add(_getProductStockQuantityTag(product));
+    }
     return Container(
       color: paletteDarkGreyColor,
       height: constants.imageHeight,
       width: 500,
-      child: _getProductListingImage(product, pageController),
+      child: Stack(
+        children: _widgetList,
+      ),
     );
   }
 
@@ -515,5 +527,24 @@ class _ProductListingState extends State<ProductListing> {
         image: product.imageUrls[imageIndex],
       );
     }
+  }
+
+  Widget _getProductStockQuantityTag(Product product) {
+    int totalQuantity = 0;
+    product.stock.items
+        .forEach((stock) => totalQuantity = totalQuantity + stock.quantity);
+    print(totalQuantity);
+    return Container(
+      height: 30,
+      width: 60,
+      color: paletteForegroundColor,
+      child: Center(
+        child: Text(
+          "残" + (totalQuantity <= 999 ? totalQuantity.toString() : "999+"),
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
   }
 }

@@ -20,3 +20,20 @@ Widget buildIconWithShadow(IconData iconData, {double iconSize = 24.0}) {
     ],
   );
 }
+
+Widget buildFormSubmitInProgressIndicator() {
+  return Stack(
+    children: [
+      Opacity(
+        opacity: 0.5,
+        child: const ModalBarrier(
+          dismissible: false,
+          color: Colors.black,
+        ),
+      ),
+      Center(
+        child: CircularProgressIndicator(),
+      ),
+    ],
+  );
+}

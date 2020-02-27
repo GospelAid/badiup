@@ -1,7 +1,8 @@
+import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
-class Order{
+class Order {
   final String documentId;
   final String customerId;
   final List<OrderItem> items;
@@ -23,9 +24,7 @@ class Order{
   });
 
   double getOrderPrice() {
-    return items.map(
-      (item) => item.price
-    ).reduce( (a, b) => a + b );
+    return items.map((item) => item.price).reduce((a, b) => a + b);
   }
 
   String getOrderStatusText() {
@@ -50,61 +49,61 @@ class Order{
       'trackingUrl': trackingUrl,
       'orderId': orderId,
     };
-    map['items'] = items.map(
-      (item) => item.toMap()
-    ).toList();
+    map['items'] = items.map((item) => item.toMap()).toList();
 
     return map;
   }
 
   Order.fromMap(Map<String, dynamic> map, String documentId)
-    : customerId = map['customerId'],
-      status = OrderStatus.values[ map['status'] ],
-      placedDate = map['placedDate'].toDate(),
-      details = map['details'],
-      trackingUrl = map['trackingUrl'],
-      items = map['items'].map<OrderItem>(
-        (item) => OrderItem.fromMap( item.cast<String, dynamic>() )
-      ).toList(),
-      documentId = documentId,
-      orderId = map['orderId'];
+      : customerId = map['customerId'],
+        status = OrderStatus.values[map['status']],
+        placedDate = map['placedDate'].toDate(),
+        details = map['details'],
+        trackingUrl = map['trackingUrl'],
+        items = map['items']
+            .map<OrderItem>(
+                (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
+            .toList(),
+        documentId = documentId,
+        orderId = map['orderId'];
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
-    : this.fromMap(snapshot.data, snapshot.documentID);
+      : this.fromMap(snapshot.data, snapshot.documentID);
 
   static String generateOrderId() {
     return Uuid().v4().substring(0, 6).toUpperCase();
   }
 }
 
-class OrderItem{
+class OrderItem {
   String productId;
-  int quantity;
+  StockItem stockRequest;
   double price;
 
   OrderItem({
     this.productId,
-    this.quantity,
+    this.stockRequest,
     this.price,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'productId': productId,
-      'quantity': quantity,
+      'stockRequest': stockRequest.toMap(),
       'price': price,
     };
   }
 
   OrderItem.fromMap(Map<String, dynamic> map)
-    : assert(map['productId'] != null),
-      assert(map['quantity'] != null),
-      productId = map['productId'],
-      quantity = map['quantity'],
-      price = map['price'];
+      : assert(map['productId'] != null),
+        productId = map['productId'],
+        stockRequest = map['stockRequest'] != null
+            ? StockItem.fromMap(map['stockRequest'].cast<String, dynamic>())
+            : null,
+        price = map['price'];
 }
 
-enum OrderStatus{
+enum OrderStatus {
   all,
   pending,
   dispatched,

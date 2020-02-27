@@ -241,7 +241,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     widgetList.add(form);
 
     if (_formSubmitInProgress) {
-      widgetList.add(_buildFormSubmitInProgressIndicator());
+      widgetList.add(buildFormSubmitInProgressIndicator());
     }
 
     return Stack(
@@ -266,24 +266,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ),
       ),
     );
-  }
-
-  Widget _buildFormSubmitInProgressIndicator() {
-    var modal = Stack(
-      children: [
-        Opacity(
-          opacity: 0.5,
-          child: const ModalBarrier(
-            dismissible: false,
-            color: Colors.black,
-          ),
-        ),
-        Center(
-          child: CircularProgressIndicator(),
-        ),
-      ],
-    );
-    return modal;
   }
 
   List<Widget> _buildFormFields(BuildContext context) {
@@ -753,10 +735,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return Switch(
       value: _productPublishStatus == PublishStatus.Published,
       onChanged: (value) {
-        setState(() {
-          _productPublishStatus =
-              value ? PublishStatus.Published : PublishStatus.Draft;
-        });
+        if (_formIsValid()) {
+          setState(() {
+            _productPublishStatus =
+                value ? PublishStatus.Published : PublishStatus.Draft;
+          });
+        }
       },
       activeTrackColor: paletteForegroundColor,
       activeColor: kPaletteWhite,
@@ -885,7 +869,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           : FadeInImage.memoryNetwork(
               fit: BoxFit.contain,
               placeholder: kTransparentImage,
-              height: constants.imageHeight,
               image: _productImages[_indexOfImageInDisplay] as String,
             );
     }
@@ -1130,7 +1113,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       ),
       validator: (value) {
         if (value.isEmpty) {
-          return 'Description cannot be empty';
+          return '説明が入力されていません';
         }
         return null;
       },
@@ -1169,9 +1152,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           labelStyle: TextStyle(fontSize: 16.0),
         ),
         validator: (value) {
-          if (value.isEmpty) {
-            return 'Price cannot be empty';
-          }
           return null;
         },
       ),
@@ -1209,7 +1189,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       maxLength: 20,
       validator: (value) {
         if (value.isEmpty) {
-          return 'Name cannot be empty';
+          return 'タイトルが入力されていません';
         }
         return null;
       },
@@ -1427,25 +1407,38 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   bool _formIsValid() {
+    bool _result = _formKey.currentState.validate();
+
+    String _message = "";
+
     if (_productImages.length == 0) {
-      _buildImageMandatoryDialog();
-      return false;
+      _message += '写真　';
     }
 
-    return _formKey.currentState.validate();
+    if (_priceEditingController.text.isEmpty) {
+      _message += '値段　';
+    }
+
+    if (_message != "") {
+      _message += "が入力されていません。編集画面に戻って入力してください。";
+      _buildRequiredItemsMissingDialog(_message);
+      _result = false;
+    }
+
+    return _result;
   }
 
-  void _buildImageMandatoryDialog() {
+  void _buildRequiredItemsMissingDialog(String message) {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Image Required!',
+            '入力されていない項目があります',
             style: getAlertStyle(),
           ),
-          content: Text('Please upload an image'),
+          content: Text(message),
           actions: <Widget>[
             FlatButton(
               child: Text('OK'),

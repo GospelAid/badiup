@@ -1,3 +1,5 @@
+import 'package:badiup/models/stock_model.dart';
+
 class Cart {
   List<CartItem> items;
 
@@ -21,23 +23,24 @@ class Cart {
 
 class CartItem {
   String productDocumentId;
-  int quantity;
+  StockItem stockRequest;
 
   CartItem({
     this.productDocumentId,
-    this.quantity,
+    this.stockRequest,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'productDocumentId': productDocumentId,
-      'quantity': quantity,
+      'stockRequest': stockRequest.toMap(),
     };
   }
 
   CartItem.fromMap(Map<String, dynamic> map)
       : assert(map['productDocumentId'] != null),
-        assert(map['quantity'] != null),
         productDocumentId = map['productDocumentId'],
-        quantity = map['quantity'];
+        stockRequest = map['stockRequest'] != null
+            ? StockItem.fromMap(map['stockRequest'].cast<String, dynamic>())
+            : null;
 }
