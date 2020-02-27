@@ -206,8 +206,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderItemColorSize(OrderItem orderItem, Product product) {
     return Container(
       child: Text(
-        // orderItem.color.toString() + '/' + orderItem.size.toString(),
-        '?サイズ/なにいろ',
+        // orderItem.size.toString() + '/' + orderItem.color.toString(),
+        'だみサイズ/だみいろ',
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w300,
