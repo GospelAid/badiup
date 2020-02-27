@@ -23,6 +23,25 @@ class Customer extends User {
           created: created,
         );
 
+  String getDefaultAddressPostcode() {
+    if ( shippingAddresses.length == 0 ) return "";
+
+    return shippingAddresses[0].postcode ?? "";
+  }
+
+  String getDefaultAddress() {
+    if ( shippingAddresses.length == 0 ) return "";
+
+    return (shippingAddresses[0].line1 ?? "") +
+           (shippingAddresses[0].line2 ?? "");
+  }
+
+  String getDefaultPhoneNumber() {
+    if ( shippingAddresses.length == 0 ) return "";
+
+    return shippingAddresses[0].phoneNumber ?? "";
+  }
+
   @override
   Map<String, dynamic> toMap() {
     Map<String, dynamic> customerMap = super.toMap();
@@ -40,7 +59,7 @@ class Customer extends User {
   Customer.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
     shippingAddresses = map['shippingAddresses']
         .map<Address>(
-            (address) => Address.fromMap(address.cast<String, Address>()))
+            (address) => Address.fromMap(address.cast<String, dynamic>()))
         .toList();
     if (map['cart'] != null) {
       cart = Cart.fromMap(map['cart'].cast<String, dynamic>());

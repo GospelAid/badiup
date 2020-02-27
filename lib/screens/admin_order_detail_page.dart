@@ -1,13 +1,13 @@
-import 'package:badiup/models/customer_model.dart';
-import 'package:badiup/models/product_model.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:intl/intl.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
+import 'package:badiup/models/product_model.dart';
+import 'package:badiup/models/stock_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class AdminOrderDetailPage extends StatefulWidget {
   AdminOrderDetailPage({Key key, this.order}) : super(key: key);
@@ -19,7 +19,6 @@ class AdminOrderDetailPage extends StatefulWidget {
 }
 
 class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +54,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           _buildOrderItemList(),
           _buildOrderPriceDescriptionBar(),
           SizedBox(height: 60.0),
-          _buildBuyerDetails(),
+          _buildCustomerDetails(),
         ],
       ),
     );
@@ -135,7 +134,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: const Color(0xFFA2A2A2)),
+          bottom: BorderSide(color: kPaletteBorderColor),
         ),
       ),
       padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -152,17 +151,19 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   Widget _buildProductImage(Product product) {
     Widget productImage;
+    double productImageSize = 85.0;
+
     if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
         kTransparentImage,
-        height: 85,
-        width: 85,
+        height: productImageSize,
+        width: productImageSize,
       );
     } else {
       productImage = FadeInImage.memoryNetwork(
         fit: BoxFit.cover,
-        height: 85,
-        width: 85,
+        height: productImageSize,
+        width: productImageSize,
         placeholder: kTransparentImage,
         image: product.imageUrls.first,
       );
@@ -175,17 +176,19 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   }
 
   Widget _buildOrderItemTextInfo(OrderItem orderItem, Product product) {
-    return Container(
-      height: 75,
-      padding: EdgeInsets.only( right: 50.0 ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _buildProductName(product),
-          _buildOrderItemColorSize(orderItem, product),
-          _buildOrderItemPrice(orderItem, product),
-        ],
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.only( left: 16.0 ),
+        height: 75,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _buildProductName(product),
+            _buildOrderItemColorSize(orderItem, product),
+            _buildOrderItemPrice(orderItem, product),
+          ],
+        ),
       ),
     );
   }
@@ -194,6 +197,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     return Container(
       child: Text(
         product.name,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -204,10 +208,21 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   }
 
   Widget _buildOrderItemColorSize(OrderItem orderItem, Product product) {
+    String itemStockRequestText = "";
+
+    if (orderItem.stockRequest.size != null) {
+      itemStockRequestText += getDisplayTextForItemSize(orderItem.stockRequest.size) + "サイズ";
+      if (orderItem.stockRequest.color != null) {
+        itemStockRequestText += "/";
+      }
+    }
+    if (orderItem.stockRequest.color != null) {
+      itemStockRequestText += getDisplayTextForItemColor(orderItem.stockRequest.color);
+    }
+
     return Container(
       child: Text(
-        // orderItem.size.toString() + '/' + orderItem.color.toString(),
-        'だみサイズ/だみいろ',
+        itemStockRequestText,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w300,
@@ -244,7 +259,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                 width: 40,
                 alignment: Alignment.center,
                 child: Text(
-                  orderItem.quantity.toString(),
+                  orderItem.stockRequest.quantity.toString(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -273,6 +288,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       height: 40,
       child: Container(
         color: kPaletteWhite,
+        padding: EdgeInsets.symmetric( horizontal: 4.0 ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -302,7 +318,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerDetails() {
+  Widget _buildCustomerDetails() {
     return Container(
       decoration: BoxDecoration(
         color: kPaletteWhite,
@@ -314,7 +330,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       child: Column(
         children: <Widget>[
           _buildGreyBar(),
-          _buildBuyerContactInfoBox(),
+          _buildCustomerContactInfoBox(),
           _buildShippingAddressInfoBox(),
           _buildShippingMethodInfoBox(),
         ],
@@ -327,7 +343,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       padding: EdgeInsets.only( top: 24.0 ),
         child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFEFEFEF),
+          color: paletteGreyColor4,
           borderRadius: BorderRadius.all( Radius.circular(40) ),
         ),
         height: 8,
@@ -337,7 +353,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   }
 
-  Widget _buildBuyerContactInfoBox() {
+  Widget _buildCustomerContactInfoBox() {
     return Container(
       padding: EdgeInsets.only(
         top: 12.0, left: 24.0, right: 24.0, bottom: 36.0
@@ -351,7 +367,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           if (!snapshot.hasData) {
             return LinearProgressIndicator();
           }
-          Customer buyer = Customer.fromSnapshot(snapshot.data);
+          Customer _customer = Customer.fromSnapshot(snapshot.data);
           return Column(
             children: <Widget>[
               Container(
@@ -364,13 +380,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                 ),
               ),
               SizedBox(height: 24.0),
-              _buildBuyerName(buyer),
+              _buildCustomerName(_customer),
               SizedBox(height: 12.0),
-              _buildBuyerAddress(buyer),
+              _buildCustomerAddress(_customer),
               SizedBox(height: 6.0),
-              _buildBuyerPhone(buyer),
+              _buildCustomerPhoneNumber(_customer),
               SizedBox(height: 6.0),
-              _buildBuyerEmail(buyer),
+              _buildCustomerEmailAddress(_customer),
             ],
           );
         }
@@ -378,13 +394,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerName(Customer buyer) {
+  Widget _buildCustomerName(Customer customer) {
     return Container(
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
           Text(
-            buyer.name,
+            customer.name,
             style: TextStyle(
               fontSize: 16,
               color: paletteBlackColor,
@@ -404,7 +420,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerAddress(Customer buyer) {
+  Widget _buildCustomerAddress(Customer customer) {
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,15 +437,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  // buyer.shippingAddresses[0].postCode
-                  "〒1580083",
+                  "〒 " + customer.getDefaultAddressPostcode(),
                   style: TextStyle(
                     fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
                   ),
                 ),
                 Text(
-                  // buyer.shippingAddresses[0].line
-                  "東京都世田谷区奥沢2-46-13",
+                  customer.getDefaultAddress(),
                   style: TextStyle(
                     fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
                   ),
@@ -442,13 +456,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerPhone(Customer buyer) {
+  Widget _buildCustomerPhoneNumber(Customer customer) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only( top: 6.0 ),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide( color: Color(0xFFEFEFEF) ),
+          top: BorderSide( color: paletteGreyColor4 ),
         ),
       ),
       child: Row(
@@ -461,8 +475,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           ),
           SizedBox(width: 16.0),
           Text(
-            // buyer.phoneNumber
-            "0123456789",
+            customer.getDefaultPhoneNumber(),
             style: TextStyle(
               fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
             )
@@ -472,13 +485,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBuyerEmail(Customer buyer) {
+  Widget _buildCustomerEmailAddress(Customer customer) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only( top: 6.0 ),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide( color: Color(0xFFEFEFEF) ),
+          top: BorderSide( color: paletteGreyColor4 ),
         ),
       ),
       child: Row(
@@ -492,7 +505,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           SizedBox(width: 16.0),
           Expanded(
             child: Text(
-              buyer.email,
+              customer.email,
               style: TextStyle(
                 fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
               )
@@ -507,8 +520,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: Color(0xFFA2A2A2)),
-          bottom: BorderSide(color: Color(0xFFA2A2A2)),
+          top: BorderSide(color: kPaletteBorderColor),
+          bottom: BorderSide(color: kPaletteBorderColor),
         ),
       ),
       padding: EdgeInsets.only(

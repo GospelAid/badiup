@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:intl/intl.dart';
-import 'package:badiup/screens/admin_order_detail_page.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/order_model.dart';
+import 'package:badiup/screens/admin_order_detail_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 class OrderList extends StatefulWidget {
   OrderList({Key key, this.orderStatusToFilter}) : super(key: key);
