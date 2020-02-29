@@ -20,6 +20,8 @@ class AdminOrderDetailPage extends StatefulWidget {
 }
 
 class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
+  final currencyFormat = NumberFormat("#,##0");
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,16 +85,16 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderStatusDescriptionBar() {
     return Container(
       padding: EdgeInsets.symmetric( vertical: 8.0 ),
-      child: InkWell(
-        //splashColor: kPaletteWhite,
-        hoverColor: kPaletteWhite,
-        onTap: () {
-          print( 'tap' );
-        },
-        child: Container(
-          height: 56,
-          color: widget.order.status == 
-              OrderStatus.pending ? paletteDarkRedColor: paletteDarkGreyColor,
+      child: Container(
+        height: 56,
+        color: widget.order.status == 
+            OrderStatus.pending ? paletteDarkRedColor: paletteDarkGreyColor,
+        child: RaisedButton(
+          onPressed: () {
+            // TODO change order status
+            print('pressed!');
+          },
+          elevation: 0.0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -108,16 +110,19 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           ),
         ),
       ),
-
     );
   }
 
   Widget _buildOrderItemList() {
+    List<String> _orderProductIds = 
+      widget.order.items.map( (orderItem) => orderItem.productId ).toList();
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
             .collection(constants.DBCollections.products)
+            .where(FieldPath.documentId, whereIn: _orderProductIds)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -244,7 +249,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderItemPrice(OrderItem orderItem, Product product) {
     return Container(
       child: Text(
-        "¥" + NumberFormat("#,##0").format(orderItem.price),
+        "¥" + currencyFormat.format(orderItem.price),
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -313,7 +318,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
             ),
             Container(
               child: Text(
-                "¥" + NumberFormat("#,##0").format( widget.order.getOrderPrice() ),
+                "¥" + currencyFormat.format( widget.order.getOrderPrice() ),
                 style: TextStyle(
                   color: paletteDarkRedColor,
                   fontSize: 16,
