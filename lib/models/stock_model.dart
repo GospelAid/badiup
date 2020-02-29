@@ -87,7 +87,7 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
 class StockItem {
   final ItemColor color;
   final ItemSize size;
-  final int quantity;
+  int quantity;
 
   StockItem({
     this.color,
@@ -97,17 +97,15 @@ class StockItem {
 
   Map<String, dynamic> toMap() {
     return {
-      'color': color.index,
-      'size': size.index,
+      'color': color?.index,
+      'size': size?.index,
       'quantity': quantity,
     };
   }
 
   StockItem.fromMap(Map<String, dynamic> map)
-      : assert(map['color'] != null),
-        assert(map['size'] != null),
-        color = ItemColor.values[map['color']],
-        size = ItemSize.values[map['size']],
+      : color = map['color'] != null ? ItemColor.values[map['color']] : null,
+        size = map['size'] != null ? ItemSize.values[map['size']] : null,
         quantity = map['quantity'];
 }
 
@@ -119,19 +117,6 @@ class StockIdentifier {
     this.color,
     this.size,
   });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'color': color.index,
-      'size': size.index,
-    };
-  }
-
-  StockIdentifier.fromMap(Map<String, dynamic> map)
-      : assert(map['color'] != null),
-        assert(map['size'] != null),
-        color = ItemColor.values[map['color']],
-        size = ItemSize.values[map['size']];
 }
 
 class Stock {

@@ -82,11 +82,15 @@ class _ProductListingState extends State<ProductListing> {
     int index,
   ) {
     final product = Product.fromSnapshot(data);
+    int _productQuantity = (product.stock == null)
+        ? 0
+        : product.stock.items.fold(0, (a, b) => a + (b?.quantity ?? 0));
 
     // Show only published products if current user is customer
     // Otherwise, show all products
     if (!(currentSignedInUser.role == RoleType.customer &&
-        !product.isPublished)) {
+            !product.isPublished) &&
+        _productQuantity > 0) {
       // If no category filters are selected, show all products
       if (_categoryFilters.isEmpty ||
           // If one of more category filters are selected, show all products that match the filters
