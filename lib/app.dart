@@ -14,7 +14,7 @@ class BadiUpApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Badi Up',
-      theme: _kAppTheme,
+      theme: _getAppTheme(),
       home: FutureBuilder<FirebaseUser>(
           future: FirebaseAuth.instance.currentUser(),
           builder: (
@@ -53,26 +53,26 @@ class BadiUpApp extends StatelessWidget {
   }
 }
 
-final ThemeData _kAppTheme = _buildAppTheme();
-
-ThemeData _buildAppTheme() {
+ThemeData _getAppTheme() {
   final ThemeData base = ThemeData.light();
+
   return base.copyWith(
     accentColor: kPaletteWhite,
-    primaryColor: paletteBlackColor,
-    scaffoldBackgroundColor: paletteGreyColor3,
-    cardColor: kPaletteWhite,
-    textSelectionColor: kPalettePurple100,
-    errorColor: kPaletteRed,
+    accentTextTheme: _buildAppTextTheme(base.accentTextTheme),
+    backgroundColor: paletteBlackColor,
     buttonTheme: base.buttonTheme.copyWith(
       buttonColor: paletteForegroundColor,
       textTheme: ButtonTextTheme.primary,
       height: 48.0,
     ),
+    cardColor: kPaletteWhite,
+    errorColor: kPaletteRed,
+    primaryColor: paletteBlackColor,
     primaryIconTheme: base.iconTheme.copyWith(color: kPaletteWhite),
-    textTheme: _buildAppTextTheme(base.textTheme),
     primaryTextTheme: _buildAppTextTheme(base.primaryTextTheme),
-    accentTextTheme: _buildAppTextTheme(base.accentTextTheme),
+    scaffoldBackgroundColor: paletteGreyColor3,
+    textSelectionColor: kPalettePurple100,
+    textTheme: _buildAppTextTheme(base.textTheme),
   );
 }
 
