@@ -1,5 +1,6 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/models/product_model.dart';
@@ -82,24 +83,32 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildOrderStatusDescriptionBar() {
     return Container(
       padding: EdgeInsets.symmetric( vertical: 8.0 ),
-      child: Container(
-        height: 56,
-        color: widget.order.status == 
-            OrderStatus.pending ? paletteDarkRedColor: paletteDarkGreyColor,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              widget.order.getOrderStatusText(),
-              style: TextStyle(
-                color: kPaletteWhite,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
+      child: InkWell(
+        //splashColor: kPaletteWhite,
+        hoverColor: kPaletteWhite,
+        onTap: () {
+          print( 'tap' );
+        },
+        child: Container(
+          height: 56,
+          color: widget.order.status == 
+              OrderStatus.pending ? paletteDarkRedColor: paletteDarkGreyColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                widget.order.getOrderStatusText(),
+                style: TextStyle(
+                  color: kPaletteWhite,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+
     );
   }
 
@@ -327,13 +336,25 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           topRight: Radius.circular(40),
         ),
       ),
-      child: Column(
-        children: <Widget>[
-          _buildGreyBar(),
-          _buildCustomerContactInfoBox(),
-          _buildShippingAddressInfoBox(),
-          _buildShippingMethodInfoBox(),
-        ],
+      child: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
+            .collection(constants.DBCollections.users)
+            .document(widget.order.customerId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LinearProgressIndicator();
+          }
+          Customer _customer = Customer.fromSnapshot(snapshot.data);
+          return Column(
+            children: <Widget>[
+              _buildGreyBar(),
+              _buildCustomerContactInfoBox(_customer),
+              _buildShippingAddressInfoBox(_customer),
+              _buildShippingMethodInfoBox(),
+            ],
+          );
+        }
       ),
     );
   }
@@ -353,44 +374,32 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   }
 
-  Widget _buildCustomerContactInfoBox() {
+  Widget _buildCustomerContactInfoBox(Customer customer) {
     return Container(
       padding: EdgeInsets.only(
         top: 12.0, left: 24.0, right: 24.0, bottom: 36.0
       ),
-      child: StreamBuilder<DocumentSnapshot>(
-        stream: Firestore.instance
-            .collection(constants.DBCollections.users)
-            .document(widget.order.customerId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return LinearProgressIndicator();
-          }
-          Customer _customer = Customer.fromSnapshot(snapshot.data);
-          return Column(
-            children: <Widget>[
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  "注文者情報",
-                  style: TextStyle(
-                    fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
-                  )
-                ),
-              ),
-              SizedBox(height: 24.0),
-              _buildCustomerName(_customer),
-              SizedBox(height: 12.0),
-              _buildCustomerAddress(_customer),
-              SizedBox(height: 6.0),
-              _buildCustomerPhoneNumber(_customer),
-              SizedBox(height: 6.0),
-              _buildCustomerEmailAddress(_customer),
-            ],
-          );
-        }
-      )
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "注文者情報",
+              style: TextStyle(
+                fontSize: 18, color: paletteBlackColor, fontWeight: FontWeight.bold,
+              )
+            ),
+          ),
+          SizedBox(height: 24.0),
+          _buildCustomerName(customer),
+          SizedBox(height: 12.0),
+          _buildCustomerAddress(customer),
+          SizedBox(height: 6.0),
+          _buildCustomerPhoneNumber(customer),
+          SizedBox(height: 6.0),
+          _buildCustomerEmailAddress(customer),
+        ],
+      ),
     );
   }
 
@@ -421,6 +430,8 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   }
 
   Widget _buildCustomerAddress(Customer customer) {
+    Address _defaultAddress = customer.getDefaultShippingAddress();
+
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,13 +448,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "〒 " + customer.getDefaultAddressPostcode(),
+                  "〒 " + (_defaultAddress.postcode ?? ""),
                   style: TextStyle(
                     fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
                   ),
                 ),
                 Text(
-                  customer.getDefaultAddress(),
+                  (_defaultAddress.line1 ?? "") + (_defaultAddress.line2 ?? ""),
                   style: TextStyle(
                     fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
                   ),
@@ -475,7 +486,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           ),
           SizedBox(width: 16.0),
           Text(
-            customer.getDefaultPhoneNumber(),
+            widget.order.shippingAddress.phoneNumber ?? "",
             style: TextStyle(
               fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
             )
@@ -516,7 +527,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildShippingAddressInfoBox() {
+  Widget _buildShippingAddressInfoBox(Customer customer) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -538,24 +549,50 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
               )
             ),
           ),
-          SizedBox(height: 25.0),
-          _buildShippingAddressInfo(),
+          SizedBox(height: 24.0),
+          _buildCustomerName(customer),
+          SizedBox(height: 12.0),
+          _buildShippingAddress(customer),
+          //_buildShippingAddressInfo(),
         ],
       ),
     );
   }
 
-  Widget _buildShippingAddressInfo() {
+  Widget _buildShippingAddress(Customer customer) {
+    Address _shippingAddress = widget.order.shippingAddress;
+
     return Container(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        // widget.order.shippingAddress
-        "上記と同じ",
-        style: TextStyle(
-          fontSize: 16,
-          color: paletteBlackColor,
-          fontWeight: FontWeight.w300,
-        )
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            "住所",
+            style: TextStyle(
+              fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            ),
+          ),
+          SizedBox(width: 30.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "〒 " + (_shippingAddress.postcode ?? ""),
+                  style: TextStyle(
+                    fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                  ),
+                ),
+                Text(
+                  (_shippingAddress.line1 ?? "") + (_shippingAddress.line2 ?? ""),
+                  style: TextStyle(
+                    fontSize: 16, color: paletteBlackColor, fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

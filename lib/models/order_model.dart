@@ -1,3 +1,4 @@
+import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -11,6 +12,7 @@ class Order {
   final String details;
   final String trackingUrl;
   final String orderId;
+  final Address shippingAddress;
 
   Order({
     this.documentId,
@@ -21,6 +23,7 @@ class Order {
     this.details,
     this.trackingUrl,
     this.orderId,
+    this.shippingAddress,
   });
 
   double getOrderPrice() {
@@ -50,6 +53,7 @@ class Order {
       'orderId': orderId,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
+    map['shippingAddress'] = shippingAddress.toMap();
 
     return map;
   }
@@ -64,6 +68,9 @@ class Order {
             .map<OrderItem>(
                 (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
             .toList(),
+        shippingAddress = Address.fromMap(
+          map['shippingAddress'].cast<String, dynamic>()
+        ),
         documentId = documentId,
         orderId = map['orderId'];
 

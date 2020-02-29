@@ -23,23 +23,11 @@ class Customer extends User {
           created: created,
         );
 
-  String getDefaultAddressPostcode() {
-    if ( shippingAddresses.length == 0 ) return "";
-
-    return shippingAddresses[0].postcode ?? "";
-  }
-
-  String getDefaultAddress() {
-    if ( shippingAddresses.length == 0 ) return "";
-
-    return (shippingAddresses[0].line1 ?? "") +
-           (shippingAddresses[0].line2 ?? "");
-  }
-
-  String getDefaultPhoneNumber() {
-    if ( shippingAddresses.length == 0 ) return "";
-
-    return shippingAddresses[0].phoneNumber ?? "";
+  Address getDefaultShippingAddress() {
+    if ( shippingAddresses.length == 0 ) {
+      return Address();
+    }
+    return shippingAddresses[0];
   }
 
   @override
