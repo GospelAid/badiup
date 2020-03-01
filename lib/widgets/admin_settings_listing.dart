@@ -3,12 +3,12 @@ import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/colors.dart';
 import 'package:badiup/sign_in.dart';
 
-class SettingsListing extends StatefulWidget {
+class AdminSettingsListing extends StatefulWidget {
   @override
-  _SettingsListingState createState() => _SettingsListingState();
+  _AdminSettingsListingState createState() => _AdminSettingsListingState();
 }
 
-class _SettingsListingState extends State<SettingsListing> {
+class _AdminSettingsListingState extends State<AdminSettingsListing> {
   bool _value = currentSignedInUser.setting.taxInclusive;
 
   @override

@@ -1,7 +1,7 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
-import 'package:badiup/screens/admin_settings_page.dart';
+import 'package:badiup/screens/settings_page.dart';
 import 'package:badiup/screens/cart_page.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/login_page.dart';
@@ -122,14 +122,12 @@ class _MainMenuState extends State<MainMenu> {
         ),
       ),
       onTap: () {
-        if (currentSignedInUser.isAdmin()) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdminSettingsPage(),
-            ),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsPage(),
+          ),
+        );
       },
     );
   }
