@@ -9,7 +9,7 @@ class SettingsListing extends StatefulWidget {
 }
 
 class _SettingsListingState extends State<SettingsListing> {
-  bool _value = currentSignedInUser.setting.pushNotifications;
+  bool _value = currentSignedInUser.setting.taxInclusive;
 
   @override
   Widget build(BuildContext context) {
@@ -53,15 +53,14 @@ class _SettingsListingState extends State<SettingsListing> {
   }
 
   Future<void> updatePushNotification(bool value) async {
+    currentSignedInUser.setting.taxInclusive = value;
     await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
         .updateData(currentSignedInUser.toMap());
-    
     setState(() {
-      _value = value;
-      currentSignedInUser.setting.pushNotifications = value;
+      _value = value;    
     });
-    
+
   }
 }

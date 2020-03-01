@@ -81,7 +81,7 @@ Future<void> addUserToFirestore({FirebaseUser user}) async {
     email: user.email,
     name: user.displayName,
     role: RoleType.customer, // add user as customer by default
-    setting: UserSetting(pushNotifications: true),
+    setting: UserSetting(pushNotifications: true, taxInclusive: true),
     shippingAddresses: List<Address>(),
     created: DateTime.now().toUtc(),
   );
