@@ -1,16 +1,15 @@
+import 'package:badiup/colors.dart';
+import 'package:badiup/screens/admin_home_page.dart';
+import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/settings_listing.dart';
 import 'package:flutter/material.dart';
 
-import '../colors.dart';
-import '../widgets/banner_button.dart';
-import 'admin_home_page.dart';
-
-class AdminSettngsPage extends StatefulWidget {
+class AdminSettingsPage extends StatefulWidget {
   @override
   _AdminSettingsPageState createState() => _AdminSettingsPageState();
 }
 
-class _AdminSettingsPageState extends State<AdminSettngsPage> {
+class _AdminSettingsPageState extends State<AdminSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +33,7 @@ class _AdminSettingsPageState extends State<AdminSettngsPage> {
             MaterialPageRoute(builder: (context) => AdminHomePage()),
           );
         },
-        text: "商品リストへ",
+        text: "保存",
       ),
     );
   }

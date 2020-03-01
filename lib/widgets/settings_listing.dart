@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:badiup/constants.dart' as constants;
-import '../colors.dart';
-import '../sign_in.dart';
+import 'package:badiup/colors.dart';
+import 'package:badiup/sign_in.dart';
 
 class SettingsListing extends StatefulWidget {
   @override
