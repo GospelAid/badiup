@@ -1,5 +1,5 @@
 class UserSetting {
-  final bool pushNotifications;
+  bool pushNotifications;
 
   UserSetting({
     this.pushNotifications,
