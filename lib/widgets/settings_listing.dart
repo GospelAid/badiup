@@ -53,14 +53,15 @@ class _SettingsListingState extends State<SettingsListing> {
   }
 
   Future<void> updatePushNotification(bool value) async {
-    setState(() {
-      _value = value;
-      currentSignedInUser.setting.pushNotifications = value;
-    });
-
     await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
         .updateData(currentSignedInUser.toMap());
+    
+    setState(() {
+      _value = value;
+      currentSignedInUser.setting.pushNotifications = value;
+    });
+    
   }
 }

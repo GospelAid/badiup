@@ -1,5 +1,6 @@
 class UserSetting {
   bool pushNotifications;
+  bool taxInclusive;
 
   UserSetting({
     this.pushNotifications,
