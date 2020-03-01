@@ -17,14 +17,14 @@ class _SettingsListingState extends State<SettingsListing> {
       child: Center(
         child: ListView(
           children: <Widget>[
-            _buildFirebaseNotification(),
+            _buildShowTaxSetting(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFirebaseNotification() {
+  Widget _buildShowTaxSetting() {
     return Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -45,22 +45,21 @@ class _SettingsListingState extends State<SettingsListing> {
                   activeTrackColor: paletteForegroundColor,
                   value: _value,
                   onChanged: (bool value) {
-                    updatePushNotification(value);
+                    _updateShowTaxSetting(value);
                   },
                 ),
               ]),
         ));
   }
 
-  Future<void> updatePushNotification(bool value) async {
+  Future<void> _updateShowTaxSetting(bool value) async {
     currentSignedInUser.setting.taxInclusive = value;
     await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
         .updateData(currentSignedInUser.toMap());
     setState(() {
-      _value = value;    
+      _value = value;
     });
-
   }
 }
