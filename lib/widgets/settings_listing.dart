@@ -26,30 +26,32 @@ class _SettingsListingState extends State<SettingsListing> {
 
   Widget _buildShowTaxSetting() {
     return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      height: 50.0,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
         ),
-        height: 50.0,
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 20,
-            right: 20,
-          ),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text('消費税込みの価格に設定する'),
-                Switch(
-                  activeColor: Colors.white,
-                  activeTrackColor: paletteForegroundColor,
-                  value: _value,
-                  onChanged: (bool value) {
-                    _updateShowTaxSetting(value);
-                  },
-                ),
-              ]),
-        ));
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('消費税込みの価格に設定する'),
+            Switch(
+              activeColor: Colors.white,
+              activeTrackColor: paletteForegroundColor,
+              value: _value,
+              onChanged: (bool value) {
+                _updateShowTaxSetting(value);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _updateShowTaxSetting(bool value) async {
