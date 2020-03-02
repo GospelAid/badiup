@@ -7,12 +7,12 @@ class Order {
   final String documentId;
   final String customerId;
   final List<OrderItem> items;
-  final OrderStatus status;
   final DateTime placedDate;
   final String details;
   final String trackingUrl;
   final String orderId;
-  final Address shippingAddress;
+  Address shippingAddress;
+  OrderStatus status;
 
   Order({
     this.documentId,
@@ -68,9 +68,10 @@ class Order {
             .map<OrderItem>(
                 (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
             .toList(),
-        shippingAddress = Address.fromMap(
-          map['shippingAddress'].cast<String, dynamic>()
-        ),
+        shippingAddress = map['shippingAddress'] != null ?
+          Address.fromMap(
+            map['shippingAddress'].cast<String, dynamic>()
+          ) : Address(),
         documentId = documentId,
         orderId = map['orderId'];
 

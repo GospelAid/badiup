@@ -87,19 +87,18 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       padding: EdgeInsets.symmetric( vertical: 8.0 ),
       child: Container(
         height: 56,
-        color: widget.order.status == 
-            OrderStatus.pending ? paletteDarkRedColor: paletteDarkGreyColor,
+        color: (widget.order.status == OrderStatus.dispatched) ? 
+            paletteDarkGreyColor : paletteDarkRedColor,
         child: RaisedButton(
-          onPressed: () {
-            // TODO change order status
-            print('pressed!');
-          },
+          color: Colors.transparent,
+          onPressed: (widget.order.status == OrderStatus.dispatched) ?
+              null : () => _displayChangeOrderStatusDialog(),
           elevation: 0.0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                widget.order.getOrderStatusText(),
+                (widget.order.status == OrderStatus.dispatched) ? '発送済' : '未発送の商品です',
                 style: TextStyle(
                   color: kPaletteWhite,
                   fontSize: 16.0,
@@ -111,6 +110,55 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         ),
       ),
     );
+  }
+
+  void _displayChangeOrderStatusDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '発送済にしますか？',
+            style: getAlertStyle(),
+          ),
+          content: Text('この操作は取り消しできません。'),
+          actions: _buildChangeOrderStatusActions(context),
+        );
+      }
+    );
+  }
+
+  List<Widget> _buildChangeOrderStatusActions(BuildContext context) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          '確認',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          await Firestore.instance
+              .collection(constants.DBCollections.orders)
+              .document(widget.order.documentId)
+              .updateData({'status': OrderStatus.dispatched.index});
+
+          setState(() {
+            widget.order.status = OrderStatus.dispatched;
+          });
+
+          Navigator.pop(context);
+        },
+      ),
+    ];
   }
 
   Widget _buildOrderItemList() {
