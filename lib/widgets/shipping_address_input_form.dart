@@ -10,7 +10,8 @@ TextEditingController phoneNumberTextController;
 
 class ShippingAddressInputForm extends StatefulWidget {
   @override
-  _ShippingAddressInputFormState createState() => _ShippingAddressInputFormState();
+  _ShippingAddressInputFormState createState() =>
+      _ShippingAddressInputFormState();
 }
 
 class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
@@ -31,26 +32,26 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
     phoneNumberTextController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only( top: 12.0, bottom: 50.0 ),
+      padding: EdgeInsets.only(top: 12.0, bottom: 50.0),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide( color: kPaletteBorderColor),
+          bottom: BorderSide(color: kPaletteBorderColor),
         ),
       ),
       child: Column(
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            child: Text(
-              "お届け先",
-              style: TextStyle(
-                fontSize: 20, color: paletteBlackColor, fontWeight: FontWeight.w600,
-              )
-            ),
+            child: Text("お届け先",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: paletteBlackColor,
+                  fontWeight: FontWeight.w600,
+                )),
           ),
           SizedBox(height: 24.0),
           _buildAddressInputRows(),
@@ -66,23 +67,21 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          padding: EdgeInsets.only( top: 8.0 ),
-          child: Text(
-            "住所",
-            style: TextStyle(
-              fontSize: 16.0, color: paletteBlackColor, fontWeight: FontWeight.w300,
-            )
-          ),
+          padding: EdgeInsets.only(top: 8.0),
+          child: Text("住所",
+              style: TextStyle(
+                fontSize: 16.0,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              )),
         ),
         SizedBox(width: 16.0),
         Container(
-          padding: EdgeInsets.only(
-            left: 16.0, top: 4.0, bottom: 4.0
-          ),
+          padding: EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
           height: 160.0,
           decoration: BoxDecoration(
             border: Border(
-              left: BorderSide( color: paletteGreyColor4 ),
+              left: BorderSide(color: paletteGreyColor4),
             ),
           ),
           child: Column(
@@ -105,13 +104,13 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       width: 245.0,
       child: Row(
         children: <Widget>[
-          Text(
-            "〒",
-            style: TextStyle(
-              fontSize: 16.0, color: paletteBlackColor, fontWeight: FontWeight.w300,
-            )
-          ),
-          SizedBox( width: 4.0 ),
+          Text("〒",
+              style: TextStyle(
+                fontSize: 16.0,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              )),
+          SizedBox(width: 4.0),
           Container(
             width: 100.0,
             height: 30.0,
@@ -121,11 +120,12 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '郵便番号',
-                contentPadding: EdgeInsets.only( left: 14.0, top: 0.0, bottom: 0.0),
+                contentPadding:
+                    EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
               ),
             ),
           ),
-          SizedBox( width: 20.0 ),
+          SizedBox(width: 20.0),
           _buildSearchByPostcodeButton(),
         ],
       ),
@@ -136,25 +136,21 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
     return Container(
       height: 35.0,
       child: FlatButton(
-        padding: EdgeInsets.symmetric( horizontal: 4.0 ),
+        padding: EdgeInsets.symmetric(horizontal: 4.0),
         color: paletteRoseColor,
         child: Text(
           "郵便番号から検索",
           style: TextStyle(
-            fontSize: 12.0, color: paletteBlackColor, fontWeight: FontWeight.w300,
+            fontSize: 12.0,
+            color: paletteBlackColor,
+            fontWeight: FontWeight.w300,
           ),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6.0),
         ),
         onPressed: () async {
-          try {
-            var address = await PostalCodeJp.locate( postcodeTextController.text );
-            print(address);
-          } catch (e) {
-            print(e);
-          }
-
+          // TODO get address from JP postcode
         },
       ),
     );
@@ -169,13 +165,13 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.only( left: 14.0, top: 0.0, bottom: 0.0),
+          contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
           hintText: '都道府県',
         ),
       ),
     );
   }
-  
+
   Widget _buildMunicipalityInputRow() {
     return Container(
       height: 30.0,
@@ -185,7 +181,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.only( left: 14.0, top: 0.0, bottom: 0.0),
+          contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
           hintText: '市区町村',
         ),
       ),
@@ -201,7 +197,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
         controller: buildingNameTextController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.only( left: 14.0, top: 0.0, bottom: 0.0),
+          contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
           hintText: '建物名など',
         ),
       ),
@@ -212,21 +208,19 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
     return Row(
       children: <Widget>[
         Container(
-          child: Text(
-            "電話",
-            style: TextStyle(
-              fontSize: 16.0, color: paletteBlackColor, fontWeight: FontWeight.w300,
-            )
-          ),
+          child: Text("電話",
+              style: TextStyle(
+                fontSize: 16.0,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              )),
         ),
         SizedBox(width: 16.0),
         Container(
-          padding: EdgeInsets.only(
-            left: 16.0, top: 4.0, bottom: 4.0
-          ),
+          padding: EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
           decoration: BoxDecoration(
             border: Border(
-              left: BorderSide( color: paletteGreyColor4 ),
+              left: BorderSide(color: paletteGreyColor4),
             ),
           ),
           child: Container(
@@ -243,7 +237,8 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
               controller: phoneNumberTextController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.only( left: 14.0, top: 0.0, bottom: 0.0),
+                contentPadding:
+                    EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
                 hintText: '000-0000-0000',
               ),
             ),

@@ -284,7 +284,7 @@ class _CartPageState extends State<CartPage> {
     return _productStockItem;
   }
 
-  Address _checkShippingAddress() {
+  Address _getShippingAddress() {
     return Address(
       postcode: postcodeTextController.text,
       prefecture: prefectureTextController.text,
@@ -301,7 +301,7 @@ class _CartPageState extends State<CartPage> {
       customerId: customer.email,
       status: OrderStatus.pending,
       placedDate: DateTime.now().toUtc(),
-      shippingAddress: _checkShippingAddress(),
+      shippingAddress: _getShippingAddress(),
       items: [],
     );
 

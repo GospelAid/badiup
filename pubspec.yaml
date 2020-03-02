@@ -38,7 +38,6 @@ dependencies:
   path_provider: ^1.4.4
   flutter_spinkit: ^4.0.0
   intl: ^0.16.0
-  postal_code_jp: ^1.0.1
 
 dev_dependencies:
   flutter_test:
