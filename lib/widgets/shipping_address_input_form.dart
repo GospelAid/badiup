@@ -1,6 +1,5 @@
 import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:postal_code_jp/postal_code_jp.dart';
 
 TextEditingController postcodeTextController;
 TextEditingController prefectureTextController;
