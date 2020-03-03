@@ -11,7 +11,6 @@ const kPaletteWhite = Colors.white;
 const kPalettePurple = const Color(0xFF386150);
 const kPalettePurple100 = const Color(0xFFE1BEE7);
 const kPaletteRed = Colors.red;
-//const kPaletteBorderColor = const Color(0xFF8D99AE);
 const kPaletteBorderColor = const Color(0xFFA2A2A2);
 const kPaletteDeleteIconColor = const Color(0xFFB22323);
 const kPaletteSpacerColor = const Color(0xFFBABABA);

@@ -23,12 +23,8 @@ class Customer extends User {
           created: created,
         );
 
-  Address getDefaultShippingAddress() {
-    if ( shippingAddresses.length == 0 ) {
-      return Address();
-    }
-    return shippingAddresses[0];
-  }
+  Address getAvailableShippingAddress() =>
+      shippingAddresses.length == 0 ? Address() : shippingAddresses.first;
 
   @override
   Map<String, dynamic> toMap() {

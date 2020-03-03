@@ -116,18 +116,19 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   void _displayChangeOrderStatusDialog() {
     showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              '発送済にしますか？',
-              style: getAlertStyle(),
-            ),
-            content: Text('この操作は取り消しできません。'),
-            actions: _buildChangeOrderStatusActions(context),
-          );
-        });
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '発送済にしますか？',
+            style: getAlertStyle(),
+          ),
+          content: Text('この操作は取り消しできません。'),
+          actions: _buildChangeOrderStatusActions(context),
+        );
+      },
+    );
   }
 
   List<Widget> _buildChangeOrderStatusActions(BuildContext context) {
@@ -475,9 +476,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerAddress(Customer customer) {
-    Address _defaultAddress = customer.getDefaultShippingAddress();
-
+  Widget _buildAddressRow(Address address) {
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +495,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "〒 " + (_defaultAddress.postcode ?? ""),
+                  "〒 " + (address.postcode ?? ""),
                   style: TextStyle(
                     fontSize: 16,
                     color: paletteBlackColor,
@@ -504,7 +503,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                   ),
                 ),
                 Text(
-                  (_defaultAddress.line1 ?? "") + (_defaultAddress.line2 ?? ""),
+                  (address.line1 ?? "") + (address.line2 ?? ""),
                   style: TextStyle(
                     fontSize: 16,
                     color: paletteBlackColor,
@@ -518,6 +517,9 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       ),
     );
   }
+
+  Widget _buildCustomerAddress(Customer customer) =>
+      _buildAddressRow(customer.getAvailableShippingAddress());
 
   Widget _buildCustomerPhoneNumber(Customer customer) {
     return Container(
@@ -603,57 +605,15 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           SizedBox(height: 24.0),
           _buildCustomerName(customer),
           SizedBox(height: 12.0),
-          _buildShippingAddress(customer),
+          _buildShippingAddress(),
           //_buildShippingAddressInfo(),
         ],
       ),
     );
   }
 
-  Widget _buildShippingAddress(Customer customer) {
-    Address _shippingAddress = widget.order.shippingAddress;
-
-    return Container(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            "住所",
-            style: TextStyle(
-              fontSize: 16,
-              color: paletteBlackColor,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          SizedBox(width: 30.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  "〒 " + (_shippingAddress.postcode ?? ""),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: paletteBlackColor,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                Text(
-                  (_shippingAddress.line1 ?? "") +
-                      (_shippingAddress.line2 ?? ""),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: paletteBlackColor,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildShippingAddress() =>
+      _buildAddressRow(widget.order.shippingAddress);
 
   Widget _buildShippingMethodInfoBox() {
     return Container(
@@ -674,7 +634,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           Container(
             alignment: Alignment.centerLeft,
             child: Text(
-                // widget.order.shippingMethod
+                // TODO use widget.order.shippingMethod
                 "ゆうパック　通常配送（3~5日程度）",
                 style: TextStyle(
                   fontSize: 16,
