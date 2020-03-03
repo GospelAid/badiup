@@ -23,6 +23,9 @@ class Customer extends User {
           created: created,
         );
 
+  Address getAvailableShippingAddress() =>
+      shippingAddresses.length == 0 ? Address() : shippingAddresses.first;
+
   @override
   Map<String, dynamic> toMap() {
     Map<String, dynamic> customerMap = super.toMap();
@@ -40,7 +43,7 @@ class Customer extends User {
   Customer.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
     shippingAddresses = map['shippingAddresses']
         .map<Address>(
-            (address) => Address.fromMap(address.cast<String, Address>()))
+            (address) => Address.fromMap(address.cast<String, dynamic>()))
         .toList();
     if (map['cart'] != null) {
       cart = Cart.fromMap(map['cart'].cast<String, dynamic>());

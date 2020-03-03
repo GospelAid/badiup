@@ -11,7 +11,7 @@ const kPaletteWhite = Colors.white;
 const kPalettePurple = const Color(0xFF386150);
 const kPalettePurple100 = const Color(0xFFE1BEE7);
 const kPaletteRed = Colors.red;
-const kPaletteBorderColor = const Color(0xFF8D99AE);
+const kPaletteBorderColor = const Color(0xFFA2A2A2);
 const kPaletteDeleteIconColor = const Color(0xFFB22323);
 const kPaletteSpacerColor = const Color(0xFFBABABA);
 const paletteBlackColor = const Color(0xFF151515);
@@ -24,6 +24,7 @@ const paletteBrownColor = const Color(0xFF6F5850);
 const paletteGreyColor = const Color(0xFF707070);
 const paletteGreyColor2 = const Color(0xFF767575);
 const paletteGreyColor3 = const Color(0xFFD2D0D1);
+const paletteGreyColor4 = const Color(0xFFEFEFEF);
 
 TextStyle getAlertStyle() {
   return TextStyle(

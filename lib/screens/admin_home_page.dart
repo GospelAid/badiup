@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 enum OrderFilterButtons {
   all,
-  undispatched,
+  pending,
   dispatched,
 }
 
@@ -85,7 +85,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               _buildOrdersTitle(),
               SizedBox(width: 64),
               _buildOrderFilterButton(context, OrderFilterButtons.all),
-              _buildOrderFilterButton(context, OrderFilterButtons.undispatched),
+              _buildOrderFilterButton(context, OrderFilterButtons.pending),
               _buildOrderFilterButton(context, OrderFilterButtons.dispatched),
             ],
           ),
@@ -152,7 +152,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     switch (button) {
       case OrderFilterButtons.all:
         return OrderStatus.all;
-      case OrderFilterButtons.undispatched:
+      case OrderFilterButtons.pending:
         return OrderStatus.pending;
       case OrderFilterButtons.dispatched:
         return OrderStatus.dispatched;
@@ -165,7 +165,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     switch (button) {
       case OrderFilterButtons.all:
         return '全て';
-      case OrderFilterButtons.undispatched:
+      case OrderFilterButtons.pending:
         return '未発送';
       case OrderFilterButtons.dispatched:
         return '発送済';

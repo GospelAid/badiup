@@ -1,3 +1,4 @@
+import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -6,11 +7,12 @@ class Order {
   final String documentId;
   final String customerId;
   final List<OrderItem> items;
-  final OrderStatus status;
   final DateTime placedDate;
   final String details;
   final String trackingUrl;
   final String orderId;
+  Address shippingAddress;
+  OrderStatus status;
 
   Order({
     this.documentId,
@@ -21,6 +23,7 @@ class Order {
     this.details,
     this.trackingUrl,
     this.orderId,
+    this.shippingAddress,
   });
 
   double getOrderPrice() {
@@ -32,7 +35,9 @@ class Order {
       case OrderStatus.all:
         return '全て';
       case OrderStatus.pending:
-        return '保留中';
+        return '未発送';
+      case OrderStatus.dispatched:
+        return '発送済';
       default:
         return 'その他';
     }
@@ -48,6 +53,7 @@ class Order {
       'orderId': orderId,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
+    map['shippingAddress'] = shippingAddress.toMap();
 
     return map;
   }
@@ -62,6 +68,10 @@ class Order {
             .map<OrderItem>(
                 (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
             .toList(),
+        shippingAddress = map['shippingAddress'] != null ?
+          Address.fromMap(
+            map['shippingAddress'].cast<String, dynamic>()
+          ) : Address(),
         documentId = documentId,
         orderId = map['orderId'];
 
