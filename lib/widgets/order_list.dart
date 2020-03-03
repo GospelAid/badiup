@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:intl/intl.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/order_model.dart';
+import 'package:badiup/screens/admin_order_detail_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class OrderList extends StatefulWidget {
   OrderList({Key key, this.orderStatusToFilter}) : super(key: key);
@@ -79,7 +79,7 @@ class _OrderListState extends State<OrderList> {
       ),
       child: Center(
         child: Text(
-          _getOrderStatusText(order.status),
+          order.getOrderStatusText(),
           style: TextStyle(
             color: paletteForegroundColor,
             fontSize: 11,
@@ -87,17 +87,6 @@ class _OrderListState extends State<OrderList> {
         ),
       ),
     );
-  }
-
-  String _getOrderStatusText(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return '未発送';
-      case OrderStatus.dispatched:
-        return '発送済';
-      default:
-        return '';
-    }
   }
 
   Widget _buildOrderListTile(Order order) {
@@ -111,7 +100,14 @@ class _OrderListState extends State<OrderList> {
           _buildOrderPlacedDate(order),
         ],
       ),
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminOrderDetailPage(order: order),
+          ),
+        );
+      },
     );
   }
 

@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
@@ -13,6 +14,7 @@ import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/quantity_selector.dart';
+import 'package:badiup/widgets/shipping_address_input_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -282,12 +284,24 @@ class _CartPageState extends State<CartPage> {
     return _productStockItem;
   }
 
+  Address _getShippingAddress() {
+    return Address(
+      postcode: postcodeTextController.text,
+      prefecture: prefectureTextController.text,
+      phoneNumber: phoneNumberTextController.text,
+      city: municipalityTextController.text,
+      line1: prefectureTextController.text + municipalityTextController.text,
+      line2: buildingNameTextController.text,
+    );
+  }
+
   Future<Order> _getOrderRequest(Customer customer) async {
     Order orderRequest = Order(
       orderId: Order.generateOrderId(),
       customerId: customer.email,
       status: OrderStatus.pending,
       placedDate: DateTime.now().toUtc(),
+      shippingAddress: _getShippingAddress(),
       items: [],
     );
 
@@ -377,6 +391,7 @@ class _CartPageState extends State<CartPage> {
             _buildTotal(totalPrice),
             SizedBox(height: 32),
             paymentCompleted ? _buildPaymentInfo() : Container(),
+            paymentCompleted ? ShippingAddressInputForm() : Container(),
           ],
         ),
       ),
