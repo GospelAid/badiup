@@ -53,7 +53,7 @@ class _ProductDetailState extends State<ProductDetail> {
         SizedBox(height: 24.0),
         _buildProductTitle(product),
         SizedBox(height: 8.0),
-        Divider(thickness: 1.0, color: const Color(0XFFA2A2A2)),
+        Divider(thickness: 1.0, color: kPaletteBorderColor),
         _buildProductDescription(product),
         SizedBox(height: 8.0),
         _buildProductPrice(product),
