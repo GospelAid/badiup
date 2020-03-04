@@ -46,12 +46,16 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
-        ListView(
-          children: <Widget>[
-            ProductDetail(productDocumentId: widget.productDocumentId),
-            _buildStockSelector(),
-            SizedBox(height: 150),
-          ],
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: <Widget>[
+              ProductDetail(productDocumentId: widget.productDocumentId),
+              SizedBox(height: 40),
+              _buildStockSelector(),
+              SizedBox(height: 150),
+            ],
+          ),
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
@@ -104,10 +108,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       _widgetList.add(_buildStockColorPicker(_product.stock, _textStyle));
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(children: _widgetList),
-    );
+    return Column(children: _widgetList);
   }
 
   Widget _buildStockColorPicker(Stock stock, TextStyle textStyle) {

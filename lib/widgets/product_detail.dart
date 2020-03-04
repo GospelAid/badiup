@@ -45,24 +45,21 @@ class _ProductDetailState extends State<ProductDetail> {
   }
 
   Widget _buildProductDetailInternal(Product product) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          _buildProductImageSlideshow(product),
-          SizedBox(height: 8.0),
-          _buildThumbnailBar(product),
-          SizedBox(height: 24.0),
-          _buildProductTitle(product),
-          SizedBox(height: 8.0),
-          Divider(thickness: 1.0, color: const Color(0XFFA2A2A2)),
-          _buildProductDescription(product),
-          SizedBox(height: 8.0),
-          _buildProductPrice(product),
-          SizedBox(height: 8.0),
-          _buildProductCategory(product.category),
-        ],
-      ),
+    return Column(
+      children: <Widget>[
+        _buildProductImageSlideshow(product),
+        SizedBox(height: 8.0),
+        _buildThumbnailBar(product),
+        SizedBox(height: 24.0),
+        _buildProductTitle(product),
+        SizedBox(height: 8.0),
+        Divider(thickness: 1.0, color: kPaletteBorderColor),
+        _buildProductDescription(product),
+        SizedBox(height: 8.0),
+        _buildProductPrice(product),
+        SizedBox(height: 8.0),
+        _buildProductCategory(product.category),
+      ],
     );
   }
 
@@ -217,6 +214,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
+      height: 232.5,
       color: paletteDarkGreyColor,
       child: _getProductListingImage(product),
     );
@@ -247,7 +245,6 @@ class _ProductDetailState extends State<ProductDetail> {
     if (product.imageUrls?.isEmpty ?? true) {
       productImage = Image.memory(
         kTransparentImage,
-        height: constants.imageHeight,
       );
     } else {
       productImage = FadeInImage.memoryNetwork(
