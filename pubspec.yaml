@@ -39,6 +39,9 @@ dependencies:
   flutter_spinkit: ^4.0.0
   intl: ^0.16.0
 
+  stripe_payment: ^1.0.6
+  http: ^0.12.0+4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -51,7 +54,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

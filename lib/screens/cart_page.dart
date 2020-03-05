@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
@@ -17,7 +18,9 @@ import 'package:badiup/widgets/quantity_selector.dart';
 import 'package:badiup/widgets/shipping_address_input_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:stripe_payment/stripe_payment.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class CartPage extends StatefulWidget {
@@ -31,6 +34,20 @@ class _CartPageState extends State<CartPage> {
   final currencyFormat = NumberFormat("#,##0");
   bool paymentCompleted = false;
   bool _formSubmitInProgress = false;
+  String _paymentIntentClientSecret;
+  PaymentMethod _paymentMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    StripePayment.setOptions(
+      StripeOptions(
+        publishableKey: "pk_test_TwCMCEid9SP9Ii8Ztuwl3ere00cbfx1xjn",
+        merchantId: "BADIUP",
+        androidPayMode: 'test',
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +137,17 @@ class _CartPageState extends State<CartPage> {
               builder: (context) => OrderSuccessPage(orderId: orderId),
             ),
           );
-        } else {
-          setState(() {
-            paymentCompleted = true;
+        } else if (_paymentIntentClientSecret != null) {
+          StripePayment.authenticatePaymentIntent(
+            clientSecret: _paymentIntentClientSecret,
+          ).then((paymentIntent) async {
+            if (paymentIntent.status == 'succeeded') {
+              setState(() {
+                paymentCompleted = true;
+              });
+            } else {
+              // TODO: Handle the case when payment fails and refunds
+            }
           });
         }
       },
@@ -390,12 +415,63 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 12),
             _buildTotal(totalPrice),
             SizedBox(height: 32),
-            paymentCompleted ? _buildPaymentInfo() : Container(),
-            paymentCompleted ? ShippingAddressInputForm() : Container(),
+            ShippingAddressInputForm(),
+            SizedBox(height: 32),
+            paymentCompleted
+                ? _buildPaymentInfo()
+                : _buildCardButton(totalPrice),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildCardButton(double totalPrice) {
+    return Container(
+      height: 38,
+      width: 80,
+      child: FlatButton(
+        color: paletteRoseColor,
+        child: Text(
+          "カード",
+          style: TextStyle(
+            color: paletteBlackColor,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        onPressed: () async {
+          await _createPaymentIntent(totalPrice);
+        },
+      ),
+    );
+  }
+
+  Future _createPaymentIntent(double totalPrice) async {
+    await StripePayment.paymentRequestWithCardForm(
+      CardFormPaymentRequest(),
+    ).then((PaymentMethod paymentMethod) async {
+      _paymentMethod = paymentMethod;
+
+      final http.Response response = await http.post(
+        'https://us-central1-badiup2.cloudfunctions.net/createPaymentIntent',
+        body: json.encode({
+          'userId': currentSignedInUser.email,
+          'paymentMethodId': paymentMethod.id,
+        }),
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        _paymentIntentClientSecret =
+            json.decode(response.body)['client_secret'];
+      }
+    });
   }
 
   Widget _buildPaymentInfo() {
@@ -430,7 +506,10 @@ class _CartPageState extends State<CartPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text("クレジットカード", style: textStyle),
-        Text("楽天カード　JCB****1000", style: textStyle),
+        Text(
+          _paymentMethod.card.brand + " " + _paymentMethod.card.last4,
+          style: textStyle,
+        ),
         Row(
           children: <Widget>[
             Text("お支払い回数：", style: textStyle),
