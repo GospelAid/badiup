@@ -15,13 +15,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: currentSignedInUser.isAdmin() ?
-        _buildAdminSettingsListing() : _buildCustomerSettingsListing(),
+      body: currentSignedInUser.isAdmin()
+          ? _buildAdminSettingsListing()
+          : _buildCustomerSettingsListing(),
       bottomNavigationBar: BannerButton(
         text: "保存",
         onTap: () async {
           _saveCurrentSignedInUserData();
-          Navigator.pop( context );
+          Navigator.pop(context);
         },
       ),
     );

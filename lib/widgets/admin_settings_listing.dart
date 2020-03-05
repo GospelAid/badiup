@@ -21,7 +21,9 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
       child: Center(
         child: ListView(
           children: <Widget>[
-            currentSignedInUser.isAdmin() ? _buildShowTaxSetting() : Container(),
+            currentSignedInUser.isAdmin()
+                ? _buildShowTaxSetting()
+                : Container(),
           ],
         ),
       ),
@@ -30,7 +32,7 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
 
   Widget _buildShowTaxSetting() {
     return Container(
-      padding: const EdgeInsets.only( left: 16.0, right: 8.0 ),
+      padding: const EdgeInsets.only(left: 16.0, right: 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(6.0),
@@ -42,7 +44,9 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
           Text(
             '消費税込みの価格に設定する',
             style: TextStyle(
-              fontSize: 16.0, fontWeight: FontWeight.w300, color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+              color: paletteBlackColor,
             ),
           ),
           Switch(
