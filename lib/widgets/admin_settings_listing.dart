@@ -21,9 +21,7 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
       child: Center(
         child: ListView(
           children: <Widget>[
-            currentSignedInUser.isAdmin()
-                ? _buildShowTaxSetting()
-                : Container(),
+            _buildShowTaxSetting(),
           ],
         ),
       ),
