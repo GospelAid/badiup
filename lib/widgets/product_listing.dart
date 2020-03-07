@@ -4,6 +4,7 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/user_model.dart';
+import 'package:badiup/screens/about_badi_page.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
 import 'package:badiup/screens/customer_product_detail_page.dart';
@@ -56,6 +57,7 @@ class _ProductListingState extends State<ProductListing> {
     snapshots.asMap().forEach((index, data) {
       _addProductToWidgetListInDisplay(data, widgets, context, index);
     });
+    widgets.add( _buildAboutBadiBanner() );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,6 +547,33 @@ class _ProductListingState extends State<ProductListing> {
           style: TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _buildAboutBadiBanner() {
+    return Container(
+      padding: EdgeInsets.only( 
+        left: 16.0, right: 16.0, top: 40.0, bottom: 30.0
+      ),
+      child: GestureDetector(
+        child: Container(
+          height: 191.0,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/about_badi_banner.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AboutBadiPage()
+            ),
+          );
+        },
+      )
     );
   }
 }
