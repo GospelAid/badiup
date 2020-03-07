@@ -57,7 +57,10 @@ class _ProductListingState extends State<ProductListing> {
     snapshots.asMap().forEach((index, data) {
       _addProductToWidgetListInDisplay(data, widgets, context, index);
     });
-    widgets.add( _buildAboutBadiBanner() );
+    
+    if ( currentSignedInUser.timesOfSignIn == 0 ) {
+      widgets.add( _buildAboutBadiBanner() );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

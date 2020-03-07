@@ -1,4 +1,5 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class AboutBadiPage extends StatelessWidget {
       backgroundColor: paletteLightGreyColor,
       iconTheme: IconThemeData(color: paletteBlackColor),
       actions: <Widget>[
-        CartButton(),
+        currentSignedInUser.isAdmin() ? Container() : CartButton(),
       ],
     );
   }
@@ -43,7 +44,7 @@ class AboutBadiPage extends StatelessWidget {
         _buildAboutBadiBanner(),
         _buildCastSystemIntro(),
         _buildBadiUpIntro(),
-        SizedBox( height: 40.0 ),
+        SizedBox(height: 40.0),
         _buildAboutBadiModel(),
       ],
     );
@@ -66,20 +67,24 @@ class AboutBadiPage extends StatelessWidget {
       children: <Widget>[
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric( vertical: 32.0 ),
+          padding: EdgeInsets.symmetric(vertical: 32.0),
           child: Text(
             'カースト制度とは',
             style: TextStyle(
-              color: paletteBlackColor, fontSize: 16.0, fontWeight: FontWeight.w800,
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
         Container(
-          padding: EdgeInsets.symmetric( horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             _castSystemIntroText,
             style: TextStyle(
-              color: paletteBlackColor, fontSize: 16.0, fontWeight: FontWeight.w300,
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
             ),
           ),
         ),
@@ -92,20 +97,24 @@ class AboutBadiPage extends StatelessWidget {
       children: <Widget>[
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric( vertical: 32.0 ),
+          padding: EdgeInsets.symmetric(vertical: 32.0),
           child: Text(
             'バディアップとは',
             style: TextStyle(
-              color: paletteBlackColor, fontSize: 16.0, fontWeight: FontWeight.w800,
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
         Container(
-          padding: EdgeInsets.symmetric( horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             _badiUpIntroText,
             style: TextStyle(
-              color: paletteBlackColor, fontSize: 16.0, fontWeight: FontWeight.w300,
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
             ),
           ),
         ),

@@ -14,6 +14,7 @@ class Customer extends User {
     RoleType role,
     UserSetting setting,
     DateTime created,
+    int timesOfSignIn,
     this.shippingAddresses,
   }) : super(
           email: email,
@@ -21,6 +22,7 @@ class Customer extends User {
           role: role,
           setting: setting,
           created: created,
+          timesOfSignIn: timesOfSignIn,
         );
 
   Address getAvailableShippingAddress() =>
