@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
 
 class AdminSettingsListing extends StatefulWidget {
@@ -9,8 +9,6 @@ class AdminSettingsListing extends StatefulWidget {
 }
 
 class _AdminSettingsListingState extends State<AdminSettingsListing> {
-  bool _value = currentSignedInUser.setting.taxInclusive;
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -26,42 +24,44 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
 
   Widget _buildShowTaxSetting() {
     return Container(
+      padding: const EdgeInsets.only(left: 16.0, right: 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(6.0),
       ),
       height: 50.0,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('消費税込みの価格に設定する'),
-            Switch(
-              activeColor: Colors.white,
-              activeTrackColor: paletteForegroundColor,
-              value: _value,
-              onChanged: (bool value) {
-                _updateShowTaxSetting(value);
-              },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            '消費税込みの価格に設定する',
+            style: TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+              color: paletteBlackColor,
             ),
-          ],
-        ),
+          ),
+          Switch(
+            activeColor: Colors.white,
+            activeTrackColor: paletteForegroundColor,
+            value: currentSignedInUser.setting.taxInclusive,
+            onChanged: (bool value) async {
+              setState(() {
+                currentSignedInUser.setting.taxInclusive = value;
+              });
+              await _saveCurrentSignedInUserData();
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _updateShowTaxSetting(bool value) async {
-    currentSignedInUser.setting.taxInclusive = value;
+  Future<void> _saveCurrentSignedInUserData() async {
     await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
-        .updateData(currentSignedInUser.toMap());
-    setState(() {
-      _value = value;
-    });
+        .updateData(
+            {'setting.taxInclusive': currentSignedInUser.setting.taxInclusive});
   }
 }
