@@ -1,5 +1,4 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/admin_settings_listing.dart';
@@ -18,13 +17,6 @@ class _SettingsPageState extends State<SettingsPage> {
       body: currentSignedInUser.isAdmin()
           ? _buildAdminSettingsListing()
           : _buildCustomerSettingsListing(),
-      bottomNavigationBar: BannerButton(
-        text: "保存",
-        onTap: () async {
-          _saveCurrentSignedInUserData();
-          Navigator.pop(context);
-        },
-      ),
     );
   }
 
@@ -66,16 +58,5 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
-  }
-
-  Future<void> _saveCurrentSignedInUserData() async {
-    if (currentSignedInUser.isAdmin()) {
-      currentSignedInUser.setting.taxInclusive = taxInclusiveBoolValue;
-    }
-
-    await db
-        .collection(constants.DBCollections.users)
-        .document(currentSignedInUser.email)
-        .updateData(currentSignedInUser.toMap());
   }
 }

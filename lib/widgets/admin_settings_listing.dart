@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
-
-bool taxInclusiveBoolValue;
 
 class AdminSettingsListing extends StatefulWidget {
   @override
@@ -10,11 +9,6 @@ class AdminSettingsListing extends StatefulWidget {
 }
 
 class _AdminSettingsListingState extends State<AdminSettingsListing> {
-  void initState() {
-    super.initState();
-    taxInclusiveBoolValue = currentSignedInUser.setting.taxInclusive;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -50,15 +44,23 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
           Switch(
             activeColor: Colors.white,
             activeTrackColor: paletteForegroundColor,
-            value: taxInclusiveBoolValue,
-            onChanged: (bool value) {
+            value: currentSignedInUser.setting.taxInclusive,
+            onChanged: (bool value) async {
               setState(() {
-                taxInclusiveBoolValue = value;
+                currentSignedInUser.setting.taxInclusive = value;
               });
+              await _saveCurrentSignedInUserData();
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _saveCurrentSignedInUserData() async {
+    await db
+        .collection(constants.DBCollections.users)
+        .document(currentSignedInUser.email)
+        .updateData({'setting.taxInclusive': currentSignedInUser.setting.taxInclusive});
   }
 }
