@@ -61,6 +61,7 @@ class _AdminSettingsListingState extends State<AdminSettingsListing> {
     await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
-        .updateData({'setting.taxInclusive': currentSignedInUser.setting.taxInclusive});
+        .updateData(
+            {'setting.taxInclusive': currentSignedInUser.setting.taxInclusive});
   }
 }
