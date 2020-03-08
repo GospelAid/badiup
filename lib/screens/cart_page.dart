@@ -31,15 +31,29 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  TextEditingController postcodeTextController;
+  TextEditingController prefectureTextController;
+  TextEditingController municipalityTextController;
+  TextEditingController buildingNameTextController;
+  TextEditingController phoneNumberTextController;
+
   final currencyFormat = NumberFormat("#,##0");
-  bool paymentCompleted = false;
+  bool paymentMethodAdded = false;
   bool _formSubmitInProgress = false;
-  String _paymentIntentClientSecret;
   PaymentMethod _paymentMethod;
+  double _totalPrice;
+  bool _requiredItemsMissing = false;
 
   @override
   void initState() {
     super.initState();
+
+    postcodeTextController = TextEditingController();
+    prefectureTextController = TextEditingController();
+    municipalityTextController = TextEditingController();
+    buildingNameTextController = TextEditingController();
+    phoneNumberTextController = TextEditingController();
+
     StripePayment.setOptions(
       StripeOptions(
         publishableKey: "pk_test_TwCMCEid9SP9Ii8Ztuwl3ere00cbfx1xjn",
@@ -115,43 +129,74 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  bool _isFormValid() {
+    return postcodeTextController != null &&
+        postcodeTextController.text.isNotEmpty &&
+        municipalityTextController.text.isNotEmpty &&
+        prefectureTextController.text.isNotEmpty &&
+        buildingNameTextController.text.isNotEmpty &&
+        phoneNumberTextController.text.isNotEmpty &&
+        _paymentMethod != null;
+  }
+
   Widget _buildProcessOrderButton(BuildContext context, Cart cart) {
-    return BannerButton(
-      text: paymentCompleted ? "注文を確定する" : "ご購入手続きへ",
-      onTap: () async {
-        if (paymentCompleted) {
-          setState(() {
-            _formSubmitInProgress = true;
-          });
+    return ButtonTheme(
+      buttonColor:
+          _isFormValid() ? paletteForegroundColor : paletteDarkGreyColor,
+      child: BannerButton(
+        text: "注文を確定する",
+        onTap: () async {
+          if (_isFormValid()) {
+            setState(() {
+              _formSubmitInProgress = true;
+            });
 
-          await _updateProductStock(cart);
-          String orderId = await _placeOrder();
+            await _makePayment();
+            await _updateProductStock(cart);
+            String orderId = await _placeOrder();
 
-          setState(() {
-            _formSubmitInProgress = false;
-          });
+            setState(() {
+              _formSubmitInProgress = false;
+            });
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OrderSuccessPage(orderId: orderId),
-            ),
-          );
-        } else if (_paymentIntentClientSecret != null) {
-          StripePayment.authenticatePaymentIntent(
-            clientSecret: _paymentIntentClientSecret,
-          ).then((paymentIntent) async {
-            if (paymentIntent.status == 'succeeded') {
-              setState(() {
-                paymentCompleted = true;
-              });
-            } else {
-              // TODO: Handle the case when payment fails and refunds
-            }
-          });
-        }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrderSuccessPage(orderId: orderId),
+              ),
+            );
+          } else {
+            setState(() {
+              _requiredItemsMissing = true;
+            });
+          }
+        },
+      ),
+    );
+  }
+
+  Future _makePayment() async {
+    final http.Response response = await http.post(
+      'https://us-central1-badiup2.cloudfunctions.net/createPaymentIntent/create-payment-intent',
+      body: json.encode({
+        'userId': currentSignedInUser.email,
+        'paymentMethodId': _paymentMethod.id,
+      }),
+      headers: {
+        "content-type": "application/json",
+        "accept": "application/json",
       },
     );
+
+    if (response.statusCode == 200) {
+      StripePayment.authenticatePaymentIntent(
+        clientSecret: json.decode(response.body)['clientSecret'],
+      ).then((paymentIntent) async {
+        if (paymentIntent.status != 'succeeded') {
+          // TODO: Handle the case when payment fails and refunds
+        }
+      });
+    }
   }
 
   Widget _buildCartIsEmptyDialog() {
@@ -394,7 +439,7 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildSummaryContents(double subTotalPrice) {
     double shippingCost = 0;
-    double totalPrice = subTotalPrice + shippingCost;
+    _totalPrice = subTotalPrice + shippingCost;
 
     return Container(
       decoration: BoxDecoration(
@@ -413,27 +458,39 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 8),
             _buildPostage(),
             SizedBox(height: 12),
-            _buildTotal(totalPrice),
+            _buildTotal(),
+            SizedBox(height: 16),
+            _requiredItemsMissing
+                ? Text(
+                    "Shipping Address and Payment Method is required. Please add them.")
+                : Container(),
+            SizedBox(height: 16),
+            ShippingAddressInputForm(
+              phoneNumberTextController: phoneNumberTextController,
+              buildingNameTextController: buildingNameTextController,
+              municipalityTextController: municipalityTextController,
+              postcodeTextController: postcodeTextController,
+              prefectureTextController: prefectureTextController,
+            ),
             SizedBox(height: 32),
-            ShippingAddressInputForm(),
+            _buildPaymentInfoTitle(),
+            SizedBox(height: 12),
+            _paymentMethod != null ? _buildPaymentInfo() : _buildCardButton(),
             SizedBox(height: 32),
-            paymentCompleted
-                ? _buildPaymentInfo()
-                : _buildCardButton(totalPrice),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCardButton(double totalPrice) {
+  Widget _buildCardButton() {
     return Container(
       height: 38,
-      width: 80,
+      width: 120,
       child: FlatButton(
         color: paletteRoseColor,
         child: Text(
-          "カード",
+          "カード情報",
           style: TextStyle(
             color: paletteBlackColor,
             fontWeight: FontWeight.w300,
@@ -443,58 +500,37 @@ class _CartPageState extends State<CartPage> {
           borderRadius: BorderRadius.circular(6.0),
         ),
         onPressed: () async {
-          await _createPaymentIntent(totalPrice);
+          await _updatePaymentIntent();
         },
       ),
     );
   }
 
-  Future _createPaymentIntent(double totalPrice) async {
+  Future _updatePaymentIntent() async {
     await StripePayment.paymentRequestWithCardForm(
       CardFormPaymentRequest(),
     ).then((PaymentMethod paymentMethod) async {
-      _paymentMethod = paymentMethod;
-
-      final http.Response response = await http.post(
-        'https://us-central1-badiup2.cloudfunctions.net/createPaymentIntent',
-        body: json.encode({
-          'userId': currentSignedInUser.email,
-          'paymentMethodId': paymentMethod.id,
-        }),
-        headers: {
-          "content-type": "application/json",
-          "accept": "application/json",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        _paymentIntentClientSecret =
-            json.decode(response.body)['client_secret'];
-      }
-    });
+      setState(() {
+        _paymentMethod = paymentMethod;
+      });
+    }).catchError((e) => {});
   }
 
   Widget _buildPaymentInfo() {
     var borderSide = BorderSide(color: Color(0xFFA2A2A2));
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        border: Border(top: borderSide, bottom: borderSide),
+        border: Border(bottom: borderSide),
       ),
-      child: Column(
-        children: <Widget>[
-          _buildPaymentInfoTitle(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                _buildPaymentMethodInfo(),
-                _buildChangePaymentMethodButton(),
-              ],
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            _buildPaymentMethodInfo(),
+            _buildChangePaymentMethodButton(),
+          ],
+        ),
       ),
     );
   }
@@ -507,7 +543,9 @@ class _CartPageState extends State<CartPage> {
       children: <Widget>[
         Text("クレジットカード", style: textStyle),
         Text(
-          _paymentMethod.card.brand + " " + _paymentMethod.card.last4,
+          _paymentMethod.card.brand.toUpperCase() +
+              " ****" +
+              _paymentMethod.card.last4,
           style: textStyle,
         ),
         Row(
@@ -542,7 +580,9 @@ class _CartPageState extends State<CartPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6.0),
         ),
-        onPressed: () {},
+        onPressed: () {
+          _updatePaymentIntent();
+        },
       ),
     );
   }
@@ -582,7 +622,7 @@ class _CartPageState extends State<CartPage> {
     return _subTotalPrice;
   }
 
-  Widget _buildTotal(double totalPrice) {
+  Widget _buildTotal() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -601,7 +641,7 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
           Text(
-            "¥${currencyFormat.format(totalPrice)}",
+            "¥${currencyFormat.format(_totalPrice)}",
             style: TextStyle(
               color: paletteForegroundColor,
               fontSize: 18.0,

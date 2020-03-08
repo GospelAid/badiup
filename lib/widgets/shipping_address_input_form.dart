@@ -1,37 +1,27 @@
 import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
-TextEditingController postcodeTextController;
-TextEditingController prefectureTextController;
-TextEditingController municipalityTextController;
-TextEditingController buildingNameTextController;
-TextEditingController phoneNumberTextController;
-
 class ShippingAddressInputForm extends StatefulWidget {
+  ShippingAddressInputForm({
+    this.postcodeTextController,
+    this.prefectureTextController,
+    this.municipalityTextController,
+    this.buildingNameTextController,
+    this.phoneNumberTextController,
+  });
+
+  final TextEditingController postcodeTextController;
+  final TextEditingController prefectureTextController;
+  final TextEditingController municipalityTextController;
+  final TextEditingController buildingNameTextController;
+  final TextEditingController phoneNumberTextController;
+
   @override
   _ShippingAddressInputFormState createState() =>
       _ShippingAddressInputFormState();
 }
 
 class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
-  void initState() {
-    super.initState();
-    postcodeTextController = TextEditingController();
-    prefectureTextController = TextEditingController();
-    municipalityTextController = TextEditingController();
-    buildingNameTextController = TextEditingController();
-    phoneNumberTextController = TextEditingController();
-  }
-
-  void dispose() {
-    postcodeTextController.dispose();
-    prefectureTextController.dispose();
-    municipalityTextController.dispose();
-    buildingNameTextController.dispose();
-    phoneNumberTextController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -114,7 +104,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
             width: 100.0,
             height: 30.0,
             child: TextField(
-              controller: postcodeTextController,
+              controller: widget.postcodeTextController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -160,7 +150,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       height: 30.0,
       width: 120.0,
       child: TextField(
-        controller: prefectureTextController,
+        controller: widget.prefectureTextController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
@@ -176,7 +166,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       height: 30.0,
       width: 245.0,
       child: TextField(
-        controller: municipalityTextController,
+        controller: widget.municipalityTextController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
@@ -193,7 +183,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       width: 245.0,
       child: TextFormField(
         keyboardType: TextInputType.text,
-        controller: buildingNameTextController,
+        controller: widget.buildingNameTextController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
@@ -233,7 +223,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
                 }
                 return null;
               },
-              controller: phoneNumberTextController,
+              controller: widget.phoneNumberTextController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding:
