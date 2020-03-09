@@ -461,8 +461,15 @@ class _CartPageState extends State<CartPage> {
             _buildTotal(),
             SizedBox(height: 16),
             _requiredItemsMissing
-                ? Text(
-                    "Shipping Address and Payment Method is required. Please add them.")
+                ? Container(
+                    alignment: AlignmentDirectional.center,
+                    color: paletteRoseColor,
+                    height: 75,
+                    child: Text(
+                      "お届け先と支払い方法が入力されていません。",
+                      style: TextStyle(color: paletteDarkRedColor),
+                    ),
+                  )
                 : Container(),
             SizedBox(height: 16),
             ShippingAddressInputForm(
