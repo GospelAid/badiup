@@ -10,14 +10,12 @@ class Admin extends User {
     RoleType role,
     UserSetting setting,
     DateTime created,
-    int timesOfSignIn,
   }) : super(
           email: email,
           name: name,
           role: role,
           setting: setting,
           created: created,
-          timesOfSignIn: timesOfSignIn,
         );
 
   @override

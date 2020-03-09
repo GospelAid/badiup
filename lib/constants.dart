@@ -13,3 +13,7 @@ class StorageCollections {
   static const String products = "products";
   static const String images = "images";
 }
+
+class SharedPrefsKeys {
+  static const String firstTimeAppOpen = "firstTimeAppOpen";
+}

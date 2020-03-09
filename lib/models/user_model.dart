@@ -8,7 +8,6 @@ class User {
   final RoleType role;
   final UserSetting setting;
   final DateTime created;
-  int timesOfSignIn;
 
   User({
     this.email,
@@ -16,7 +15,6 @@ class User {
     this.role,
     this.setting,
     this.created,
-    this.timesOfSignIn,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,7 +24,6 @@ class User {
       'role': role.index,
       'setting': setting.toMap(),
       'created': created,
-      'timesOfSignIn': timesOfSignIn,
     };
   }
 
@@ -42,8 +39,7 @@ class User {
         name = map['name'],
         role = RoleType.values[map['role']],
         setting = UserSetting.fromMap(map['setting'].cast<String, dynamic>()),
-        created = map['created'].toDate(),
-        timesOfSignIn = map['timesOfSignIn'] ?? 0;
+        created = map['created'].toDate();
 
   User.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data);
 }

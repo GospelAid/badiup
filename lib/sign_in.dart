@@ -55,10 +55,6 @@ Future<String> signInWithGoogle() async {
 }
 
 void signOutGoogle() async {
-  await db
-      .collection(constants.DBCollections.users)
-      .document(currentSignedInUser.email)
-      .updateData({'timesOfSignIn': currentSignedInUser.timesOfSignIn + 1});
   currentSignedInUser = User();
   await googleSignIn.signOut();
   print('user signed out');
@@ -88,7 +84,6 @@ Future<void> addUserToFirestore({FirebaseUser user}) async {
     setting: UserSetting(pushNotifications: true, taxInclusive: true),
     shippingAddresses: List<Address>(),
     created: DateTime.now().toUtc(),
-    timesOfSignIn: 0,
   );
   await db
       .collection(constants.DBCollections.users)
