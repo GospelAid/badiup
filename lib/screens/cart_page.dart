@@ -42,7 +42,7 @@ class _CartPageState extends State<CartPage> {
   bool _formSubmitInProgress = false;
   PaymentMethod _paymentMethod;
   double _totalPrice;
-  bool _requiredItemsMissing = false;
+  String _formSubmitFailedMessage;
 
   @override
   void initState() {
@@ -151,23 +151,31 @@ class _CartPageState extends State<CartPage> {
               _formSubmitInProgress = true;
             });
 
-            await _makePayment();
-            await _updateProductStock(cart);
-            String orderId = await _placeOrder();
+            if (await _makePayment()) {
+              await _updateProductStock(cart);
+              String orderId = await _placeOrder();
 
-            setState(() {
-              _formSubmitInProgress = false;
-            });
+              setState(() {
+                _formSubmitInProgress = false;
+              });
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OrderSuccessPage(orderId: orderId),
-              ),
-            );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OrderSuccessPage(orderId: orderId),
+                ),
+              );
+            } else {
+              setState(() {
+                _formSubmitInProgress = false;
+                _formSubmitFailedMessage =
+                    "Payment failed. Please try changing payment method.";
+              });
+            }
           } else {
             setState(() {
-              _requiredItemsMissing = true;
+              _formSubmitInProgress = false;
+              _formSubmitFailedMessage = "お届け先と支払い方法が入力されていません。";
             });
           }
         },
@@ -175,7 +183,9 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Future _makePayment() async {
+  Future<bool> _makePayment() async {
+    bool _paymentSuccessful = true;
+
     final http.Response response = await http.post(
       'https://us-central1-badiup2.cloudfunctions.net/createPaymentIntent/create-payment-intent',
       body: json.encode({
@@ -193,10 +203,14 @@ class _CartPageState extends State<CartPage> {
         clientSecret: json.decode(response.body)['clientSecret'],
       ).then((paymentIntent) async {
         if (paymentIntent.status != 'succeeded') {
-          // TODO: Handle the case when payment fails and refunds
+          _paymentSuccessful = false;
         }
       });
+    } else {
+      _paymentSuccessful = false;
     }
+
+    return _paymentSuccessful;
   }
 
   Widget _buildCartIsEmptyDialog() {
@@ -460,13 +474,13 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 12),
             _buildTotal(),
             SizedBox(height: 16),
-            _requiredItemsMissing
+            _formSubmitFailedMessage != null
                 ? Container(
                     alignment: AlignmentDirectional.center,
                     color: paletteRoseColor,
                     height: 75,
                     child: Text(
-                      "お届け先と支払い方法が入力されていません。",
+                      _formSubmitFailedMessage,
                       style: TextStyle(color: paletteDarkRedColor),
                     ),
                   )
