@@ -168,8 +168,7 @@ class _CartPageState extends State<CartPage> {
             } else {
               setState(() {
                 _formSubmitInProgress = false;
-                _formSubmitFailedMessage =
-                    "Payment failed. Please try changing payment method.";
+                _formSubmitFailedMessage = "支払いに失敗しました。入力内容をもう一度ご確認ください。";
               });
             }
           } else {
