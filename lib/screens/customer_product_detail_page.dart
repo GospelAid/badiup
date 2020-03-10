@@ -8,7 +8,6 @@ import 'package:badiup/screens/cart_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/product_detail.dart';
-import 'package:badiup/widgets/quantity_selector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -27,8 +26,6 @@ class CustomerProductDetailPage extends StatefulWidget {
 
 class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  QuantityController quantityController = QuantityController(value: 1);
 
   ItemSize _selectedItemSize;
   ItemColor _selectedItemColor;
@@ -57,13 +54,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
             ],
           ),
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _buildQuantitySelector(),
-            _buildCartActionsBar(),
-          ],
-        ),
+        _buildCartActionsBar(),
       ],
     );
   }
@@ -249,17 +240,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .toList();
   }
 
-  Widget _buildQuantitySelector() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: QuantitySelector(
-        controller: quantityController,
-        orientation: Orientation.landscape,
-        iconSize: 32,
-      ),
-    );
-  }
-
   Widget _buildCartActionsBar() {
     return Container(
       height: 64,
@@ -385,7 +365,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     var _stockRequest = StockItem(
       color: _selectedItemColor,
       size: _selectedItemSize,
-      quantity: quantityController.quantity,
+      quantity: 1,
     );
 
     if (customer.cart == null) {
@@ -404,8 +384,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           cartItem.stockRequest?.size == _selectedItemSize);
 
       if (productIndex != -1) {
-        customer.cart.items[productIndex].stockRequest.quantity +=
-            quantityController.quantity;
+        customer.cart.items[productIndex].stockRequest.quantity++;
       } else {
         customer.cart.items.add(CartItem(
           productDocumentId: widget.productDocumentId,
