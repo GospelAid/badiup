@@ -146,40 +146,45 @@ class _CartPageState extends State<CartPage> {
       child: BannerButton(
         text: "注文を確定する",
         onTap: () async {
-          if (_isFormValid()) {
-            setState(() {
-              _formSubmitInProgress = true;
-            });
-
-            if (await _makePayment()) {
-              await _updateProductStock(cart);
-              String orderId = await _placeOrder();
-
-              setState(() {
-                _formSubmitInProgress = false;
-              });
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => OrderSuccessPage(orderId: orderId),
-                ),
-              );
-            } else {
-              setState(() {
-                _formSubmitInProgress = false;
-                _formSubmitFailedMessage = "支払いに失敗しました。入力内容をもう一度ご確認ください。";
-              });
-            }
-          } else {
-            setState(() {
-              _formSubmitInProgress = false;
-              _formSubmitFailedMessage = "お届け先と支払い方法が入力されていません。";
-            });
-          }
+          await _processOrder(cart, context);
         },
       ),
     );
+  }
+
+  Future _processOrder(Cart cart, BuildContext context) async {
+    if (_isFormValid()) {
+      setState(() {
+        _formSubmitInProgress = true;
+      });
+
+      if (await _makePayment()) {
+        await _updateProductStock(cart);
+        String orderId = await _placeOrder();
+
+        setState(() {
+          // Payment successful and order placed
+          _formSubmitInProgress = false;
+        });
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderSuccessPage(orderId: orderId),
+          ),
+        );
+      } else {
+        setState(() {
+          _formSubmitInProgress = false;
+          _formSubmitFailedMessage = "支払いに失敗しました。入力内容をもう一度ご確認ください。";
+        });
+      }
+    } else {
+      setState(() {
+        _formSubmitInProgress = false;
+        _formSubmitFailedMessage = "お届け先と支払い方法が入力されていません。";
+      });
+    }
   }
 
   Future<bool> _makePayment() async {
@@ -474,24 +479,10 @@ class _CartPageState extends State<CartPage> {
             _buildTotal(),
             SizedBox(height: 16),
             _formSubmitFailedMessage != null
-                ? Container(
-                    alignment: AlignmentDirectional.center,
-                    color: paletteRoseColor,
-                    height: 75,
-                    child: Text(
-                      _formSubmitFailedMessage,
-                      style: TextStyle(color: paletteDarkRedColor),
-                    ),
-                  )
+                ? _buildFormSubmitFailedMessage()
                 : Container(),
             SizedBox(height: 16),
-            ShippingAddressInputForm(
-              phoneNumberTextController: phoneNumberTextController,
-              buildingNameTextController: buildingNameTextController,
-              municipalityTextController: municipalityTextController,
-              postcodeTextController: postcodeTextController,
-              prefectureTextController: prefectureTextController,
-            ),
+            _buildShippingAddressInputForm(),
             SizedBox(height: 32),
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
@@ -499,6 +490,28 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 32),
           ],
         ),
+      ),
+    );
+  }
+
+  ShippingAddressInputForm _buildShippingAddressInputForm() {
+    return ShippingAddressInputForm(
+      phoneNumberTextController: phoneNumberTextController,
+      buildingNameTextController: buildingNameTextController,
+      municipalityTextController: municipalityTextController,
+      postcodeTextController: postcodeTextController,
+      prefectureTextController: prefectureTextController,
+    );
+  }
+
+  Widget _buildFormSubmitFailedMessage() {
+    return Container(
+      alignment: AlignmentDirectional.center,
+      color: paletteRoseColor,
+      height: 75,
+      child: Text(
+        _formSubmitFailedMessage,
+        style: TextStyle(color: paletteDarkRedColor),
       ),
     );
   }
