@@ -66,13 +66,15 @@ class Product {
       : assert(map['name'] != null),
         name = map['name'],
         description = map['description'],
-        priceInYen = map['priceInYen'],
+        priceInYen = map['priceInYen'] + .0,
         imageUrls = map['imageUrls']?.cast<String>(),
         created = map['created'].toDate(),
         isPublished = map['isPublished'],
         category =
             map['category'] != null ? Category.values[map['category']] : null,
-        stock = map['stock'] != null ? Stock.fromMap(map['stock'].cast<String, dynamic>()) : null,
+        stock = map['stock'] != null
+            ? Stock.fromMap(map['stock'].cast<String, dynamic>())
+            : null,
         documentId = documentId;
 
   Product.fromSnapshot(DocumentSnapshot snapshot)
