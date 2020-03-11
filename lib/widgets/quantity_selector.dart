@@ -155,7 +155,9 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           width: buttonSize,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: paletteBlackColor,
+            color: widget.controller.value == 1
+                ? paletteDarkGreyColor
+                : paletteBlackColor,
             borderRadius: widget.orientation == Orientation.landscape
                 ? BorderRadius.only(
                     topLeft: Radius.circular(5),
