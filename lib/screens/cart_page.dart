@@ -42,7 +42,7 @@ class _CartPageState extends State<CartPage> {
   bool _formSubmitInProgress = false;
   PaymentMethod _paymentMethod;
   double _totalPrice;
-  double shippingCost;
+  double _shippingCost;
   String _formSubmitFailedMessage;
 
   @override
@@ -55,7 +55,7 @@ class _CartPageState extends State<CartPage> {
     buildingNameTextController = TextEditingController();
     phoneNumberTextController = TextEditingController();
 
-    shippingCost = 0;
+    _shippingCost = 0;
 
     StripePayment.setOptions(
       StripeOptions(
@@ -459,8 +459,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildSummaryContents(double subTotalPrice) {
-    if (subTotalPrice < 5000) {shippingCost = 500;}else{shippingCost=0;}
-    _totalPrice = subTotalPrice + shippingCost;
+    _shippingCost = subTotalPrice < 5000 ? 500  : 0;
+    _totalPrice = subTotalPrice + _shippingCost;
 
     return Container(
       decoration: BoxDecoration(
