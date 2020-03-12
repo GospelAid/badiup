@@ -1,16 +1,10 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-final String _castSystemIntroText = """
-紀元5世紀頃、ネパールに隣国インドからインドアーリア系の王朝が入ってきました。このときカースト制度（ジャート）が持ち込まれ、宗教、政治と結びついたと考えられます。ネパールには100以上の異なる民族が暮らしています。それぞれの民族がどのカーストに属するか決まり、それによって職業が決まっています。祭司のカースト、教師のカースト、洗濯のカーストなどなど。1962年にカースト制度は廃止されましたが、今でもほとんどの人が自分のカーストを意識して暮らしています。名字がカーストを表わすため差別につながっています。
-バディ族はカースト最下位に置かれました。職業は売春のみの売春のカーストとされたのです。水を共有すること、体に触れることもできない不浄の民（アンタッチャブル）とさげすまれてきました。現在も、農村部ではその差別がひどく、都市部でもバディが就職することはほとんどできません。また、上位カーストを除くカーストに属する人々は、奴隷化可能と考えられています。ですから貧しい人々は人身売買の対象とされます。このような人の尊厳を認めない社会では少女のレイプ被害や人身売買被害が後を絶ちません。
-親や親類よって売春宿に売られてしまうこともあるのです。""";
-
-final String _badiUpIntroText = """
-バディアップとは、◯◯◯の雇用を生み出し、人身売買の根絶を目的として立ち上げられた◯◯◯です。""";
 
 class AboutBadiPage extends StatelessWidget {
   @override
@@ -77,16 +71,27 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            _castSystemIntroText,
-            style: TextStyle(
-              color: paletteBlackColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
+        StreamBuilder<DocumentSnapshot>(
+          stream: Firestore.instance
+              .collection(constants.DBCollections.texts)
+              .document('castSystemIntroText')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return LinearProgressIndicator();
+            }
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                snapshot.data['content'],
+                style: TextStyle(
+                  color: paletteBlackColor,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -107,16 +112,27 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            _badiUpIntroText,
-            style: TextStyle(
-              color: paletteBlackColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
+        StreamBuilder<DocumentSnapshot>(
+          stream: Firestore.instance
+              .collection(constants.DBCollections.texts)
+              .document('badiUpIntroText')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return LinearProgressIndicator();
+            }
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                snapshot.data['content'],
+                style: TextStyle(
+                  color: paletteBlackColor,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

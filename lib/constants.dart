@@ -7,6 +7,7 @@ class DBCollections {
   static const String users = 'users';
   static const String products = "products";
   static const String orders = "orders";
+  static const String texts = "texts";
 }
 
 class StorageCollections {
@@ -15,5 +16,5 @@ class StorageCollections {
 }
 
 class SharedPrefsKeys {
-  static const String firstTimeAppOpen = "firstTimeAppOpen";
+  static const String appOpenedFirstTime = "appOpenedFirstTime";
 }

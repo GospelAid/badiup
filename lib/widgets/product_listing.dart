@@ -558,13 +558,13 @@ class _ProductListingState extends State<ProductListing> {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done: {
-            bool _firstTimeOpenApp = snapshot.data
-              .getBool(constants.SharedPrefsKeys.firstTimeAppOpen) ?? true;
-            if (!_firstTimeOpenApp) {
-              return Container();
+            bool _appOpenedFirstTime = snapshot.data
+              .getBool(constants.SharedPrefsKeys.appOpenedFirstTime) ?? true;
+            if (!_appOpenedFirstTime) {
+              //return Container();
             }
             snapshot.data
-              .setBool(constants.SharedPrefsKeys.firstTimeAppOpen, false);
+              .setBool(constants.SharedPrefsKeys.appOpenedFirstTime, false);
             return Container(
               padding: EdgeInsets.only(
                 left: 16.0, right: 16.0, top: 40.0, bottom: 30.0,
