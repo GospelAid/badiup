@@ -71,27 +71,8 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance
-              .collection(constants.DBCollections.texts)
-              .document('castSystemIntroText')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return LinearProgressIndicator();
-            }
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                snapshot.data['content'],
-                style: TextStyle(
-                  color: paletteBlackColor,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            );
-          },
+        _buildIntroTextField(
+          textDocumentId: 'castSystemIntroText',
         ),
       ],
     );
@@ -112,29 +93,37 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance
-              .collection(constants.DBCollections.texts)
-              .document('badiUpIntroText')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return LinearProgressIndicator();
-            }
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                snapshot.data['content'],
-                style: TextStyle(
-                  color: paletteBlackColor,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            );
-          },
+        _buildIntroTextField(
+          textDocumentId: 'badiUpIntroText',
         ),
       ],
+    );
+  }
+
+  Widget _buildIntroTextField({String textDocumentId}) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.texts)
+          .document(textDocumentId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+        String _introText =
+            snapshot.data['content'].toString().replaceAll(RegExp(r'\s'), '\n');
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+          child: Text(
+            _introText,
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        );
+      },
     );
   }
 
