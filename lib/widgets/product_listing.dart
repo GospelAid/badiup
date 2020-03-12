@@ -561,7 +561,7 @@ class _ProductListingState extends State<ProductListing> {
             bool _appOpenedFirstTime = snapshot.data
               .getBool(constants.SharedPrefsKeys.appOpenedFirstTime) ?? true;
             if (!_appOpenedFirstTime) {
-              //return Container();
+              return Container();
             }
             snapshot.data
               .setBool(constants.SharedPrefsKeys.appOpenedFirstTime, false);
