@@ -1,36 +1,28 @@
 import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
-TextEditingController postcodeTextController;
-TextEditingController prefectureTextController;
-TextEditingController municipalityTextController;
-TextEditingController buildingNameTextController;
-TextEditingController phoneNumberTextController;
-
 class ShippingAddressInputForm extends StatefulWidget {
+  ShippingAddressInputForm({
+    this.postcodeTextController,
+    this.prefectureTextController,
+    this.municipalityTextController,
+    this.buildingNameTextController,
+    this.phoneNumberTextController,
+  });
+
+  final TextEditingController postcodeTextController;
+  final TextEditingController prefectureTextController;
+  final TextEditingController municipalityTextController;
+  final TextEditingController buildingNameTextController;
+  final TextEditingController phoneNumberTextController;
+
   @override
   _ShippingAddressInputFormState createState() =>
       _ShippingAddressInputFormState();
 }
 
 class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
-  void initState() {
-    super.initState();
-    postcodeTextController = TextEditingController();
-    prefectureTextController = TextEditingController();
-    municipalityTextController = TextEditingController();
-    buildingNameTextController = TextEditingController();
-    phoneNumberTextController = TextEditingController();
-  }
-
-  void dispose() {
-    postcodeTextController.dispose();
-    prefectureTextController.dispose();
-    municipalityTextController.dispose();
-    buildingNameTextController.dispose();
-    phoneNumberTextController.dispose();
-    super.dispose();
-  }
+  String _selectedPrefecture = "愛知県";
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +106,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
             width: 100.0,
             height: 30.0,
             child: TextField(
-              controller: postcodeTextController,
+              controller: widget.postcodeTextController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -159,14 +151,70 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
     return Container(
       height: 30.0,
       width: 120.0,
-      child: TextField(
-        controller: prefectureTextController,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
-          hintText: '都道府県',
-        ),
+      child: DropdownButton<String>(
+        value: _selectedPrefecture,
+        underline: Container(height: 0),
+        icon: Icon(Icons.keyboard_arrow_down, color: paletteBlackColor),
+        onChanged: (String newValue) {
+          setState(() {
+            _selectedPrefecture = newValue;
+            widget.prefectureTextController.text = newValue;
+          });
+        },
+        items: [
+          "愛知県",
+          "秋田県",
+          "青森県",
+          "千葉県",
+          "愛媛県",
+          "福井県",
+          "福岡県",
+          "福島県",
+          "岐阜県",
+          "群馬県",
+          "広島県",
+          "北海道",
+          "兵庫県",
+          "茨城県",
+          "石川県",
+          "岩手県",
+          "香川県",
+          "鹿児島県",
+          "神奈川県",
+          "高知県",
+          "熊本県",
+          "京都府",
+          "三重県",
+          "宮城県",
+          "宮崎県",
+          "長野県",
+          "長崎県",
+          "奈良県",
+          "新潟県",
+          "大分県",
+          "岡山県",
+          "沖縄県",
+          "大阪府",
+          "佐賀県",
+          "埼玉県",
+          "滋賀県",
+          "島根県",
+          "静岡県",
+          "栃木県",
+          "徳島県",
+          "東京都",
+          "鳥取県",
+          "富山県",
+          "和歌山県",
+          "山形県",
+          "山口県",
+          "山梨県",
+        ].map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
       ),
     );
   }
@@ -176,7 +224,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       height: 30.0,
       width: 245.0,
       child: TextField(
-        controller: municipalityTextController,
+        controller: widget.municipalityTextController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
@@ -193,7 +241,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       width: 245.0,
       child: TextFormField(
         keyboardType: TextInputType.text,
-        controller: buildingNameTextController,
+        controller: widget.buildingNameTextController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
@@ -233,7 +281,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
                 }
                 return null;
               },
-              controller: phoneNumberTextController,
+              controller: widget.phoneNumberTextController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding:

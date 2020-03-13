@@ -4,6 +4,7 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/user_model.dart';
+import 'package:badiup/screens/about_badi_page.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
 import 'package:badiup/screens/customer_product_detail_page.dart';
@@ -13,6 +14,7 @@ import 'package:badiup/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ProductListing extends StatefulWidget {
@@ -56,6 +58,8 @@ class _ProductListingState extends State<ProductListing> {
     snapshots.asMap().forEach((index, data) {
       _addProductToWidgetListInDisplay(data, widgets, context, index);
     });
+
+    widgets.add(_buildAboutBadiBanner());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,6 +549,52 @@ class _ProductListingState extends State<ProductListing> {
           style: TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _buildAboutBadiBanner() {
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done: {
+            bool _appOpenedFirstTime = snapshot.data
+              .getBool(constants.SharedPrefsKeys.appOpenedFirstTime) ?? true;
+            if (!_appOpenedFirstTime) {
+              return Container();
+            }
+            snapshot.data
+              .setBool(constants.SharedPrefsKeys.appOpenedFirstTime, false);
+            return Container(
+              padding: EdgeInsets.only(
+                left: 16.0, right: 16.0, top: 40.0, bottom: 30.0,
+              ),
+              child: GestureDetector(
+                child: Container(
+                  height: 191.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/about_badi_banner.png'),
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AboutBadiPage(),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+          default: {
+            return Container();
+          }
+        }
+      }
     );
   }
 }
