@@ -474,11 +474,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildSummaryContents(double subTotalPrice) {
-<<<<<<< HEAD
     _shippingCost = subTotalPrice < 5000 ? 500 : 0;
-=======
-    _shippingCost = subTotalPrice < 5000 ? 500  : 0;
->>>>>>> Shipping Cost
     _totalPrice = subTotalPrice + _shippingCost;
 
     return Container(
