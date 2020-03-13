@@ -36,7 +36,7 @@ class AboutBadiPage extends StatelessWidget {
     return ListView(
       children: <Widget>[
         _buildAboutBadiBanner(),
-        _buildCastSystemIntro(),
+        _buildCasteSystemIntro(),
         _buildBadiUpIntro(),
         SizedBox(height: 40.0),
         _buildAboutBadiModel(),
@@ -56,7 +56,7 @@ class AboutBadiPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCastSystemIntro() {
+  Widget _buildCasteSystemIntro() {
     return Column(
       children: <Widget>[
         Container(
@@ -72,7 +72,7 @@ class AboutBadiPage extends StatelessWidget {
           ),
         ),
         _buildIntroTextField(
-          textDocumentId: 'castSystemIntroText',
+          textDocumentId: 'casteSystemIntroText',
         ),
       ],
     );
