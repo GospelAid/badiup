@@ -459,7 +459,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildSummaryContents(double subTotalPrice) {
-    _shippingCost = subTotalPrice < 5000 ? 500  : 0;
+    _shippingCost = subTotalPrice < 5000 ? 500 : 0;
     _totalPrice = subTotalPrice + _shippingCost;
 
     return Container(
@@ -690,6 +690,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildPostage() {
+    String shippingText = _shippingCost == 0 ? "送料無料" : "¥${currencyFormat.format(_shippingCost)}";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -702,7 +703,7 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
         Text(
-          "送料無料",
+          shippingText,
           style: TextStyle(
             color: paletteBlackColor,
             fontSize: 16.0,
