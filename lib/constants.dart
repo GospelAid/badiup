@@ -7,9 +7,14 @@ class DBCollections {
   static const String users = 'users';
   static const String products = "products";
   static const String orders = "orders";
+  static const String texts = "texts";
 }
 
 class StorageCollections {
   static const String products = "products";
   static const String images = "images";
+}
+
+class SharedPrefsKeys {
+  static const String appOpenedFirstTime = "appOpenedFirstTime";
 }

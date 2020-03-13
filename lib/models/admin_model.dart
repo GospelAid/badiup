@@ -11,18 +11,16 @@ class Admin extends User {
     UserSetting setting,
     DateTime created,
   }) : super(
-    email: email,
-    name: name,
-    role: role,
-    setting: setting,
-    created: created,
-  );
+          email: email,
+          name: name,
+          role: role,
+          setting: setting,
+          created: created,
+        );
 
   @override
-  Admin.fromMap(Map<String, dynamic> map)
-    : super.fromMap(map);
+  Admin.fromMap(Map<String, dynamic> map) : super.fromMap(map);
 
   @override
-  Admin.fromSnapshot(DocumentSnapshot snapshot)
-    : super.fromMap(snapshot.data);
+  Admin.fromSnapshot(DocumentSnapshot snapshot) : super.fromMap(snapshot.data);
 }
