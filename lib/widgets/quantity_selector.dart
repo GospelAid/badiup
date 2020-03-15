@@ -43,6 +43,8 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
+    int itemsCounterValue = widget.controller.value;
+    String stopQuantityText = '在庫不足です';
     List<Widget> widgetList = widget.orientation == Orientation.landscape
         ? <Widget>[
             _buildDecreaseQuantityButton(),
@@ -54,13 +56,26 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             _buildQuantityDisplay(),
             _buildDecreaseQuantityButton(),
           ];
-
+    List<Widget> widgetList2 = new List<Widget>();
+    widgetList2.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: widgetList,
+      ),
+    );
+    if (itemsCounterValue == 10)
+      widgetList2.add(Text(
+        stopQuantityText,
+        style: TextStyle(
+          color: paletteForegroundColor,
+          fontSize: 0.4 * widget.iconSize,
+        ),
+      ));
     return Padding(
       padding: EdgeInsets.all(0),
       child: widget.orientation == Orientation.landscape
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: widgetList,
+          ? Column(
+              children: widgetList2,
             )
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -97,7 +112,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.controller.value++;
+          if (widget.controller.value < 10) widget.controller.value++;
         });
       },
       child: _buildIncreaseQuantityButtonVisuals(),
@@ -113,7 +128,9 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           width: buttonSize,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: paletteForegroundColor,
+            color: widget.controller.value == 10
+                ? paletteDarkGreyColor
+                : paletteForegroundColor,
             borderRadius: widget.orientation == Orientation.landscape
                 ? BorderRadius.only(
                     topRight: Radius.circular(5),
