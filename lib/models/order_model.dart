@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 class Order {
   final String documentId;
   final String customerId;
+  String pushNotificationMessage;
   final List<OrderItem> items;
   final DateTime placedDate;
   final String details;
@@ -17,6 +18,7 @@ class Order {
   Order({
     this.documentId,
     this.customerId,
+    this.pushNotificationMessage,
     this.items,
     this.status,
     this.placedDate,
@@ -46,6 +48,7 @@ class Order {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'customerId': customerId,
+      'pushNotificationMessage': pushNotificationMessage,
       'status': status.index,
       'placedDate': placedDate,
       'details': details,
@@ -60,6 +63,7 @@ class Order {
 
   Order.fromMap(Map<String, dynamic> map, String documentId)
       : customerId = map['customerId'],
+        pushNotificationMessage = map['pushNotificationMessage'],
         status = OrderStatus.values[map['status']],
         placedDate = map['placedDate'].toDate(),
         details = map['details'],
@@ -68,10 +72,9 @@ class Order {
             .map<OrderItem>(
                 (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
             .toList(),
-        shippingAddress = map['shippingAddress'] != null ?
-          Address.fromMap(
-            map['shippingAddress'].cast<String, dynamic>()
-          ) : Address(),
+        shippingAddress = map['shippingAddress'] != null
+            ? Address.fromMap(map['shippingAddress'].cast<String, dynamic>())
+            : Address(),
         documentId = documentId,
         orderId = map['orderId'];
 
