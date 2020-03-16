@@ -333,7 +333,12 @@ class _ProductListingState extends State<ProductListing> {
       color: kPaletteWhite,
       child: Column(
         children: <Widget>[
-          _buildProductInfoPaneTitleRow(product),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              _buildProductInfoPaneTitle(product),
+            ],
+          ),
           _buildProductInfoPaneDescriptionRow(product),
         ],
       ),
@@ -347,21 +352,6 @@ class _ProductListingState extends State<ProductListing> {
 
     if (currentSignedInUser.isAdmin()) {
       widgetList.add(_buildProductInfoPaneEditButton(product));
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: widgetList,
-    );
-  }
-
-  Widget _buildProductInfoPaneTitleRow(Product product) {
-    List<Widget> widgetList = <Widget>[
-      _buildProductInfoPaneTitle(product),
-    ];
-
-    if (currentSignedInUser.isAdmin()) {
-      widgetList.add(_buildProductInfoPanePublishSwitch(product));
     }
 
     return Row(
@@ -401,33 +391,6 @@ class _ProductListingState extends State<ProductListing> {
           fontWeight: FontWeight.w300,
         ),
       ),
-    );
-  }
-
-  Widget _buildProductInfoPanePublishSwitch(Product product) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        Text(
-          "公開する",
-          style: TextStyle(
-            color: paletteBlackColor,
-            fontSize: 14.0,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-        Switch(
-          value: product.isPublished,
-          onChanged: (value) async {
-            await Firestore.instance
-                .collection(constants.DBCollections.products)
-                .document(product.documentId)
-                .updateData({'isPublished': value});
-          },
-          activeTrackColor: paletteForegroundColor,
-          activeColor: kPaletteWhite,
-        ),
-      ],
     );
   }
 
@@ -554,47 +517,52 @@ class _ProductListingState extends State<ProductListing> {
 
   Widget _buildAboutBadiBanner() {
     return FutureBuilder<SharedPreferences>(
-      future: SharedPreferences.getInstance(),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done: {
-            bool _appOpenedFirstTime = snapshot.data
-              .getBool(constants.SharedPrefsKeys.appOpenedFirstTime) ?? true;
-            if (!_appOpenedFirstTime) {
-              return Container();
-            }
-            snapshot.data
-              .setBool(constants.SharedPrefsKeys.appOpenedFirstTime, false);
-            return Container(
-              padding: EdgeInsets.only(
-                left: 16.0, right: 16.0, top: 40.0, bottom: 30.0,
-              ),
-              child: GestureDetector(
-                child: Container(
-                  height: 191.0,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/about_badi_banner.png'),
-                      fit: BoxFit.fitWidth,
-                    ),
+        future: SharedPreferences.getInstance(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              {
+                bool _appOpenedFirstTime = snapshot.data.getBool(
+                        constants.SharedPrefsKeys.appOpenedFirstTime) ??
+                    true;
+                if (!_appOpenedFirstTime) {
+                  return Container();
+                }
+                snapshot.data.setBool(
+                    constants.SharedPrefsKeys.appOpenedFirstTime, false);
+                return Container(
+                  padding: EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    top: 40.0,
+                    bottom: 30.0,
                   ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AboutBadiPage(),
+                  child: GestureDetector(
+                    child: Container(
+                      height: 191.0,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/about_badi_banner.png'),
+                          fit: BoxFit.fitWidth,
+                        ),
+                      ),
                     ),
-                  );
-                },
-              ),
-            );
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutBadiPage(),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            default:
+              {
+                return Container();
+              }
           }
-          default: {
-            return Container();
-          }
-        }
-      }
-    );
+        });
   }
 }
