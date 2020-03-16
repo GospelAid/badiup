@@ -4,7 +4,6 @@ import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
-import 'package:badiup/screens/cart_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/product_detail.dart';
@@ -54,7 +53,14 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
             ],
           ),
         ),
-        _buildCartActionsBar(),
+        Container(
+          height: 64,
+          child: Row(
+            children: <Widget>[
+              _buildAddToCartButton(),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -240,63 +246,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .toList();
   }
 
-  Widget _buildCartActionsBar() {
-    return Container(
-      height: 64,
-      child: Row(
-        children: <Widget>[
-          _buildAddToCartButton(),
-          Container(
-            width: 2,
-            color: kPaletteWhite,
-          ),
-          _buildGoToCartButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGoToCartButton() {
-    return Expanded(
-      child: GestureDetector(
-        onTap: _navigateToCartPage,
-        child: Container(
-          height: 64,
-          color: paletteForegroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                Icons.shopping_cart,
-                color: kPaletteWhite,
-              ),
-              Text(
-                " ご購入手続きへ",
-                style: TextStyle(
-                  color: kPaletteWhite,
-                  fontWeight: FontWeight.w600,
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _navigateToCartPage() async {
-    await _addToCart();
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return CartPage();
-        },
-      ),
-    );
-  }
-
   Widget _buildAddToCartButton() {
     return Expanded(
       child: GestureDetector(
@@ -337,7 +286,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       content: Container(
         alignment: AlignmentDirectional.centerStart,
         height: 40,
-        child: Text("商品をかごに追加しました"),
+        child: Text("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
       ),
       action: SnackBarAction(
         textColor: paletteGreyColor3,
