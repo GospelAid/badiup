@@ -387,6 +387,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<Order> _getOrderRequest(Customer customer) async {
+    String _pushNotificationMessage = customer.name + " 様より";
+
     Order orderRequest = Order(
       orderId: Order.generateOrderId(),
       customerId: customer.email,
@@ -408,7 +410,20 @@ class _CartPageState extends State<CartPage> {
         stockRequest: cartItem.stockRequest,
         price: product.priceInYen * cartItem.stockRequest.quantity,
       ));
+
+      if (i == 0) {
+        _pushNotificationMessage += product.name;
+      }
     }
+
+    if (customer.cart.items.length > 1) {
+      _pushNotificationMessage +=
+          "他" + (customer.cart.items.length - 1).toString() + "品";
+    }
+
+    _pushNotificationMessage += "の注文が入りました";
+    orderRequest.pushNotificationMessage = _pushNotificationMessage;
+
     return orderRequest;
   }
 
