@@ -56,14 +56,14 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             _buildQuantityDisplay(),
             _buildDecreaseQuantityButton(),
           ];
-    List<Widget> widgetList2 = new List<Widget>();
+    List<Widget> widgetList2 = List<Widget>();
     widgetList2.add(
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: widgetList,
       ),
     );
-    if (itemsCounterValue == 10)
+    if (itemsCounterValue == 10) {
       widgetList2.add(Text(
         stopQuantityText,
         style: TextStyle(
@@ -71,6 +71,8 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           fontSize: 0.4 * widget.iconSize,
         ),
       ));
+    }
+
     return Padding(
       padding: EdgeInsets.all(0),
       child: widget.orientation == Orientation.landscape
@@ -111,9 +113,11 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget _buildIncreaseQuantityButton() {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if (widget.controller.value < 10) widget.controller.value++;
-        });
+        if (widget.controller.value < 10) {
+          setState(() {
+            widget.controller.value++;
+          });
+        }
       },
       child: _buildIncreaseQuantityButtonVisuals(),
     );
