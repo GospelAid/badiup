@@ -42,6 +42,7 @@ class _CartPageState extends State<CartPage> {
   bool _formSubmitInProgress = false;
   PaymentMethod _paymentMethod;
   double _totalPrice;
+  double _shippingCost;
   String _formSubmitFailedMessage;
 
   @override
@@ -53,6 +54,8 @@ class _CartPageState extends State<CartPage> {
     municipalityTextController = TextEditingController();
     buildingNameTextController = TextEditingController();
     phoneNumberTextController = TextEditingController();
+
+    _shippingCost = 0;
 
     StripePayment.setOptions(
       StripeOptions(
@@ -456,8 +459,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildSummaryContents(double subTotalPrice) {
-    double shippingCost = 0;
-    _totalPrice = subTotalPrice + shippingCost;
+    _shippingCost = subTotalPrice < 5000 ? 500 : 0;
+    _totalPrice = subTotalPrice + _shippingCost;
 
     return Container(
       decoration: BoxDecoration(
@@ -687,6 +690,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildPostage() {
+    String shippingText = _shippingCost == 0 ? "送料無料" : "¥${currencyFormat.format(_shippingCost)}";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -699,7 +703,7 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
         Text(
-          "送料無料",
+          shippingText,
           style: TextStyle(
             color: paletteBlackColor,
             fontSize: 16.0,
