@@ -45,6 +45,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget build(BuildContext context) {
     int itemsCounterValue = widget.controller.value;
     String stopQuantityText = '在庫不足です';
+    List<Widget> structureWidgetList = List<Widget>();
     List<Widget> widgetList = widget.orientation == Orientation.landscape
         ? <Widget>[
             _buildDecreaseQuantityButton(),
@@ -56,15 +57,21 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             _buildQuantityDisplay(),
             _buildDecreaseQuantityButton(),
           ];
-    List<Widget> widgetList2 = List<Widget>();
-    widgetList2.add(
-      Row(
+
+    if (widget.orientation == Orientation.landscape) {
+      structureWidgetList.add(Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: widgetList,
-      ),
-    );
+      ));
+    } else {
+      structureWidgetList.add(Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: widgetList,
+      ));
+    }
+
     if (itemsCounterValue == 10) {
-      widgetList2.add(Text(
+      structureWidgetList.add(Text(
         stopQuantityText,
         style: TextStyle(
           color: paletteForegroundColor,
@@ -75,14 +82,9 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
     return Padding(
       padding: EdgeInsets.all(0),
-      child: widget.orientation == Orientation.landscape
-          ? Column(
-              children: widgetList2,
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: widgetList,
-            ),
+      child: Column(
+        children: structureWidgetList,
+      )
     );
   }
 
