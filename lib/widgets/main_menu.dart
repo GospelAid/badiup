@@ -1,5 +1,6 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/screens/about_badi_page.dart';
+import 'package:badiup/screens/contact_us_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/settings_page.dart';
@@ -124,7 +125,31 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   Widget _buildDrawerContactUsTile(BuildContext context) {
-    return Container();
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.store, color: kPaletteWhite),
+        title: Text(
+          '店舗情報',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return ContactUsPage();
+              },
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildDrawerAboutBadiTile(BuildContext context) {
