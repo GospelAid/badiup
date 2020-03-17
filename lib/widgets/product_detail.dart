@@ -248,7 +248,8 @@ class _ProductDetailState extends State<ProductDetail> {
       );
     } else {
       productImage = FadeInImage.memoryNetwork(
-        fit: BoxFit.contain,
+        width: MediaQuery.of(context).size.width,
+        fit: BoxFit.cover,
         placeholder: kTransparentImage,
         image: product.imageUrls[_indexOfImageInDisplay],
       );

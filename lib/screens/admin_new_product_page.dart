@@ -891,10 +891,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _imageToDisplay = _productImages[_indexOfImageInDisplay] is File
           ? Image.file(
               _productImages[_indexOfImageInDisplay] as File,
+              width: MediaQuery.of(context).size.width,
               fit: BoxFit.fill,
             )
           : FadeInImage.memoryNetwork(
-              fit: BoxFit.contain,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fill,
               placeholder: kTransparentImage,
               image: _productImages[_indexOfImageInDisplay] as String,
             );
@@ -1551,7 +1553,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           items: _productStockType == StockType.quantityOnly
               ? <StockItem>[
                   StockItem(
-                    quantity: int.parse(_quantityEditingController.text),
+                    quantity:
+                        int.tryParse(_quantityEditingController.text) ?? 0,
                   ),
                 ]
               : _productStockMap.entries
