@@ -1,9 +1,8 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/screens/privacy_policy_page.dart';
 import 'package:badiup/sign_in.dart';
-import 'package:badiup/widgets/banner_button.dart';
+import 'package:badiup/widgets/back_to_product_list_banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ContactUsPage extends StatelessWidget {
@@ -17,17 +16,12 @@ class ContactUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildBody(),
-      bottomNavigationBar: BannerButton(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        text: "商品リストへ",
-      ),
+      body: _buildBody(context),
+      bottomNavigationBar: BackToProductListBannerButton(),
     );
   }
 
-  Widget _buildAppBar(context) {
+  Widget _buildAppBar(BuildContext context) {
     return AppBar(
       elevation: 0.0,
       backgroundColor: paletteLightGreyColor,
@@ -38,16 +32,16 @@ class ContactUsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric( horizontal: 24.0, vertical: 12.0),
+      padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       child: ListView(
         children: <Widget>[
           _buildStoreInfoTitle(),
-          SizedBox( height: 20.0 ),
+          SizedBox(height: 20.0),
           _buildStoreInfoTable(),
-          SizedBox( height: 20.0 ),
-          _buildPrivacyPolicyLink()
+          SizedBox(height: 20.0),
+          _buildPrivacyPolicyLink(context)
         ],
       ),
     );
@@ -64,7 +58,9 @@ class ContactUsPage extends StatelessWidget {
       child: Text(
         '店舗情報',
         style: TextStyle(
-          fontSize: 16.0, fontWeight: FontWeight.bold, color: paletteBlackColor,
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+          color: paletteBlackColor,
         ),
       ),
     );
@@ -72,9 +68,7 @@ class ContactUsPage extends StatelessWidget {
 
   Widget _buildStoreInfoTable() {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: kPaletteBorderColor)
-      ),
+      decoration: BoxDecoration(border: Border.all(color: kPaletteBorderColor)),
       child: Column(
         children: <Widget>[
           _buildStoreNameRow(),
@@ -97,7 +91,7 @@ class ContactUsPage extends StatelessWidget {
         children: <Widget>[
           Container(
             width: 100.0,
-            padding: EdgeInsets.only( left: 10.0 ),
+            padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
               color: Color(0xFFE3E3E3),
@@ -108,7 +102,7 @@ class ContactUsPage extends StatelessWidget {
             child: Text('ショップ名', style: _tableTextStyle),
           ),
           Container(
-            padding: EdgeInsets.only( left: 10.0 ),
+            padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
             child: Text('バディカフェ', style: _tableTextStyle),
           ),
@@ -129,7 +123,7 @@ class ContactUsPage extends StatelessWidget {
         children: <Widget>[
           Container(
             width: 100.0,
-            padding: EdgeInsets.only( left: 10.0 ),
+            padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
               color: Color(0xFFE3E3E3),
@@ -141,7 +135,7 @@ class ContactUsPage extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.only( left: 10.0, top: 15.0),
+              padding: EdgeInsets.only(left: 10.0, top: 15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -163,7 +157,7 @@ class ContactUsPage extends StatelessWidget {
         children: <Widget>[
           Container(
             width: 100.0,
-            padding: EdgeInsets.only( left: 10.0 ),
+            padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
               color: Color(0xFFE3E3E3),
@@ -175,16 +169,21 @@ class ContactUsPage extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.only( left: 10.0, top: 15.0, bottom: 15.0),
+              padding: EdgeInsets.only(left: 10.0, top: 15.0, bottom: 15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Icon(Icons.phone, color: paletteDarkRedColor, size: 20.0,),
-                      Text('0564-73-0889', 
-                        style: TextStyle( color: paletteDarkRedColor),
+                      Icon(
+                        Icons.phone,
+                        color: paletteDarkRedColor,
+                        size: 20.0,
+                      ),
+                      Text(
+                        '0564-73-0889',
+                        style: TextStyle(color: paletteDarkRedColor),
                       ),
                     ],
                   ),
@@ -200,20 +199,27 @@ class ContactUsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPrivacyPolicyLink() {
+  Widget _buildPrivacyPolicyLink(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print('pressed');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrivacyPolicyPage(),
+          ),
+        );
       },
       child: Row(
         children: <Widget>[
-          Text('・',
+          Text(
+            '・',
             style: TextStyle(
               color: paletteBlackColor,
               fontWeight: FontWeight.w300,
             ),
           ),
-          Text('プライバシーポリシー',
+          Text(
+            'プライバシーポリシー',
             style: TextStyle(
               decoration: TextDecoration.underline,
               color: paletteBlackColor,

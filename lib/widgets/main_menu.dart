@@ -57,7 +57,7 @@ class _MainMenuState extends State<MainMenu> {
           ),
         ),
         onTap: () {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => currentSignedInUser.isAdmin()
@@ -142,9 +142,7 @@ class _MainMenuState extends State<MainMenu> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) {
-                return ContactUsPage();
-              },
+              builder: (context) => ContactUsPage(),
             ),
           );
         },
@@ -170,9 +168,7 @@ class _MainMenuState extends State<MainMenu> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) {
-                return AboutBadiPage();
-              },
+              builder: (context) => AboutBadiPage(),
             ),
           );
         },

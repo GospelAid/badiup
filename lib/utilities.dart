@@ -1,3 +1,6 @@
+import 'package:badiup/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:badiup/constants.dart' as constants;
 import 'package:flutter/material.dart';
 
 Widget buildIconWithShadow(IconData iconData, {double iconSize = 24.0}) {
@@ -36,4 +39,30 @@ Widget buildFormSubmitInProgressIndicator() {
       ),
     ],
   );
+}
+
+Widget buildIntroTextField({String textDocumentId}) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.texts)
+          .document(textDocumentId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+        String _introText =
+            snapshot.data['content'].toString().replaceAll(RegExp(r'\s'), '\n');
+        return Container(
+          child: Text(
+            _introText,
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        );
+      },
+    );
 }
