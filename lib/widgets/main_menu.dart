@@ -29,8 +29,8 @@ class _MainMenuState extends State<MainMenu> {
                 _buildDrawerHeader(context),
                 _buildDrawerProductListingTile(context),
                 currentSignedInUser.isAdmin()
-                  ? Container()
-                  : _buildDrawerCartTile(context),
+                    ? Container()
+                    : _buildDrawerCartTile(context),
                 _buildDrawerSettingsTile(context),
                 _buildDrawerContactUsTile(context),
                 _buildDrawerAboutBadiTile(context),
@@ -219,7 +219,7 @@ class _MainMenuState extends State<MainMenu> {
         );
       },
       child: Container(
-        padding: EdgeInsets.only( right: 16.0, bottom: 16.0 ),
+        padding: EdgeInsets.only(right: 16.0, bottom: 16.0),
         alignment: Alignment.centerRight,
         child: Text(
           'プライバシーポリシー',
