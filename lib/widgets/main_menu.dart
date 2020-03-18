@@ -1,6 +1,7 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/screens/about_badi_page.dart';
 import 'package:badiup/screens/contact_us_page.dart';
+import 'package:badiup/screens/privacy_policy_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/settings_page.dart';
@@ -20,18 +21,24 @@ class _MainMenuState extends State<MainMenu> {
   Widget build(BuildContext context) {
     return Container(
       color: paletteBlackColor,
-      child: ListView(
-        // children: _buildMenuElements(context),
+      child: Column(
         children: <Widget>[
-          _buildDrawerHeader(context),
-          _buildDrawerProductListingTile(context),
-          currentSignedInUser.isAdmin()
-              ? Container()
-              : _buildDrawerCartTile(context),
-          _buildDrawerSettingsTile(context),
-          _buildDrawerContactUsTile(context),
-          _buildDrawerAboutBadiTile(context),
-          _buildDrawerLogoutTile(context),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                _buildDrawerHeader(context),
+                _buildDrawerProductListingTile(context),
+                currentSignedInUser.isAdmin()
+                  ? Container()
+                  : _buildDrawerCartTile(context),
+                _buildDrawerSettingsTile(context),
+                _buildDrawerContactUsTile(context),
+                _buildDrawerAboutBadiTile(context),
+                _buildDrawerLogoutTile(context),
+              ],
+            ),
+          ),
+          _buildPrivacyPolicyLink(context),
         ],
       ),
     );
@@ -201,9 +208,34 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
+  Widget _buildPrivacyPolicyLink(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrivacyPolicyPage(),
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.only( right: 16.0, bottom: 16.0 ),
+        alignment: Alignment.centerRight,
+        child: Text(
+          'プライバシーポリシー',
+          style: TextStyle(
+            fontSize: 12.0,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawerHeader(BuildContext context) {
     return Container(
-      height: 120,
+      height: 104,
       child: DrawerHeader(
         decoration: _buildDrawerHeaderDecoration(context),
         child: Container(
@@ -256,7 +288,7 @@ class _MainMenuState extends State<MainMenu> {
           BlendMode.dstATop,
         ),
         image: AssetImage('assets/drawer_header_background.jpg'),
-        fit: BoxFit.fitWidth,
+        fit: BoxFit.fitHeight,
       ),
     );
   }
