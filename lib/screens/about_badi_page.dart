@@ -1,10 +1,8 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
-import 'package:badiup/widgets/back_to_product_list_banner_button.dart';
+import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AboutBadiPage extends StatelessWidget {
@@ -13,7 +11,7 @@ class AboutBadiPage extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildBody(context),
-      bottomNavigationBar: BackToProductListBannerButton(),
+      bottomNavigationBar: BackToProductListBannerButton(context: context),
     );
   }
 
