@@ -1,4 +1,7 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/screens/about_badi_page.dart';
+import 'package:badiup/screens/contact_us_page.dart';
+import 'package:badiup/screens/privacy_policy_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
 import 'package:badiup/screens/settings_page.dart';
@@ -18,145 +21,221 @@ class _MainMenuState extends State<MainMenu> {
   Widget build(BuildContext context) {
     return Container(
       color: paletteBlackColor,
-      child: ListView(
-        children: _buildMenuElements(context),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                _buildDrawerHeader(context),
+                _buildDrawerProductListingTile(context),
+                currentSignedInUser.isAdmin()
+                    ? Container()
+                    : _buildDrawerCartTile(context),
+                _buildDrawerSettingsTile(context),
+                _buildDrawerContactUsTile(context),
+                _buildDrawerAboutBadiTile(context),
+                _buildDrawerLogoutTile(context),
+              ],
+            ),
+          ),
+          _buildPrivacyPolicyLink(context),
+        ],
       ),
     );
   }
 
-  List<Widget> _buildMenuElements(BuildContext context) {
-    var widgetList = <Widget>[
-      _buildDrawerHeader(context),
-      Container(
-        padding: EdgeInsets.only(left: 12.0),
-        child: _buildDrawerProductListingTile(context),
-      ),
-    ];
-
-    if (!currentSignedInUser.isAdmin()) {
-      widgetList.add(Container(
-        padding: EdgeInsets.only(left: 12.0),
-        child: _buildDrawerCartTile(context),
-      ));
-    }
-
-    widgetList.addAll(<Widget>[
-      Container(
-        padding: EdgeInsets.only(left: 12.0),
-        child: _buildDrawerSettingsTile(context),
-      ),
-      Container(
-        padding: EdgeInsets.only(left: 12.0),
-        child: _buildDrawerLogoutTile(context),
-      ),
-    ]);
-
-    return widgetList;
-  }
-
   Widget _buildDrawerProductListingTile(BuildContext context) {
-    return ListTile(
-      key: Key(makeTestKeyString(
-        TKUsers.admin,
-        TKScreens.drawer,
-        "productListing",
-      )),
-      leading: Icon(Icons.image, color: kPaletteWhite),
-      title: Text(
-        '商品',
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          color: kPaletteWhite,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => currentSignedInUser.isAdmin()
-                ? AdminProductListingPage()
-                : CustomerHomePage(),
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        key: Key(makeTestKeyString(
+          TKUsers.admin,
+          TKScreens.drawer,
+          "productListing",
+        )),
+        leading: Icon(Icons.image, color: kPaletteWhite),
+        title: Text(
+          '商品',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      },
+        ),
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => currentSignedInUser.isAdmin()
+                  ? AdminProductListingPage()
+                  : CustomerHomePage(),
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDrawerCartTile(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.shopping_cart, color: kPaletteWhite),
-      title: Text(
-        '買い物かごを見る',
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          color: kPaletteWhite,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return CartPage();
-            },
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.shopping_cart, color: kPaletteWhite),
+        title: Text(
+          '買い物かごを見る',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return CartPage();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDrawerSettingsTile(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.settings, color: kPaletteWhite),
-      title: Text(
-        '設定',
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          color: kPaletteWhite,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SettingsPage(),
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.settings, color: kPaletteWhite),
+        title: Text(
+          '設定',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SettingsPage(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDrawerContactUsTile(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.store, color: kPaletteWhite),
+        title: Text(
+          '店舗情報',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ContactUsPage(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDrawerAboutBadiTile(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.face, color: kPaletteWhite),
+        title: Text(
+          'バディについて',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AboutBadiPage(),
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDrawerLogoutTile(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.exit_to_app, color: kPaletteWhite),
-      title: Text(
-        'ログアウト',
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          color: kPaletteWhite,
-          fontWeight: FontWeight.bold,
+    return Container(
+      padding: EdgeInsets.only(left: 12.0),
+      child: ListTile(
+        leading: Icon(Icons.exit_to_app, color: kPaletteWhite),
+        title: Text(
+          'ログアウト',
+          textAlign: TextAlign.justify,
+          style: TextStyle(
+            fontSize: 14,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          signOutGoogle();
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) {
+            return LoginPage();
+          }), ModalRoute.withName('/'));
+        },
+      ),
+    );
+  }
+
+  Widget _buildPrivacyPolicyLink(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrivacyPolicyPage(),
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.only(right: 16.0, bottom: 16.0),
+        alignment: Alignment.centerRight,
+        child: Text(
+          'プライバシーポリシー',
+          style: TextStyle(
+            fontSize: 12.0,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      onTap: () {
-        signOutGoogle();
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) {
-          return LoginPage();
-        }), ModalRoute.withName('/'));
-      },
     );
   }
 
   Widget _buildDrawerHeader(BuildContext context) {
     return Container(
-      height: 120,
+      height: 104,
       child: DrawerHeader(
         decoration: _buildDrawerHeaderDecoration(context),
         child: Container(
@@ -209,7 +288,7 @@ class _MainMenuState extends State<MainMenu> {
           BlendMode.dstATop,
         ),
         image: AssetImage('assets/drawer_header_background.jpg'),
-        fit: BoxFit.fitWidth,
+        fit: BoxFit.fitHeight,
       ),
     );
   }

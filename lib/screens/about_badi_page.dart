@@ -1,9 +1,8 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/sign_in.dart';
+import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AboutBadiPage extends StatelessWidget {
@@ -11,13 +10,8 @@ class AboutBadiPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildBody(),
-      bottomNavigationBar: BannerButton(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        text: "商品リストへ",
-      ),
+      body: _buildBody(context),
+      bottomNavigationBar: BackToProductListBannerButton(context: context),
     );
   }
 
@@ -32,7 +26,7 @@ class AboutBadiPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     return ListView(
       children: <Widget>[
         _buildAboutBadiBanner(),
@@ -71,8 +65,11 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        _buildIntroTextField(
-          textDocumentId: 'casteSystemIntroText',
+        Container(
+          padding: EdgeInsets.symmetric( horizontal: 16.0 ),
+          child: buildTextFieldFromDocument(
+            textDocumentId: 'casteSystemIntroText',
+          ),
         ),
       ],
     );
@@ -93,37 +90,13 @@ class AboutBadiPage extends StatelessWidget {
             ),
           ),
         ),
-        _buildIntroTextField(
-          textDocumentId: 'badiUpIntroText',
+        Container(
+          padding: EdgeInsets.symmetric( horizontal: 16.0 ),
+          child: buildTextFieldFromDocument(
+            textDocumentId: 'badiUpIntroText',
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildIntroTextField({String textDocumentId}) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: Firestore.instance
-          .collection(constants.DBCollections.texts)
-          .document(textDocumentId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return LinearProgressIndicator();
-        }
-        String _introText =
-            snapshot.data['content'].toString().replaceAll(RegExp(r'\s'), '\n');
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
-          child: Text(
-            _introText,
-            style: TextStyle(
-              color: paletteBlackColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-        );
-      },
     );
   }
 
