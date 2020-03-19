@@ -1,6 +1,6 @@
 import 'package:badiup/colors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 Widget buildIconWithShadow(IconData iconData, {double iconSize = 24.0}) {
@@ -41,7 +41,7 @@ Widget buildFormSubmitInProgressIndicator() {
   );
 }
 
-Widget buildIntroTextField({String textDocumentId}) {
+Widget buildTextFieldFromDocument({String textDocumentId}) {
     return StreamBuilder<DocumentSnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.texts)

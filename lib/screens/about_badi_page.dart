@@ -67,7 +67,7 @@ class AboutBadiPage extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.symmetric( horizontal: 16.0 ),
-          child: buildIntroTextField(
+          child: buildTextFieldFromDocument(
             textDocumentId: 'casteSystemIntroText',
           ),
         ),
@@ -92,7 +92,7 @@ class AboutBadiPage extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.symmetric( horizontal: 16.0 ),
-          child: buildIntroTextField(
+          child: buildTextFieldFromDocument(
             textDocumentId: 'badiUpIntroText',
           ),
         ),

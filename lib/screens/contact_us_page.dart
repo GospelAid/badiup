@@ -12,6 +12,13 @@ class ContactUsPage extends StatelessWidget {
     fontSize: 16.0,
   );
 
+  final BoxDecoration _tableBoxDecoration = BoxDecoration(
+    color: paletteGreyColor5,
+    border: Border(
+      right: BorderSide(color: kPaletteBorderColor),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,12 +100,7 @@ class ContactUsPage extends StatelessWidget {
             width: 100.0,
             padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: Color(0xFFE3E3E3),
-              border: Border(
-                right: BorderSide(color: kPaletteBorderColor),
-              ),
-            ),
+            decoration: _tableBoxDecoration,
             child: Text('ショップ名', style: _tableTextStyle),
           ),
           Container(
@@ -125,12 +127,7 @@ class ContactUsPage extends StatelessWidget {
             width: 100.0,
             padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: Color(0xFFE3E3E3),
-              border: Border(
-                right: BorderSide(color: kPaletteBorderColor),
-              ),
-            ),
+            decoration: _tableBoxDecoration,
             child: Text('住所', style: _tableTextStyle),
           ),
           Expanded(
@@ -159,12 +156,7 @@ class ContactUsPage extends StatelessWidget {
             width: 100.0,
             padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: Color(0xFFE3E3E3),
-              border: Border(
-                right: BorderSide(color: kPaletteBorderColor),
-              ),
-            ),
+            decoration: _tableBoxDecoration,
             child: Text('連絡先', style: _tableTextStyle),
           ),
           Expanded(

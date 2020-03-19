@@ -65,7 +65,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   }
 
   Widget _buildPolicyIntroText() {
-    return buildIntroTextField(
+    return buildTextFieldFromDocument(
       textDocumentId: 'privacyPolicyIntroText',
     );
   }
@@ -84,7 +84,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
           ),
         ),
-        buildIntroTextField(
+        buildTextFieldFromDocument(
           textDocumentId: 'personalInfoManagementText',
         ),
       ],
@@ -105,7 +105,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
           ),
         ),
-        buildIntroTextField(
+        buildTextFieldFromDocument(
           textDocumentId: 'personalInfoUseText',
         ),
       ],
@@ -126,7 +126,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
           ),
         ),
-        buildIntroTextField(
+        buildTextFieldFromDocument(
           textDocumentId: 'personalInfoSecurityMeasuresText',
         ),
       ],
