@@ -6,7 +6,7 @@ class QuantityController extends ValueNotifier<int> {
 
   int get quantity => value;
 
-  int maxCounterValue;
+  final int maxCounterValue;
 
   set quantity(int newValue) {
     value = newValue;
@@ -45,7 +45,6 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> structureWidgetList = List<Widget>();
     List<Widget> widgetList = widget.orientation == Orientation.landscape
         ? <Widget>[
             _buildDecreaseQuantityButton(),
@@ -58,23 +57,17 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             _buildDecreaseQuantityButton(),
           ];
 
-    if (widget.orientation == Orientation.landscape) {
-      structureWidgetList.add(Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: widgetList,
-      ));
-    } else {
-      structureWidgetList.add(Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: widgetList,
-      ));
-    }
-    
     return Padding(
-      padding: EdgeInsets.all(0),	
-      child: Column(	
-        children: structureWidgetList,	
-      ),
+      padding: EdgeInsets.all(0),
+      child: widget.orientation == Orientation.landscape
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widgetList,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widgetList,
+            ),
     );
   }
 
@@ -105,7 +98,6 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget _buildIncreaseQuantityButton() {
     return GestureDetector(
       onTap: () {
-        print('DTEST');
         if (widget.controller.value < widget.controller.maxCounterValue) {
           setState(() {
             widget.controller.value++;

@@ -12,7 +12,7 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 
-import '../colors.dart';
+import 'package:badiup/colors.dart';
 
 class ProductDetail extends StatefulWidget {
   ProductDetail({
@@ -65,14 +65,14 @@ class _ProductDetailState extends State<ProductDetail> {
         SizedBox(height: 8.0),
         _buildProductPrice(product),
         SizedBox(height: 8.0),
-        _buildProductStockRemaining(product),
+        _buildFewItemsInStockMessage(product),
         SizedBox(height: 8.0),
         _buildProductCategory(product.category),
       ],
     );
   }
 
-  Widget _buildProductStockRemaining(Product product) {
+  Widget _buildFewItemsInStockMessage(Product product) {
     int stockQuantityRemaining = 10;
     if (widget.selectedItemSize != null && widget.selectedItemColor != null) {
       product.stock.items.forEach((stockElement) {
@@ -82,37 +82,38 @@ class _ProductDetailState extends State<ProductDetail> {
         }
       });
     } else {
-      stockQuantityRemaining = product.stock.items.first.quantity;
+      stockQuantityRemaining = product.stock.items.where((element)=>element.quantity>0).first.quantity;
     }
-
+    List<Widget> textStructureWidgetList = List<Widget>();
+    if (stockQuantityRemaining < 10) {
+      textStructureWidgetList.add(Text(
+        "この商品の在庫は現在",
+        style: TextStyle(
+          color: paletteGreyColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+      textStructureWidgetList.add(Text(
+        stockQuantityRemaining.toString() + "個",
+        style: TextStyle(
+          color: paletteForegroundColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+      textStructureWidgetList.add(Text(
+        "です",
+        style: TextStyle(
+          color: paletteGreyColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        Text(
-          "この商品の在庫は現在",
-          style: TextStyle(
-            color: paletteGreyColor,
-            fontSize: 12.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          stockQuantityRemaining.toString() + "個",
-          style: TextStyle(
-            color: paletteForegroundColor,
-            fontSize: 12.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          "です",
-          style: TextStyle(
-            color: paletteGreyColor,
-            fontSize: 12.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
+      children: textStructureWidgetList,
     );
   }
 

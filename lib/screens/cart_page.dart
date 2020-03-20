@@ -959,23 +959,18 @@ class _CartPageState extends State<CartPage> {
     StockItem stockRequest,
   ) {
     var maxCounterValue = 10;
-    if (stockRequest.size != null) {
-      product.stock.items.forEach((stockElement) {
-        if (stockElement.size == stockRequest.size &&
-            stockElement.color == stockRequest.color) {
-          maxCounterValue = stockElement.quantity;
-        }
-      });
-    } else {
-      product.stock.items.forEach((stockElement) {
-        if (stockElement.color == stockRequest.color) {
-          maxCounterValue = stockElement.quantity;
-        }
-      });
+    var requestedProductStockItem = product.stock.items.where((stockElement) => stockElement.quantity > 0 && stockElement.size == stockRequest.size && stockElement.color == stockRequest.color);
+    if(requestedProductStockItem.length > 0){
+        maxCounterValue = requestedProductStockItem.first.quantity < 10 ? requestedProductStockItem.first.quantity : 10;
+    }else{
+      requestedProductStockItem = product.stock.items.where((stockElement) => stockElement.quantity > 0 &&  stockElement.color == stockRequest.color);
+      maxCounterValue = requestedProductStockItem.first.quantity < 10 ? requestedProductStockItem.first.quantity : 10;
     }
 
     var controller = QuantityController(
-        value: stockRequest.quantity, maxCounterValue: maxCounterValue);
+      value: stockRequest.quantity,
+      maxCounterValue: maxCounterValue,
+    );
     controller.addListener(() async {
       var customer = Customer.fromSnapshot(await db
           .collection(constants.DBCollections.users)
