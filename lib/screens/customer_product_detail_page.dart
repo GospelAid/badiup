@@ -46,7 +46,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           padding: const EdgeInsets.all(16.0),
           child: ListView(
             children: <Widget>[
-              ProductDetail(productDocumentId: widget.productDocumentId),
+              ProductDetail(selectedItemColor: _selectedItemColor, selectedItemSize: _selectedItemSize, productDocumentId: widget.productDocumentId),
               SizedBox(height: 40),
               _buildStockSelector(),
               SizedBox(height: 150),

@@ -1,3 +1,4 @@
+import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -11,13 +12,19 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
 
+import '../colors.dart';
+
 class ProductDetail extends StatefulWidget {
   ProductDetail({
     Key key,
     this.productDocumentId,
+    this.selectedItemColor,
+    this.selectedItemSize,
   }) : super(key: key);
 
   final String productDocumentId;
+  final ItemColor selectedItemColor;
+  ItemSize selectedItemSize;
 
   @override
   _ProductDetailState createState() => _ProductDetailState();
@@ -58,7 +65,53 @@ class _ProductDetailState extends State<ProductDetail> {
         SizedBox(height: 8.0),
         _buildProductPrice(product),
         SizedBox(height: 8.0),
+        _buildProductStockRemaining(product),
+        SizedBox(height: 8.0),
         _buildProductCategory(product.category),
+      ],
+    );
+  }
+
+  Widget _buildProductStockRemaining(Product product) {
+    int stockQuantityRemaining = 10;
+    if (widget.selectedItemSize != null && widget.selectedItemColor != null) {
+      product.stock.items.forEach((stockElement) {
+        if (stockElement.size == widget.selectedItemSize &&
+            stockElement.color == widget.selectedItemColor) {
+          stockQuantityRemaining = stockElement.quantity;
+        }
+      });
+    } else {
+      stockQuantityRemaining = product.stock.items.first.quantity;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Text(
+          "この商品の在庫は現在",
+          style: TextStyle(
+            color: paletteGreyColor,
+            fontSize: 12.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          stockQuantityRemaining.toString() + "個",
+          style: TextStyle(
+            color: paletteForegroundColor,
+            fontSize: 12.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          "です",
+          style: TextStyle(
+            color: paletteGreyColor,
+            fontSize: 12.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
