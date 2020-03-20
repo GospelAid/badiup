@@ -959,13 +959,23 @@ class _CartPageState extends State<CartPage> {
     StockItem stockRequest,
   ) {
     var maxCounterValue = 10;
-    product.stock.items.forEach((stockElement) {
-      if (stockElement.size == stockRequest.size &&
-          stockElement.color == stockRequest.color) {
-        maxCounterValue = stockElement.quantity;
-      }
-    });
-	    var controller = QuantityController(value: stockRequest.quantity, maxCounterValue: maxCounterValue);
+    if (stockRequest.size != null) {
+      product.stock.items.forEach((stockElement) {
+        if (stockElement.size == stockRequest.size &&
+            stockElement.color == stockRequest.color) {
+          maxCounterValue = stockElement.quantity;
+        }
+      });
+    } else {
+      product.stock.items.forEach((stockElement) {
+        if (stockElement.color == stockRequest.color) {
+          maxCounterValue = stockElement.quantity;
+        }
+      });
+    }
+
+    var controller = QuantityController(
+        value: stockRequest.quantity, maxCounterValue: maxCounterValue);
     controller.addListener(() async {
       var customer = Customer.fromSnapshot(await db
           .collection(constants.DBCollections.users)

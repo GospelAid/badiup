@@ -105,6 +105,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget _buildIncreaseQuantityButton() {
     return GestureDetector(
       onTap: () {
+        print('DTEST');
         if (widget.controller.value < widget.controller.maxCounterValue) {
           setState(() {
             widget.controller.value++;
