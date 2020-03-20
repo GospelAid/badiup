@@ -7,9 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class OrderList extends StatefulWidget {
-  OrderList({Key key, this.orderStatusToFilter}) : super(key: key);
+  OrderList({
+    Key key,
+    this.orderStatusToFilter,
+    this.placedByFilter,
+    this.placedDateStartFilter,
+    this.placedDateEndFilter,
+  }) : super(key: key);
 
   final OrderStatus orderStatusToFilter;
+  final String placedByFilter;
+  final DateTime placedDateStartFilter;
+  final DateTime placedDateEndFilter;
 
   @override
   _OrderListState createState() => _OrderListState();
@@ -19,18 +28,56 @@ class _OrderListState extends State<OrderList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
-          .collection(constants.DBCollections.orders)
-          .orderBy('placedDate', descending: true)
-          .snapshots(),
+      stream: _getDocumentStream(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return LinearProgressIndicator();
+          return Center(
+            child: Text("No orders found!"),
+          );
         }
 
         return _buildOrderList(context, snapshot.data.documents);
       },
     );
+  }
+
+  Stream<QuerySnapshot> _getDocumentStream() {
+    Query orderCollection =
+        Firestore.instance.collection(constants.DBCollections.orders);
+
+    if (widget.orderStatusToFilter != null) {
+      if (widget.orderStatusToFilter == OrderStatus.all) {
+        // Do nothing
+      } else {
+        orderCollection = orderCollection.where(
+          'status',
+          isEqualTo: widget.orderStatusToFilter.index,
+        );
+      }
+    }
+
+    if (widget.placedByFilter != null) {
+      orderCollection = orderCollection.where(
+        'customerId',
+        isEqualTo: widget.placedByFilter,
+      );
+    }
+
+    if (widget.placedDateStartFilter != null) {
+      orderCollection = orderCollection.where(
+        'placedDate',
+        isGreaterThanOrEqualTo: widget.placedDateStartFilter,
+      );
+    }
+
+    if (widget.placedDateEndFilter != null) {
+      orderCollection = orderCollection.where(
+        'placedDate',
+        isLessThanOrEqualTo: widget.placedDateEndFilter,
+      );
+    }
+
+    return orderCollection.orderBy('placedDate', descending: true).snapshots();
   }
 
   Widget _buildOrderList(
@@ -39,11 +86,10 @@ class _OrderListState extends State<OrderList> {
   ) {
     List<Widget> widgetList = [];
     snapshots.forEach((snapshot) {
-      final Order order = Order.fromSnapshot(snapshot);
-      if (widget.orderStatusToFilter == OrderStatus.all ||
-          order.status == widget.orderStatusToFilter) {
-        widgetList.add(_buildOrderListItem(context, order));
-      }
+      widgetList.add(_buildOrderListItem(
+        context,
+        Order.fromSnapshot(snapshot),
+      ));
     });
 
     return ListView(
