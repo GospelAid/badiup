@@ -768,7 +768,6 @@ class _CartPageState extends State<CartPage> {
             return LinearProgressIndicator();
           }
           var product = Product.fromSnapshot(snapshot.data);
-
           return _buildCartItemRow(product, item.stockRequest);
         },
       ),
@@ -971,7 +970,6 @@ class _CartPageState extends State<CartPage> {
           item.stockRequest.size == stockRequest.size);
       customer.cart.items[productIndex].stockRequest.quantity =
           controller.quantity;
-
       await db
           .collection(constants.DBCollections.users)
           .document(currentSignedInUser.email)

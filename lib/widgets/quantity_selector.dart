@@ -2,13 +2,16 @@ import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
 class QuantityController extends ValueNotifier<int> {
-  QuantityController({int value}) : super(value);
+  QuantityController({int value, this.maxCounterValue}) : super(value);
 
   int get quantity => value;
+  
+  int maxCounterValue;
 
   set quantity(int newValue) {
     value = newValue;
   }
+  
 }
 
 class QuantitySelector extends StatefulWidget {
@@ -70,16 +73,6 @@ class _QuantitySelectorState extends State<QuantitySelector> {
       ));
     }
 
-    if (itemsCounterValue == 10) {
-      structureWidgetList.add(Text(
-        stopQuantityText,
-        style: TextStyle(
-          color: paletteForegroundColor,
-          fontSize: 0.4 * widget.iconSize,
-        ),
-      ));
-    }
-
     return Padding(
       padding: EdgeInsets.all(0),
       child: Column(
@@ -115,7 +108,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget _buildIncreaseQuantityButton() {
     return GestureDetector(
       onTap: () {
-        if (widget.controller.value < 10) {
+        if (widget.controller.value < widget.controller.maxCounterValue) {
           setState(() {
             widget.controller.value++;
           });
@@ -134,7 +127,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           width: buttonSize,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: widget.controller.value == 10
+            color: widget.controller.value == widget.controller.maxCounterValue
                 ? paletteDarkGreyColor
                 : paletteForegroundColor,
             borderRadius: widget.orientation == Orientation.landscape
