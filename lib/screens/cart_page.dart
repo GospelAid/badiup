@@ -941,7 +941,6 @@ class _CartPageState extends State<CartPage> {
       }
     });
     var controller = QuantityController(value: stockRequest.quantity, maxCounterValue: maxCounterValue);
-    //HERE IS THE BUG
     controller.addListener(() async {
       var customer = Customer.fromSnapshot(await db
           .collection(constants.DBCollections.users)
