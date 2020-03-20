@@ -92,17 +92,17 @@ class _ProductListingState extends State<ProductListing> {
 
     // Show only published products if current user is customer
     // Otherwise, show all products
-    if (!(currentSignedInUser.role == RoleType.customer &&
-            !product.isPublished) &&
-        _productQuantity > 0) {
-      // If no category filters are selected, show all products
+    if (currentSignedInUser.role == RoleType.customer) {
+      if (product.isPublished && _productQuantity > 0) {
+        if (_categoryFilters.isEmpty ||
+            _categoryFilters.contains(getDisplayText(product.category))) {
+          widgets.add(_buildProductListingItem(context, index, product));
+        }
+      }
+    } else if (currentSignedInUser.isAdmin()) {
       if (_categoryFilters.isEmpty ||
-          // If one of more category filters are selected, show all products that match the filters
           _categoryFilters.contains(getDisplayText(product.category)) ||
-          // Show archived products only if the current user is admin
-          (currentSignedInUser.isAdmin() &&
-              !product.isPublished &&
-              _categoryFilters.contains(_archivedText))) {
+          (!product.isPublished && _categoryFilters.contains(_archivedText))) {
         widgets.add(_buildProductListingItem(context, index, product));
       }
     }
@@ -489,7 +489,8 @@ class _ProductListingState extends State<ProductListing> {
       );
     } else {
       return FadeInImage.memoryNetwork(
-        fit: BoxFit.fill,
+        width: MediaQuery.of(context).size.width,
+        fit: BoxFit.cover,
         placeholder: kTransparentImage,
         image: product.imageUrls[imageIndex],
       );
