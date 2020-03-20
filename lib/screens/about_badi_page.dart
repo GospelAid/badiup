@@ -66,7 +66,7 @@ class AboutBadiPage extends StatelessWidget {
           ),
         ),
         Container(
-          padding: EdgeInsets.symmetric( horizontal: 16.0 ),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: buildTextFieldFromDocument(
             textDocumentId: 'casteSystemIntroText',
           ),
@@ -91,7 +91,7 @@ class AboutBadiPage extends StatelessWidget {
           ),
         ),
         Container(
-          padding: EdgeInsets.symmetric( horizontal: 16.0 ),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: buildTextFieldFromDocument(
             textDocumentId: 'badiUpIntroText',
           ),
@@ -105,7 +105,7 @@ class AboutBadiPage extends StatelessWidget {
       height: 361.0,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/about_badi_model.png'),
+          image: AssetImage('assets/about_badi_model.JPG'),
           fit: BoxFit.fitWidth,
         ),
       ),
