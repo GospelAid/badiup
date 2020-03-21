@@ -387,6 +387,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<Order> _getOrderRequest(Customer customer) async {
+    String _pushNotificationMessage = customer.name + " 様より";
+
     Order orderRequest = Order(
       orderId: Order.generateOrderId(),
       customerId: customer.email,
@@ -408,7 +410,20 @@ class _CartPageState extends State<CartPage> {
         stockRequest: cartItem.stockRequest,
         price: product.priceInYen * cartItem.stockRequest.quantity,
       ));
+
+      if (i == 0) {
+        _pushNotificationMessage += product.name;
+      }
     }
+
+    if (customer.cart.items.length > 1) {
+      _pushNotificationMessage +=
+          "他" + (customer.cart.items.length - 1).toString() + "品";
+    }
+
+    _pushNotificationMessage += "の注文が入りました";
+    orderRequest.pushNotificationMessage = _pushNotificationMessage;
+
     return orderRequest;
   }
 
@@ -690,7 +705,9 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildPostage() {
-    String shippingText = _shippingCost == 0 ? "送料無料" : "¥${currencyFormat.format(_shippingCost)}";
+    String shippingText = _shippingCost == 0
+        ? "送料無料"
+        : "¥${currencyFormat.format(_shippingCost)}";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -781,7 +798,7 @@ class _CartPageState extends State<CartPage> {
                 _buildCartItemCaptionText(product, stockRequest),
                 _buildPriceAndQuantitySelectorRow(
                   product,
-                  stockRequest.quantity,
+                  stockRequest,
                 ),
               ],
             ),
@@ -814,12 +831,15 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildPriceAndQuantitySelectorRow(Product product, int quantity) {
+  Widget _buildPriceAndQuantitySelectorRow(
+    Product product,
+    StockItem stockRequest,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _buildProductPrice(product),
-        _buildQuantitySelector(product.documentId, quantity),
+        _buildQuantitySelector(product.documentId, stockRequest),
       ],
     );
   }
@@ -934,16 +954,21 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildQuantitySelector(String productDocumentId, int quantity) {
-    var controller = QuantityController(value: quantity);
+  Widget _buildQuantitySelector(
+    String productDocumentId,
+    StockItem stockRequest,
+  ) {
+    var controller = QuantityController(value: stockRequest.quantity);
     controller.addListener(() async {
       var customer = Customer.fromSnapshot(await db
           .collection(constants.DBCollections.users)
           .document(currentSignedInUser.email)
           .get());
 
-      int productIndex = customer.cart.items
-          .indexWhere((item) => item.productDocumentId == productDocumentId);
+      int productIndex = customer.cart.items.indexWhere((item) =>
+          item.productDocumentId == productDocumentId &&
+          item.stockRequest.color == stockRequest.color &&
+          item.stockRequest.size == stockRequest.size);
       customer.cart.items[productIndex].stockRequest.quantity =
           controller.quantity;
 

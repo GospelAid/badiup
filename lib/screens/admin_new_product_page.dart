@@ -58,6 +58,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _nameEditingController = TextEditingController();
   final _priceEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
+  final _quantityEditingController = TextEditingController();
   Category _productCategory;
   StockType _productStockType;
 
@@ -83,7 +84,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _loadProductInfoFromDb();
     } else {
       _productCategory = Category.misc;
-      _productStockType = StockType.sizeAndColor;
+      _productStockType = StockType.quantityOnly;
     }
   }
 
@@ -113,9 +114,14 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           _productStockMap.putIfAbsent(
               StockIdentifier(color: stock.color, size: stock.size),
               () => stock.quantity);
+
+          if (_productStockType == StockType.quantityOnly) {
+            _quantityEditingController.text =
+                _product.stock.items.first.quantity.toString();
+          }
         });
       } else {
-        _productStockType = StockType.sizeAndColor;
+        _productStockType = StockType.quantityOnly;
       }
 
       _productPublishStatus =
@@ -268,6 +274,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     );
   }
 
+  Widget _buildQuantityFormField() {
+    return TextFormField(
+      controller: _quantityEditingController,
+      decoration: InputDecoration(
+        labelText: '在庫量',
+      ),
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value.isEmpty) {
+          return '在庫量が入力されていません';
+        }
+        return null;
+      },
+    );
+  }
+
   List<Widget> _buildFormFields(BuildContext context) {
     var widgetList1 = <Widget>[
       _buildMultipleImageUploadField(),
@@ -279,7 +301,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildCategoryFormField(),
       _buildStockTypeFormField(),
       SizedBox(height: 4.0),
-      _buildDisplayStockSwitch(),
+      _productStockType != StockType.quantityOnly
+          ? _buildDisplayStockSwitch()
+          : _buildQuantityFormField(),
       SizedBox(height: 16.0),
     ];
 
@@ -656,6 +680,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         underline: Container(height: 0, color: paletteBlackColor),
         onChanged: (StockType newValue) {
           setState(() {
+            if (newValue == StockType.quantityOnly) {
+              _shouldDisplayStock = false;
+            }
             _productStockType = newValue;
           });
         },
@@ -864,10 +891,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _imageToDisplay = _productImages[_indexOfImageInDisplay] is File
           ? Image.file(
               _productImages[_indexOfImageInDisplay] as File,
+              width: MediaQuery.of(context).size.width,
               fit: BoxFit.fill,
             )
           : FadeInImage.memoryNetwork(
-              fit: BoxFit.contain,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fill,
               placeholder: kTransparentImage,
               image: _productImages[_indexOfImageInDisplay] as String,
             );
@@ -1521,13 +1550,20 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       isPublished: publishStatus == PublishStatus.Published,
       category: _productCategory,
       stock: Stock(
-          items: _productStockMap.entries
-              .map((e) => StockItem(
-                    color: e.key.color,
-                    size: e.key.size,
-                    quantity: e.value,
-                  ))
-              .toList(),
+          items: _productStockType == StockType.quantityOnly
+              ? <StockItem>[
+                  StockItem(
+                    quantity:
+                        int.tryParse(_quantityEditingController.text) ?? 0,
+                  ),
+                ]
+              : _productStockMap.entries
+                  .map((e) => StockItem(
+                        color: e.key.color,
+                        size: e.key.size,
+                        quantity: e.value,
+                      ))
+                  .toList(),
           stockType: _productStockType),
     );
     return _product;

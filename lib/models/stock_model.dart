@@ -17,6 +17,7 @@ enum StockType {
   sizeAndColor,
   sizeOnly,
   colorOnly,
+  quantityOnly,
 }
 
 String getDisplayTextForStockType(StockType stockType) {
@@ -27,6 +28,8 @@ String getDisplayTextForStockType(StockType stockType) {
       return "サイズと色を選択";
     case StockType.sizeOnly:
       return "サイズのみ選択";
+    case StockType.quantityOnly:
+      return "在庫数のみを選択";
     default:
       return "";
   }

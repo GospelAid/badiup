@@ -25,6 +25,12 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
   String _selectedPrefecture = "愛知県";
 
   @override
+  void initState() {
+    super.initState();
+    widget.prefectureTextController.text = _selectedPrefecture;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(top: 12.0, bottom: 50.0),

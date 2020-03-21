@@ -1,10 +1,14 @@
 import 'package:badiup/colors.dart';
-import 'package:badiup/sign_in.dart';
+import 'package:badiup/screens/about_badi_page.dart';
 import 'package:badiup/screens/admin_product_listing_page.dart';
-import 'package:badiup/screens/settings_page.dart';
 import 'package:badiup/screens/cart_page.dart';
+import 'package:badiup/screens/contact_us_page.dart';
 import 'package:badiup/screens/customer_home_page.dart';
+import 'package:badiup/screens/customer_order_listing_page.dart';
 import 'package:badiup/screens/login_page.dart';
+import 'package:badiup/screens/privacy_policy_page.dart';
+import 'package:badiup/screens/settings_page.dart';
+import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:flutter/material.dart';
 
@@ -18,8 +22,15 @@ class _MainMenuState extends State<MainMenu> {
   Widget build(BuildContext context) {
     return Container(
       color: paletteBlackColor,
-      child: ListView(
-        children: _buildMenuElements(context),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: ListView(
+              children: _buildMenuElements(context),
+            ),
+          ),
+          _buildPrivacyPolicyLink(context),
+        ],
       ),
     );
   }
@@ -38,12 +49,24 @@ class _MainMenuState extends State<MainMenu> {
         padding: EdgeInsets.only(left: 12.0),
         child: _buildDrawerCartTile(context),
       ));
+      widgetList.add(Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerMyOrdersTile(context),
+      ));
     }
 
     widgetList.addAll(<Widget>[
       Container(
         padding: EdgeInsets.only(left: 12.0),
         child: _buildDrawerSettingsTile(context),
+      ),
+      Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerContactUsTile(context),
+      ),
+      Container(
+        padding: EdgeInsets.only(left: 12.0),
+        child: _buildDrawerAboutBadiTile(context),
       ),
       Container(
         padding: EdgeInsets.only(left: 12.0),
@@ -109,6 +132,31 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
+  Widget _buildDrawerMyOrdersTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.history, color: kPaletteWhite),
+      title: Text(
+        '注文履歴を見る',
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return CustomerOrderListingPage();
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildDrawerSettingsTile(BuildContext context) {
     return ListTile(
       leading: Icon(Icons.settings, color: kPaletteWhite),
@@ -126,6 +174,52 @@ class _MainMenuState extends State<MainMenu> {
           context,
           MaterialPageRoute(
             builder: (context) => SettingsPage(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawerContactUsTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.store, color: kPaletteWhite),
+      title: Text(
+        '店舗情報',
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContactUsPage(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawerAboutBadiTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.face, color: kPaletteWhite),
+      title: Text(
+        'バディについて',
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontSize: 14,
+          color: kPaletteWhite,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AboutBadiPage(),
           ),
         );
       },
@@ -151,6 +245,31 @@ class _MainMenuState extends State<MainMenu> {
           return LoginPage();
         }), ModalRoute.withName('/'));
       },
+    );
+  }
+
+  Widget _buildPrivacyPolicyLink(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrivacyPolicyPage(),
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.only(right: 16.0, bottom: 16.0),
+        alignment: Alignment.centerRight,
+        child: Text(
+          'プライバシーポリシー',
+          style: TextStyle(
+            fontSize: 12.0,
+            color: kPaletteWhite,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 
