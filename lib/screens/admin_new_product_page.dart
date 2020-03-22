@@ -580,7 +580,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildStockTypeFormField() {
-    var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
     var _textStyle = TextStyle(
       color: paletteBlackColor,
       fontSize: 16,
