@@ -1,4 +1,3 @@
-import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -10,9 +9,8 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/test_keys.dart';
+import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/utilities.dart';
-
-import 'package:badiup/colors.dart';
 
 class ProductDetail extends StatefulWidget {
   ProductDetail({
@@ -111,10 +109,10 @@ class _ProductDetailState extends State<ProductDetail> {
         ),
       ));
     }
-    return Row(
+    return stockQuantityRemaining < 10 ? Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: textStructureWidgetList,
-    );
+    ) : Container();
   }
 
   Widget _buildProductCategory(Category category) => category != null
