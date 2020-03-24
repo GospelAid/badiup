@@ -959,13 +959,27 @@ class _CartPageState extends State<CartPage> {
     StockItem stockRequest,
   ) {
     var maxCounterValue = 10;
-    var requestedProductStockItem = product.stock.items.where((stockElement) => stockElement.quantity > 0 && stockElement.size == stockRequest.size && stockElement.color == stockRequest.color);
-    if(requestedProductStockItem.length > 0){
-        maxCounterValue = requestedProductStockItem.first.quantity < 10 ? requestedProductStockItem.first.quantity : 10;
-    }else{
-      requestedProductStockItem = product.stock.items.where((stockElement) => stockElement.quantity > 0 &&  stockElement.color == stockRequest.color);
-      maxCounterValue = requestedProductStockItem.first.quantity < 10 ? requestedProductStockItem.first.quantity : 10;
+    Iterable<StockItem> requestedProductStockItem = [];
+    if (product.stock.stockType == StockType.sizeAndColor) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 &&
+          stockElement.size == stockRequest.size &&
+          stockElement.color == stockRequest.color);
+    } else if (product.stock.stockType == StockType.colorOnly) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 &&
+          stockElement.color == stockRequest.color);
+    } else if (product.stock.stockType == StockType.quantityOnly) {
+      requestedProductStockItem = product.stock.items
+          .where((stockElement) => stockElement.quantity > 0);
+    } else if (product.stock.stockType == StockType.sizeOnly) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 && stockElement.size == stockRequest.size);
     }
+
+    maxCounterValue = requestedProductStockItem.first.quantity < 10
+        ? requestedProductStockItem.first.quantity
+        : 10;
 
     var controller = QuantityController(
       value: stockRequest.quantity,
