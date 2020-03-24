@@ -350,6 +350,12 @@ PODS:
     - Flutter
     - Stripe (>= 18.0.0)
   - TOCropViewController (2.5.2)
+  - url_launcher (0.0.1):
+    - Flutter
+  - url_launcher_macos (0.0.1):
+    - Flutter
+  - url_launcher_web (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
@@ -367,6 +373,9 @@ DEPENDENCIES:
   - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
   - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
   - stripe_payment (from `.symlinks/plugins/stripe_payment/ios`)
+  - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - url_launcher_macos (from `.symlinks/plugins/url_launcher_macos/ios`)
+  - url_launcher_web (from `.symlinks/plugins/url_launcher_web/ios`)
 
 SPEC REPOS:
   trunk:
@@ -431,6 +440,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
   stripe_payment:
     :path: ".symlinks/plugins/stripe_payment/ios"
+  url_launcher:
+    :path: ".symlinks/plugins/url_launcher/ios"
+  url_launcher_macos:
+    :path: ".symlinks/plugins/url_launcher_macos/ios"
+  url_launcher_web:
+    :path: ".symlinks/plugins/url_launcher_web/ios"
 
 SPEC CHECKSUMS:
   abseil: 18063d773f5366ff8736a050fe035a28f635fd27
@@ -477,6 +492,9 @@ SPEC CHECKSUMS:
   Stripe: 5afd38a520f7a1a16b609127165d517fa9f7de32
   stripe_payment: 1baf1bbf556f7a35c210dc9e2eccf2075947b6be
   TOCropViewController: e9da34f484aedd4e5d5a8ab230ba217cfe16c729
+  url_launcher: a1c0cc845906122c4784c542523d8cacbded5626
+  url_launcher_macos: fd7894421cd39320dce5f292fc99ea9270b2a313
+  url_launcher_web: e5527357f037c87560776e36436bf2b0288b965c
 
 PODFILE CHECKSUM: 73d69d282a87aa0aafabdecb47f632fc347a9aac
 
