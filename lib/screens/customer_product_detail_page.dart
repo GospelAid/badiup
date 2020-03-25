@@ -126,8 +126,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   Widget _buildStockColorPickerButton(Stock stock, TextStyle textStyle) {
     var _availableStockColors = _getAvailableStockColors(stock);
 
-    //_selectedItemColor ??= _availableStockColors.first;
-
     return DropdownButton<ItemColor>(
       value: _selectedItemColor,
       focusColor: paletteBlackColor,
@@ -184,8 +182,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
 
   Widget _buildStockSizePickerButton(Stock stock, TextStyle textStyle) {
     var _availableStockSizes = _getAvailableStockSizes(stock);
-
-    //_selectedItemSize ??= _availableStockSizes.first;
 
     return DropdownButton<ItemSize>(
       value: _selectedItemSize,
