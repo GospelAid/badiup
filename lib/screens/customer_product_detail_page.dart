@@ -126,11 +126,18 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   Widget _buildStockColorPickerButton(Stock stock, TextStyle textStyle) {
     var _availableStockColors = _getAvailableStockColors(stock);
 
-    _selectedItemColor ??= _availableStockColors.first;
+    //_selectedItemColor ??= _availableStockColors.first;
 
     return DropdownButton<ItemColor>(
       value: _selectedItemColor,
       focusColor: paletteBlackColor,
+      hint: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: AlignmentDirectional.centerStart,
+        child: Text('色',
+            style: TextStyle(
+                fontWeight: FontWeight.w300, color: paletteBlackColor)),
+      ),
       isExpanded: true,
       icon: _buildDropdownButtonIcon(),
       iconSize: 32,
@@ -147,7 +154,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         return DropdownMenuItem<ItemColor>(
           value: value,
           child: _buildDropdownMenuItem(
-            "色：",
+            "",
             getDisplayTextForItemColor(value),
             textStyle,
           ),
@@ -178,12 +185,19 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   Widget _buildStockSizePickerButton(Stock stock, TextStyle textStyle) {
     var _availableStockSizes = _getAvailableStockSizes(stock);
 
-    _selectedItemSize ??= _availableStockSizes.first;
+    //_selectedItemSize ??= _availableStockSizes.first;
 
     return DropdownButton<ItemSize>(
       value: _selectedItemSize,
       focusColor: paletteBlackColor,
       isExpanded: true,
+      hint: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: AlignmentDirectional.centerStart,
+        child: Text('サイズ',
+            style: TextStyle(
+                fontWeight: FontWeight.w300, color: paletteBlackColor)),
+      ),
       icon: _buildDropdownButtonIcon(),
       iconSize: 32,
       elevation: 2,
@@ -199,7 +213,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         return DropdownMenuItem<ItemSize>(
           value: value,
           child: _buildDropdownMenuItem(
-            "サイズ：",
+            "",
             getDisplayTextForItemSize(value),
             textStyle,
           ),
