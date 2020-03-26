@@ -9,15 +9,20 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/test_keys.dart';
+import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/utilities.dart';
 
 class ProductDetail extends StatefulWidget {
   ProductDetail({
     Key key,
     this.productDocumentId,
+    this.selectedItemColor,
+    this.selectedItemSize,
   }) : super(key: key);
 
   final String productDocumentId;
+  final ItemColor selectedItemColor;
+  ItemSize selectedItemSize;
 
   @override
   _ProductDetailState createState() => _ProductDetailState();
@@ -58,9 +63,56 @@ class _ProductDetailState extends State<ProductDetail> {
         SizedBox(height: 8.0),
         _buildProductPrice(product),
         SizedBox(height: 8.0),
+        _buildFewItemsInStockMessage(product),
+        SizedBox(height: 8.0),
         _buildProductCategory(product.category),
       ],
     );
+  }
+
+  Widget _buildFewItemsInStockMessage(Product product) {
+    int stockQuantityRemaining = 10;
+    if (widget.selectedItemSize != null && widget.selectedItemColor != null) {
+      product.stock.items.forEach((stockElement) {
+        if (stockElement.size == widget.selectedItemSize &&
+            stockElement.color == widget.selectedItemColor) {
+          stockQuantityRemaining = stockElement.quantity;
+        }
+      });
+    } else {
+      stockQuantityRemaining = product.stock.items.where((element)=>element.quantity>0).first.quantity;
+    }
+    List<Widget> textStructureWidgetList = List<Widget>();
+    if (stockQuantityRemaining < 10) {
+      textStructureWidgetList.add(Text(
+        "この商品の在庫は現在",
+        style: TextStyle(
+          color: paletteGreyColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+      textStructureWidgetList.add(Text(
+        stockQuantityRemaining.toString() + "個",
+        style: TextStyle(
+          color: paletteForegroundColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+      textStructureWidgetList.add(Text(
+        "です",
+        style: TextStyle(
+          color: paletteGreyColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ));
+    }
+    return stockQuantityRemaining < 10 ? Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: textStructureWidgetList,
+    ) : Container();
   }
 
   Widget _buildProductCategory(Category category) => category != null

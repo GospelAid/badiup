@@ -839,7 +839,7 @@ class _CartPageState extends State<CartPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _buildProductPrice(product),
-        _buildQuantitySelector(product.documentId, stockRequest),
+        _buildQuantitySelector(product, stockRequest),
       ],
     );
   }
@@ -955,10 +955,36 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildQuantitySelector(
-    String productDocumentId,
+    Product product,
     StockItem stockRequest,
   ) {
-    var controller = QuantityController(value: stockRequest.quantity);
+    var maxCounterValue = 10;
+    Iterable<StockItem> requestedProductStockItem = [];
+    if (product.stock.stockType == StockType.sizeAndColor) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 &&
+          stockElement.size == stockRequest.size &&
+          stockElement.color == stockRequest.color);
+    } else if (product.stock.stockType == StockType.colorOnly) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 &&
+          stockElement.color == stockRequest.color);
+    } else if (product.stock.stockType == StockType.quantityOnly) {
+      requestedProductStockItem = product.stock.items
+          .where((stockElement) => stockElement.quantity > 0);
+    } else if (product.stock.stockType == StockType.sizeOnly) {
+      requestedProductStockItem = product.stock.items.where((stockElement) =>
+          stockElement.quantity > 0 && stockElement.size == stockRequest.size);
+    }
+
+    maxCounterValue = requestedProductStockItem.first.quantity < 10
+        ? requestedProductStockItem.first.quantity
+        : 10;
+
+    var controller = QuantityController(
+      value: stockRequest.quantity,
+      maxCounterValue: maxCounterValue,
+    );
     controller.addListener(() async {
       var customer = Customer.fromSnapshot(await db
           .collection(constants.DBCollections.users)
@@ -966,7 +992,7 @@ class _CartPageState extends State<CartPage> {
           .get());
 
       int productIndex = customer.cart.items.indexWhere((item) =>
-          item.productDocumentId == productDocumentId &&
+          item.productDocumentId == product.documentId &&
           item.stockRequest.color == stockRequest.color &&
           item.stockRequest.size == stockRequest.size);
       customer.cart.items[productIndex].stockRequest.quantity =

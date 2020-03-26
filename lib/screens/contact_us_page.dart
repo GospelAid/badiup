@@ -4,6 +4,7 @@ import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart' as urlLauncher;
 
 class ContactUsPage extends StatelessWidget {
   final TextStyle _tableTextStyle = TextStyle(
@@ -166,24 +167,34 @@ class ContactUsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Icon(
-                        Icons.phone,
-                        color: paletteDarkRedColor,
-                        size: 20.0,
-                      ),
-                      Text(
-                        '0564-73-0889',
-                        style: TextStyle(color: paletteDarkRedColor),
-                      ),
-                    ],
-                  ),
+                  _buildStorePhoneNumber(),
                   Text('【受付時間】', style: _tableTextStyle),
                   Text('月〜金（祝日除く）', style: _tableTextStyle),
                   Text('9:00-16:00', style: _tableTextStyle),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStorePhoneNumber() {
+    String _badiCafePhoneNumber = '0564-73-0889';
+    return GestureDetector(
+      onTap: () => urlLauncher.launch("tel://$_badiCafePhoneNumber"),
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.phone,
+            color: paletteDarkRedColor,
+            size: 20.0,
+          ),
+          Text(
+            _badiCafePhoneNumber,
+            style: TextStyle(
+              color: paletteDarkRedColor,
             ),
           ),
         ],
