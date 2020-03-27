@@ -77,7 +77,15 @@ class _OrderListState extends State<OrderList> {
       );
     }
 
-    return orderCollection.orderBy('placedDate', descending: true).snapshots();
+    // order by dispatchedDate when order status is 'dispatched'
+    if (widget.orderStatusToFilter != null &&
+        widget.orderStatusToFilter == OrderStatus.dispatched) {
+      orderCollection = orderCollection.orderBy('dispatchedDate', descending: true);
+    } else {
+      orderCollection = orderCollection.orderBy('placedDate', descending: true);
+    }
+
+    return orderCollection.snapshots();
   }
 
   Widget _buildOrderList(
