@@ -137,7 +137,9 @@ class _OrderListState extends State<OrderList> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminOrderDetailPage(order: order),
+            builder: (context) => AdminOrderDetailPage(
+              orderDocumentId: order.documentId,
+            ),
           ),
         );
       },

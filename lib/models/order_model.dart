@@ -1,5 +1,6 @@
 import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/tracking_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,11 +11,11 @@ class Order {
   final List<OrderItem> items;
   final DateTime placedDate;
   final String details;
-  final String trackingUrl;
   final String orderId;
   Address shippingAddress;
   OrderStatus status;
   DateTime dispatchedDate;
+  TrackingDetails trackingDetails;
 
   Order({
     this.documentId,
@@ -24,10 +25,10 @@ class Order {
     this.status,
     this.placedDate,
     this.details,
-    this.trackingUrl,
     this.orderId,
     this.shippingAddress,
     this.dispatchedDate,
+    this.trackingDetails,
   });
 
   double getOrderPrice() {
@@ -54,9 +55,9 @@ class Order {
       'status': status.index,
       'placedDate': placedDate,
       'details': details,
-      'trackingUrl': trackingUrl,
       'orderId': orderId,
       'dispatchedDate': dispatchedDate,
+      'trackingDetails': trackingDetails.toMap(),
     };
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
@@ -70,7 +71,6 @@ class Order {
         status = OrderStatus.values[map['status']],
         placedDate = map['placedDate'].toDate(),
         details = map['details'],
-        trackingUrl = map['trackingUrl'],
         items = map['items']
             .map<OrderItem>(
                 (item) => OrderItem.fromMap(item.cast<String, dynamic>()))
@@ -78,6 +78,10 @@ class Order {
         shippingAddress = map['shippingAddress'] != null
             ? Address.fromMap(map['shippingAddress'].cast<String, dynamic>())
             : Address(),
+        trackingDetails = map['trackingDetails'] != null
+            ? TrackingDetails.fromMap(
+                map['trackingDetails'].cast<String, dynamic>())
+            : TrackingDetails(),
         documentId = documentId,
         orderId = map['orderId'],
         dispatchedDate = map['dispatchedDate'] != null
