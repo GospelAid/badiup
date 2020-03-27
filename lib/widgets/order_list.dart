@@ -28,7 +28,10 @@ class _OrderListState extends State<OrderList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _getDocumentStream(),
+      stream: Firestore.instance
+          .collection(constants.DBCollections.orders)
+          .orderBy('placedDate', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -41,55 +44,39 @@ class _OrderListState extends State<OrderList> {
     );
   }
 
-  Stream<QuerySnapshot> _getDocumentStream() {
-    Query orderCollection =
-        Firestore.instance.collection(constants.DBCollections.orders);
-
-    if (widget.orderStatusToFilter != null) {
-      if (widget.orderStatusToFilter == OrderStatus.all) {
-        // Do nothing
-      } else {
-        orderCollection = orderCollection.where(
-          'status',
-          isEqualTo: widget.orderStatusToFilter.index,
-        );
-      }
-    }
-
-    if (widget.placedByFilter != null) {
-      orderCollection = orderCollection.where(
-        'customerId',
-        isEqualTo: widget.placedByFilter,
-      );
-    }
-
-    if (widget.placedDateStartFilter != null) {
-      orderCollection = orderCollection.where(
-        'placedDate',
-        isGreaterThanOrEqualTo: widget.placedDateStartFilter,
-      );
-    }
-
-    if (widget.placedDateEndFilter != null) {
-      orderCollection = orderCollection.where(
-        'placedDate',
-        isLessThanOrEqualTo: widget.placedDateEndFilter,
-      );
-    }
-
-    return orderCollection.orderBy('placedDate', descending: true).snapshots();
-  }
-
   Widget _buildOrderList(
     BuildContext context,
     List<DocumentSnapshot> snapshots,
   ) {
     List<Widget> widgetList = [];
     snapshots.forEach((snapshot) {
-      widgetList.add(_buildOrderListItem(
-        context,
-        Order.fromSnapshot(snapshot),
-      ));
+      var order = Order.fromSnapshot(snapshot);
+
+      bool shouldDisplay = true;
+
+      shouldDisplay = shouldDisplay &&
+          (widget.orderStatusToFilter == null ||
+              widget.orderStatusToFilter == OrderStatus.all ||
+              widget.orderStatusToFilter == order.status);
+
+      shouldDisplay = shouldDisplay &&
+          (widget.placedByFilter == null ||
+              widget.placedByFilter == order.customerId);
+
+      shouldDisplay = shouldDisplay &&
+          (widget.placedDateStartFilter == null ||
+              widget.placedDateStartFilter.isBefore(order.placedDate));
+
+      shouldDisplay = shouldDisplay &&
+          (widget.placedDateEndFilter == null ||
+              widget.placedDateEndFilter.isAfter(order.placedDate));
+
+      if (shouldDisplay) {
+        widgetList.add(_buildOrderListItem(
+          context,
+          order,
+        ));
+      }
     });
 
     return ListView(
