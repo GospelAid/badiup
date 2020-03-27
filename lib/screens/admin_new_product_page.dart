@@ -301,11 +301,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       _buildCategoryFormField(),
       _buildStockTypeFormField(),
       SizedBox(height: 4.0),
-      _productStockType != StockType.quantityOnly
-          ? _buildDisplayStockSwitch()
-          : _buildQuantityFormField(),
-      SizedBox(height: 16.0),
     ];
+
+    if (_productStockType == StockType.quantityOnly) {
+      widgetList1.add(_buildQuantityFormField());
+      widgetList1.add(SizedBox(height: 16.0));
+    }
 
     List<Widget> widgetList2 = [];
     if (_updatingExistingProduct) {
@@ -316,51 +317,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
 
     return _getSliverList(widgetList1, widgetList2);
-  }
-
-  Widget _buildDisplayStockSwitch() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _shouldDisplayStock = !_shouldDisplayStock;
-        });
-      },
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              width: 0.3,
-              color:
-                  _shouldDisplayStock ? Colors.transparent : paletteBlackColor,
-            ),
-          ),
-        ),
-        child: _buildDisplayStockSwitchInternal(),
-      ),
-    );
-  }
-
-  Widget _buildDisplayStockSwitchInternal() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(
-          "詳細",
-          style: TextStyle(
-            color: paletteBlackColor,
-            fontSize: 16.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Icon(
-          _shouldDisplayStock
-              ? Icons.keyboard_arrow_up
-              : Icons.keyboard_arrow_down,
-          size: 32,
-        ),
-      ],
-    );
   }
 
   List<Widget> _getSliverList(
@@ -624,7 +580,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   }
 
   Widget _buildStockTypeFormField() {
-    var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
     var _textStyle = TextStyle(
       color: paletteBlackColor,
       fontSize: 16,
@@ -634,9 +589,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8),
       alignment: AlignmentDirectional.centerStart,
-      decoration: BoxDecoration(
-        border: _productStockMap.isEmpty ? Border(bottom: _borderSide) : null,
-      ),
       child: _productStockMap.isEmpty
           ? _buildStockTypePicker(_textStyle)
           : _buildStockTypeDisplay(_textStyle),
@@ -682,6 +634,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           setState(() {
             if (newValue == StockType.quantityOnly) {
               _shouldDisplayStock = false;
+            } else {
+              _shouldDisplayStock = true;
             }
             _productStockType = newValue;
           });
