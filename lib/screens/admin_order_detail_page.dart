@@ -151,7 +151,10 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           await Firestore.instance
               .collection(constants.DBCollections.orders)
               .document(widget.order.documentId)
-              .updateData({'status': OrderStatus.dispatched.index});
+              .updateData({
+                'status': OrderStatus.dispatched.index,
+                'dispatchedDate': DateTime.now().toUtc(),
+              });
 
           setState(() {
             widget.order.status = OrderStatus.dispatched;
