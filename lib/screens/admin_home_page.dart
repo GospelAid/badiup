@@ -35,8 +35,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   OrderFilterButtons selectedOrderButton = OrderFilterButtons.all;
 
-  bool allOrdersButtonSelected = true;
-  bool pendingOrdersButtonSelected = false;
   OrderStatus orderStatusToFilter = OrderStatus.all;
 
   _saveDeviceToken() async {
