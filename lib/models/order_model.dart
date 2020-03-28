@@ -14,6 +14,7 @@ class Order {
   final String orderId;
   Address shippingAddress;
   OrderStatus status;
+  DateTime dispatchedDate;
 
   Order({
     this.documentId,
@@ -26,6 +27,7 @@ class Order {
     this.trackingUrl,
     this.orderId,
     this.shippingAddress,
+    this.dispatchedDate,
   });
 
   double getOrderPrice() {
@@ -54,6 +56,7 @@ class Order {
       'details': details,
       'trackingUrl': trackingUrl,
       'orderId': orderId,
+      'dispatchedDate': dispatchedDate,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
@@ -76,7 +79,10 @@ class Order {
             ? Address.fromMap(map['shippingAddress'].cast<String, dynamic>())
             : Address(),
         documentId = documentId,
-        orderId = map['orderId'];
+        orderId = map['orderId'],
+        dispatchedDate = map['dispatchedDate'] != null
+            ? map['dispatchedDate'].toDate()
+            : null;
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, snapshot.documentID);

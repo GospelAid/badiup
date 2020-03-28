@@ -30,7 +30,7 @@ class _OrderListState extends State<OrderList> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.orders)
-          .orderBy('placedDate', descending: true)
+          .orderBy(getSortByFilter(), descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -194,5 +194,13 @@ class _OrderListState extends State<OrderList> {
         ),
       ),
     );
+  }
+
+  String getSortByFilter() {
+    if (widget.orderStatusToFilter == OrderStatus.dispatched) {
+      return 'dispatchedDate';
+    } else {
+      return 'placedDate';
+    }
   }
 }
