@@ -132,9 +132,13 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       hint: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: AlignmentDirectional.centerStart,
-        child: Text('色',
-            style: TextStyle(
-                fontWeight: FontWeight.w300, color: paletteBlackColor)),
+        child: Text(
+          '色',
+          style: TextStyle(
+            fontWeight: FontWeight.w300,
+            color: paletteBlackColor,
+          ),
+        ),
       ),
       isExpanded: true,
       icon: _buildDropdownButtonIcon(),
@@ -152,7 +156,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         return DropdownMenuItem<ItemColor>(
           value: value,
           child: _buildDropdownMenuItem(
-            "",
             getDisplayTextForItemColor(value),
             textStyle,
           ),
@@ -162,8 +165,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Widget _buildDropdownMenuItem(
-    String text1,
-    String text2,
+    String text,
     TextStyle textStyle,
   ) {
     return Container(
@@ -173,8 +175,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(text1, style: TextStyle(fontWeight: FontWeight.w300)),
-          Text(text2, style: textStyle),
+          Text(text, style: textStyle),
         ],
       ),
     );
@@ -190,9 +191,11 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       hint: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: AlignmentDirectional.centerStart,
-        child: Text('サイズ',
-            style: TextStyle(
-                fontWeight: FontWeight.w300, color: paletteBlackColor)),
+        child: Text(
+          'サイズ',
+          style:
+              TextStyle(fontWeight: FontWeight.w300, color: paletteBlackColor),
+        ),
       ),
       icon: _buildDropdownButtonIcon(),
       iconSize: 32,
@@ -209,7 +212,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         return DropdownMenuItem<ItemSize>(
           value: value,
           child: _buildDropdownMenuItem(
-            "",
             getDisplayTextForItemSize(value),
             textStyle,
           ),

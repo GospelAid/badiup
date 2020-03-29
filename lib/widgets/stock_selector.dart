@@ -102,10 +102,10 @@ class _StockSelectorState extends State<StockSelector> {
   }
 
   String _getStockSizeDisplayText(ItemSize size) =>
-      "サイズ：" + getDisplayTextForItemSize(size);
+      getDisplayTextForItemSize(size);
 
   String _getStockColorDisplayText(ItemColor color) =>
-      "色：" + getDisplayTextForItemColor(color);
+      getDisplayTextForItemColor(color);
 
   Widget _buildStockFormActionButtons() {
     return Padding(
