@@ -5,12 +5,17 @@ enum ItemColor {
   black,
   brown,
   white,
+  pink,
+  grey,
 }
 
 enum ItemSize {
+  large3,
+  large2,
   large,
   medium,
   small,
+  extraSmall,
 }
 
 enum StockType {
@@ -43,6 +48,10 @@ String getDisplayTextForItemColor(ItemColor itemColor) {
       return "ブラウン";
     case ItemColor.white:
       return "ホワイト";
+    case ItemColor.pink:
+      return "ピンク";
+    case ItemColor.grey:
+      return "グレー";
     default:
       return "";
   }
@@ -56,6 +65,10 @@ Color getDisplayColorForItemColor(ItemColor itemColor) {
       return paletteBrownColor;
     case ItemColor.white:
       return kPaletteWhite;
+    case ItemColor.pink:
+      return kPalettePurple100;
+    case ItemColor.grey:
+      return paletteGreyColor;
     default:
       return Colors.transparent;
   }
@@ -69,6 +82,10 @@ Color getDisplayTextColorForItemColor(ItemColor itemColor) {
       return kPaletteWhite;
     case ItemColor.white:
       return paletteGreyColor2;
+    case ItemColor.pink:
+      return kPaletteWhite; 
+    case ItemColor.grey:
+      return kPaletteWhite;
     default:
       return paletteGreyColor2;
   }
@@ -76,12 +93,18 @@ Color getDisplayTextColorForItemColor(ItemColor itemColor) {
 
 String getDisplayTextForItemSize(ItemSize itemSize) {
   switch (itemSize) {
+    case ItemSize.large3:
+      return "3L";
+    case ItemSize.large2:
+      return "2L";
     case ItemSize.large:
       return "L";
     case ItemSize.medium:
       return "M";
     case ItemSize.small:
       return "S";
+    case ItemSize.extraSmall:
+      return "XS";
     default:
       return "";
   }
