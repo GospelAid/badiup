@@ -43,11 +43,15 @@ class BadiUpApp extends StatelessWidget {
           return LinearProgressIndicator();
         }
 
-        updateCurrentSignedInUser(snapshot.data);
+        if (snapshot.data.exists) {
+          updateCurrentSignedInUser(snapshot.data);
 
-        return currentSignedInUser.isAdmin()
-            ? AdminHomePage(title: 'BADI UP')
-            : CustomerHomePage(title: 'BADI UP');
+          return currentSignedInUser.isAdmin()
+              ? AdminHomePage(title: 'BADI UP')
+              : CustomerHomePage(title: 'BADI UP');
+        } else {
+          return LoginPage();
+        }
       },
     );
   }

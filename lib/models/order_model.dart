@@ -80,7 +80,13 @@ class Order {
             : Address(),
         documentId = documentId,
         orderId = map['orderId'],
+<<<<<<< HEAD
         dispatchedDate = map['dispatchedDate'];
+=======
+        dispatchedDate = map['dispatchedDate'] != null
+            ? map['dispatchedDate'].toDate()
+            : null;
+>>>>>>> 0a45556fd184b182d5764c1334631d64a4c39fba
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, snapshot.documentID);
