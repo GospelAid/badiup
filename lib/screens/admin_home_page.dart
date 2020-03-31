@@ -27,7 +27,6 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
-  final Firestore _db = Firestore.instance;
   final FirebaseMessaging _fcm = FirebaseMessaging();
   StreamSubscription iosSubscription;
 
@@ -41,7 +40,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     String fcmDeviceToken = await _fcm.getToken();
 
     if (fcmDeviceToken != null) {
-      var tokens = _db
+      var tokens = Firestore.instance
           .collection('users')
           .document(currentSignedInUser.email)
           .collection('tokens')
