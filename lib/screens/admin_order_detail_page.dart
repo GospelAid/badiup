@@ -5,15 +5,17 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/tracking_details.dart';
+import 'package:badiup/screens/admin_order_tracking_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class AdminOrderDetailPage extends StatefulWidget {
-  AdminOrderDetailPage({Key key, this.order}) : super(key: key);
+  AdminOrderDetailPage({Key key, this.orderDocumentId}) : super(key: key);
 
-  final Order order;
+  final String orderDocumentId;
 
   @override
   _AdminOrderDetailPageState createState() => _AdminOrderDetailPageState();
@@ -24,20 +26,35 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: _buildBody(context),
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.orders)
+          .document(widget.orderDocumentId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+        var order = Order.fromSnapshot(snapshot.data);
+
+        return Scaffold(
+          appBar: _buildAppBar(context, order.orderId),
+          body: _buildBody(context, order),
+        );
+      },
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, String orderId) {
     return AppBar(
-      title: Text(widget.order.orderId,
-          style: TextStyle(
-            color: paletteBlackColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          )),
+      title: Text(
+        orderId,
+        style: TextStyle(
+          color: paletteBlackColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
       centerTitle: true,
       backgroundColor: paletteLightGreyColor,
       elevation: 0.0,
@@ -45,30 +62,37 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, Order order) {
     return Container(
       color: paletteLightGreyColor,
       child: ListView(
         children: <Widget>[
-          _buildOrderPlacedDateText(),
-          _buildOrderStatusDescriptionBar(),
-          _buildOrderItemList(),
-          _buildOrderPriceDescriptionBar(),
+          _buildOrderPlacedDateText(order.placedDate),
+          _buildOrderStatusDescriptionBar(order),
+          order.status == OrderStatus.dispatched &&
+                  order.trackingDetails.code != null
+              ? Container(
+                  alignment: AlignmentDirectional.center,
+                  child: Text("追跡番号は " + order.trackingDetails.code + " です"),
+                )
+              : Container(),
+          _buildOrderItemList(order.items),
+          _buildOrderPriceDescriptionBar(order.getOrderPrice()),
           SizedBox(height: 60.0),
-          _buildCustomerDetails(),
+          _buildCustomerDetails(order),
         ],
       ),
     );
   }
 
-  Widget _buildOrderPlacedDateText() {
+  Widget _buildOrderPlacedDateText(DateTime placedDate) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Container(
           padding: EdgeInsets.only(right: 16.0),
           child: Text(
-            DateFormat('yyyy.MM.dd').format(widget.order.placedDate) + '受付',
+            DateFormat('yyyy.MM.dd').format(placedDate) + '受付',
             style: TextStyle(
               color: paletteBlackColor,
               fontSize: 12.0,
@@ -80,118 +104,104 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderStatusDescriptionBar() {
+  Widget _buildOrderStatusDescriptionBar(Order order) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         height: 56,
-        color: (widget.order.status == OrderStatus.dispatched)
+        color: order.status == OrderStatus.dispatched
             ? paletteDarkGreyColor
             : paletteDarkRedColor,
         child: RaisedButton(
           color: Colors.transparent,
-          onPressed: (widget.order.status == OrderStatus.dispatched)
+          onPressed: order.status == OrderStatus.dispatched
               ? null
-              : () => _displayChangeOrderStatusDialog(),
+              : () async {
+                  await _updateOrder();
+                },
           elevation: 0.0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                (widget.order.status == OrderStatus.dispatched)
-                    ? '発送済'
-                    : '未発送の商品です',
-                style: TextStyle(
-                  color: kPaletteWhite,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+          child: _buildOrderStatusDescription(order.status),
         ),
       ),
     );
   }
 
-  void _displayChangeOrderStatusDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '発送済にしますか？',
-            style: getAlertStyle(),
+  Future _updateOrder() async {
+    TrackingDetails trackingDetails = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderTrackingDetailsPage(),
+      ),
+    );
+
+    var _order = Order.fromSnapshot(await Firestore.instance
+        .collection(constants.DBCollections.orders)
+        .document(widget.orderDocumentId)
+        .get());
+
+    if (trackingDetails != null) {
+      _order.trackingDetails = trackingDetails;
+      _order.status = OrderStatus.dispatched;
+      _order.dispatchedDate = DateTime.now().toUtc();
+
+      await Firestore.instance
+          .collection(constants.DBCollections.orders)
+          .document(widget.orderDocumentId)
+          .updateData(_order.toMap());
+    }
+  }
+
+  Widget _buildOrderStatusDescription(OrderStatus orderStatus) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          (orderStatus == OrderStatus.dispatched)
+              ? '発送済'
+              : '未発送の商品です。追跡番号を入力する',
+          style: TextStyle(
+            color: kPaletteWhite,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w600,
           ),
-          content: Text('この操作は取り消しできません。'),
-          actions: _buildChangeOrderStatusActions(context),
-        );
-      },
+        ),
+        SizedBox(width: 8),
+        orderStatus == OrderStatus.dispatched
+            ? Container()
+            : Icon(Icons.launch),
+      ],
     );
   }
 
-  List<Widget> _buildChangeOrderStatusActions(BuildContext context) {
-    return <Widget>[
-      FlatButton(
-        child: Text(
-          'キャンセル',
-          style: TextStyle(color: paletteBlackColor),
-        ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-      FlatButton(
-        child: Text(
-          '確認',
-          style: TextStyle(color: paletteForegroundColor),
-        ),
-        onPressed: () async {
-          await Firestore.instance
-              .collection(constants.DBCollections.orders)
-              .document(widget.order.documentId)
-              .updateData({
-                'status': OrderStatus.dispatched.index,
-                'dispatchedDate': DateTime.now().toUtc(),
-              });
-
-          setState(() {
-            widget.order.status = OrderStatus.dispatched;
-          });
-
-          Navigator.pop(context);
-        },
-      ),
-    ];
-  }
-
-  Widget _buildOrderItemList() {
+  Widget _buildOrderItemList(List<OrderItem> orderItems) {
     List<String> _orderProductIds =
-        widget.order.items.map((orderItem) => orderItem.productId).toList();
+        orderItems.map((orderItem) => orderItem.productId).toList();
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection(constants.DBCollections.products)
-              .where(FieldPath.documentId, whereIn: _orderProductIds)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return LinearProgressIndicator();
-            }
+        stream: Firestore.instance
+            .collection(constants.DBCollections.products)
+            .where(FieldPath.documentId, whereIn: _orderProductIds)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LinearProgressIndicator();
+          }
 
-            return Column(
-              children: widget.order.items.map((orderItem) {
-                DocumentSnapshot productSnapshot = snapshot.data.documents
-                    .firstWhere((snapshot) =>
-                        snapshot.documentID == orderItem.productId);
-                return _buildOrderItemListRow(
-                    orderItem, Product.fromSnapshot(productSnapshot));
-              }).toList(),
-            );
-          }),
+          return Column(
+            children: orderItems.map((orderItem) {
+              DocumentSnapshot productSnapshot = snapshot.data.documents
+                  .firstWhere(
+                      (snapshot) => snapshot.documentID == orderItem.productId);
+              return _buildOrderItemListRow(
+                orderItem,
+                Product.fromSnapshot(productSnapshot),
+              );
+            }).toList(),
+          );
+        },
+      ),
     );
   }
 
@@ -349,7 +359,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildOrderPriceDescriptionBar() {
+  Widget _buildOrderPriceDescriptionBar(double orderPrice) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       height: 40,
@@ -371,7 +381,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
               ),
               Container(
                 child: Text(
-                  "¥" + currencyFormat.format(widget.order.getOrderPrice()),
+                  "¥" + currencyFormat.format(orderPrice),
                   style: TextStyle(
                     color: paletteDarkRedColor,
                     fontSize: 16,
@@ -384,7 +394,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerDetails() {
+  Widget _buildCustomerDetails(Order order) {
     return Container(
       decoration: BoxDecoration(
         color: kPaletteWhite,
@@ -394,24 +404,25 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         ),
       ),
       child: StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance
-              .collection(constants.DBCollections.users)
-              .document(widget.order.customerId)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return LinearProgressIndicator();
-            }
-            Customer _customer = Customer.fromSnapshot(snapshot.data);
-            return Column(
-              children: <Widget>[
-                _buildGreyBar(),
-                _buildCustomerContactInfoBox(_customer),
-                _buildShippingAddressInfoBox(_customer),
-                _buildShippingMethodInfoBox(),
-              ],
-            );
-          }),
+        stream: Firestore.instance
+            .collection(constants.DBCollections.users)
+            .document(order.customerId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LinearProgressIndicator();
+          }
+          Customer _customer = Customer.fromSnapshot(snapshot.data);
+          return Column(
+            children: <Widget>[
+              _buildGreyBar(),
+              _buildCustomerContactInfoBox(_customer, order),
+              _buildShippingAddressInfoBox(_customer, order),
+              _buildShippingMethodInfoBox(),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -429,7 +440,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerContactInfoBox(Customer customer) {
+  Widget _buildCustomerContactInfoBox(Customer customer, Order order) {
     return Container(
       padding:
           EdgeInsets.only(top: 12.0, left: 24.0, right: 24.0, bottom: 36.0),
@@ -437,19 +448,24 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            child: Text("注文者情報",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.bold,
-                )),
+            child: Text(
+              "注文者情報",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           SizedBox(height: 24.0),
           _buildCustomerName(customer),
           SizedBox(height: 12.0),
           _buildCustomerAddress(customer),
           SizedBox(height: 6.0),
-          _buildCustomerPhoneNumber(customer),
+          _buildCustomerPhoneNumber(
+            customer,
+            order.shippingAddress.phoneNumber,
+          ),
           SizedBox(height: 6.0),
           _buildCustomerEmailAddress(customer),
         ],
@@ -524,7 +540,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
   Widget _buildCustomerAddress(Customer customer) =>
       _buildAddressRow(customer.getAvailableShippingAddress());
 
-  Widget _buildCustomerPhoneNumber(Customer customer) {
+  Widget _buildCustomerPhoneNumber(Customer customer, String phoneNumber) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(top: 6.0),
@@ -535,19 +551,23 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       ),
       child: Row(
         children: <Widget>[
-          Text("連絡先",
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              )),
+          Text(
+            "連絡先",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
           SizedBox(width: 16.0),
-          Text(widget.order.shippingAddress.phoneNumber ?? "",
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              )),
+          Text(
+            phoneNumber ?? "",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
         ],
       ),
     );
@@ -584,7 +604,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
     );
   }
 
-  Widget _buildShippingAddressInfoBox(Customer customer) {
+  Widget _buildShippingAddressInfoBox(Customer customer, Order order) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -608,15 +628,15 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           SizedBox(height: 24.0),
           _buildCustomerName(customer),
           SizedBox(height: 12.0),
-          _buildShippingAddress(),
+          _buildShippingAddress(order.shippingAddress),
           //_buildShippingAddressInfo(),
         ],
       ),
     );
   }
 
-  Widget _buildShippingAddress() =>
-      _buildAddressRow(widget.order.shippingAddress);
+  Widget _buildShippingAddress(Address shippingAddress) =>
+      _buildAddressRow(shippingAddress);
 
   Widget _buildShippingMethodInfoBox() {
     return Container(
