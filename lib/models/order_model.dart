@@ -57,7 +57,8 @@ class Order {
       'details': details,
       'orderId': orderId,
       'dispatchedDate': dispatchedDate,
-      'trackingDetails': trackingDetails.toMap(),
+      'trackingDetails': trackingDetails != null 
+          ? trackingDetails.toMap() : null,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
