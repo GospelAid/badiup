@@ -9,6 +9,7 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/order_success_page.dart';
 import 'package:badiup/sign_in.dart';
