@@ -69,21 +69,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
       _fcm.configure(
         onMessage: (Map<String, dynamic> message) async {
           print("onMessage: $message");
+          var dataMessage = message['data'] ?? message;
           if (message != null &&
               message['aps'] != null &&
               message['aps']['alert'] != null &&
-              message['orderDocumentId'] != null) {
+              dataMessage['orderDocumentId'] != null) {
             _getOnMessageDialog(message);
           }
         },
         onLaunch: (Map<String, dynamic> message) async {
           print("onLaunch: $message");
-          if (message != null && message['orderDocumentId'] != null) {
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['orderDocumentId'] != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => AdminOrderDetailPage(
-                  orderDocumentId: message['orderDocumentId'],
+                  orderDocumentId: dataMessage['orderDocumentId'],
                 ),
               ),
             );
@@ -91,12 +93,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
         },
         onResume: (Map<String, dynamic> message) async {
           print("onResume: $message");
-          if (message != null && message['orderDocumentId'] != null) {
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['orderDocumentId'] != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => AdminOrderDetailPage(
-                  orderDocumentId: message['orderDocumentId'],
+                  orderDocumentId: dataMessage['orderDocumentId'],
                 ),
               ),
             );
