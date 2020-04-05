@@ -28,6 +28,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
 
   ItemSize _selectedItemSize;
   ItemColor _selectedItemColor;
+  bool _showAddToCartFailedMessage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +46,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
-            children: <Widget>[
-              ProductDetail(
-                  selectedItemColor: _selectedItemColor,
-                  selectedItemSize: _selectedItemSize,
-                  productDocumentId: widget.productDocumentId),
-              SizedBox(height: 40),
-              _buildStockSelector(),
-              SizedBox(height: 150),
-            ],
+            children: _buildBodyWidgets(),
           ),
         ),
         Container(
@@ -65,6 +58,37 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           ),
         ),
       ],
+    );
+  }
+
+  List<Widget> _buildBodyWidgets() {
+    var bodyWidgets = List<Widget>();
+    bodyWidgets.add(
+      ProductDetail(
+          selectedItemColor: _selectedItemColor,
+          selectedItemSize: _selectedItemSize,
+          productDocumentId: widget.productDocumentId),
+    );
+    bodyWidgets.add(SizedBox(height: 40));
+    if (_showAddToCartFailedMessage) {
+      bodyWidgets.add(_buildAddToCartFailedMessage());
+      bodyWidgets.add(SizedBox(height: 40));
+    }
+    bodyWidgets.add(_buildStockSelector());
+    bodyWidgets.add(SizedBox(height: 150));
+
+    return bodyWidgets;
+  }
+
+  Widget _buildAddToCartFailedMessage() {
+    return Container(
+      alignment: AlignmentDirectional.center,
+      color: paletteRoseColor,
+      height: 75,
+      child: Text(
+        '色］［サイズ］を選択してください',
+        style: TextStyle(color: paletteDarkRedColor),
+      ),
     );
   }
 
@@ -266,10 +290,11 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       child: GestureDetector(
         onTap: () {
           _addToCart();
-
-          _scaffoldKey.currentState.showSnackBar(
-            _buildAddedToCartNotification(),
-          );
+          if (_selectedItemColor != null && _selectedItemSize != null) {
+            _scaffoldKey.currentState.showSnackBar(
+              _buildAddedToCartNotification(),
+            );
+          }
         },
         child: Container(
           height: 64,
@@ -312,17 +337,23 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Future<void> _addToCart() async {
-    var customer = Customer.fromSnapshot(await db
-        .collection(constants.DBCollections.users)
-        .document(currentSignedInUser.email)
-        .get());
+    if (_selectedItemColor != null && _selectedItemSize != null) {
+      var customer = Customer.fromSnapshot(await db
+          .collection(constants.DBCollections.users)
+          .document(currentSignedInUser.email)
+          .get());
 
-    _updateCartModel(customer);
+      _updateCartModel(customer);
 
-    await db
-        .collection(constants.DBCollections.users)
-        .document(currentSignedInUser.email)
-        .updateData(customer.toMap());
+      await db
+          .collection(constants.DBCollections.users)
+          .document(currentSignedInUser.email)
+          .updateData(customer.toMap());
+    } else {
+      setState(() {
+        _showAddToCartFailedMessage = true;
+      });
+    }
   }
 
   void _updateCartModel(Customer customer) {
