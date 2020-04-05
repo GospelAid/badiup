@@ -65,9 +65,10 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     var bodyWidgets = List<Widget>();
     bodyWidgets.add(
       ProductDetail(
-          selectedItemColor: _selectedItemColor,
-          selectedItemSize: _selectedItemSize,
-          productDocumentId: widget.productDocumentId),
+        selectedItemColor: _selectedItemColor,
+        selectedItemSize: _selectedItemSize,
+        productDocumentId: widget.productDocumentId,
+      ),
     );
     bodyWidgets.add(SizedBox(height: 40));
     if (_showAddToCartFailedMessage) {
