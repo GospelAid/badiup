@@ -11,6 +11,8 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/customer_home_page.dart';
+import 'package:badiup/screens/delivery_privacy_policy_page.dart';
+import 'package:badiup/screens/delivery_terms_service_page.dart';
 import 'package:badiup/screens/order_success_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
@@ -18,6 +20,7 @@ import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/quantity_selector.dart';
 import 'package:badiup/widgets/shipping_address_input_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -506,7 +509,8 @@ class _CartPageState extends State<CartPage> {
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
             _paymentMethod != null ? _buildPaymentInfo() : _buildCardButton(),
-            SizedBox(height: 32),
+            SizedBox(height: 27),
+            _buildAboutDeliveryMethodInfo(),
           ],
         ),
       ),
@@ -651,6 +655,98 @@ class _CartPageState extends State<CartPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildAboutDeliveryMethodInfo() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xFFA2A2A2))),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 37),
+        child: Column(
+          children: <Widget>[_buildAboutDeliveryMethod()],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutDeliveryMethod() {
+    return Column(
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(top: 17.0, bottom: 57.0),
+          child: Text(
+            '配送方法について',
+            style: TextStyle(
+              fontSize: 18,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Container(
+          child: Text(
+              'ゆうパックもしくは宅急便にて配送致します。\n一律500円の送料がかかります。5,000円以上のお買い上げで送料が無料になります。）',
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                  color: paletteBlackColor,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w300)),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 37.0),
+          child: RichText(
+              textAlign: TextAlign.justify,
+              text: TextSpan(
+                  text: '個人情報保護方針',
+                  style: TextStyle(
+                      color: paletteDarkRedColor,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w300),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DeliveryPrivacyPolicy()),
+                      );
+                    },
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'と',
+                      style: TextStyle(
+                        color: paletteBlackColor,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '利用規約',
+                      style: TextStyle(
+                          color: paletteDarkRedColor,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w300),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DeliveryTermsOfService()),
+                          );
+                        },
+                    ),
+                    TextSpan(
+                      text: 'に同意して注文',
+                      style: TextStyle(
+                          color: paletteBlackColor,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w300),
+                    )
+                  ])),
+        )
       ],
     );
   }
