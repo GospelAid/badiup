@@ -1,16 +1,17 @@
+import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/product_model.dart';
+import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/user_model.dart';
+import 'package:badiup/sign_in.dart';
+import 'package:badiup/test_keys.dart';
+import 'package:badiup/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
-
-import 'package:badiup/colors.dart';
-import 'package:badiup/constants.dart' as constants;
-import 'package:badiup/models/product_model.dart';
-import 'package:badiup/test_keys.dart';
-import 'package:badiup/models/stock_model.dart';
-import 'package:badiup/utilities.dart';
 
 class ProductDetail extends StatefulWidget {
   ProductDetail({
@@ -22,7 +23,7 @@ class ProductDetail extends StatefulWidget {
 
   final String productDocumentId;
   final ItemColor selectedItemColor;
-  ItemSize selectedItemSize;
+  final ItemSize selectedItemSize;
 
   @override
   _ProductDetailState createState() => _ProductDetailState();
@@ -63,7 +64,9 @@ class _ProductDetailState extends State<ProductDetail> {
         SizedBox(height: 8.0),
         _buildProductPrice(product),
         SizedBox(height: 8.0),
-        _buildFewItemsInStockMessage(product),
+        currentSignedInUser.role == RoleType.customer
+            ? _buildFewItemsInStockMessage(product)
+            : Container(),
         SizedBox(height: 8.0),
         _buildProductCategory(product.category),
       ],
@@ -80,7 +83,10 @@ class _ProductDetailState extends State<ProductDetail> {
         }
       });
     } else {
-      stockQuantityRemaining = product.stock.items.where((element)=>element.quantity>0).first.quantity;
+      stockQuantityRemaining = product.stock.items
+          .where((element) => element.quantity > 0)
+          .first
+          .quantity;
     }
     List<Widget> textStructureWidgetList = List<Widget>();
     if (stockQuantityRemaining < 10) {
@@ -109,10 +115,12 @@ class _ProductDetailState extends State<ProductDetail> {
         ),
       ));
     }
-    return stockQuantityRemaining < 10 ? Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: textStructureWidgetList,
-    ) : Container();
+    return stockQuantityRemaining < 10
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: textStructureWidgetList,
+          )
+        : Container();
   }
 
   Widget _buildProductCategory(Category category) => category != null
@@ -286,10 +294,12 @@ class _ProductDetailState extends State<ProductDetail> {
 
     widgetList.add(_getProductImage(product));
 
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      children: widgetList,
-    );
+    return product.imageUrls.length != 0
+        ? Stack(
+            alignment: AlignmentDirectional.center,
+            children: widgetList,
+          )
+        : Container();
   }
 
   Widget _getProductImage(Product product) {
