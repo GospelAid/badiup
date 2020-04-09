@@ -71,23 +71,44 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       ),
     );
     bodyWidgets.add(SizedBox(height: 40));
-    if (_showAddToCartFailedMessage) {
-      bodyWidgets.add(_buildAddToCartFailedMessage());
-      bodyWidgets.add(SizedBox(height: 40));
-    }
     bodyWidgets.add(_buildStockSelector());
     bodyWidgets.add(SizedBox(height: 150));
 
     return bodyWidgets;
   }
 
-  Widget _buildAddToCartFailedMessage() {
+  Widget _buildAddToCartFailedMessage(StockType productStockType) {
+    String failMessage;
+    switch (productStockType) {
+      case StockType.sizeAndColor:
+        {
+          failMessage = "色・サイズ　を選択してください";
+        }
+        break;
+
+      case StockType.sizeOnly:
+        {
+          failMessage = "サイズを選択してください";
+        }
+        break;
+
+      case StockType.colorOnly:
+        {
+          failMessage = "色を選択してください";
+        }
+        break;
+      default:
+        {
+          failMessage = "";
+        }
+        break;
+    }
     return Container(
       alignment: AlignmentDirectional.center,
       color: paletteRoseColor,
       height: 75,
       child: Text(
-        '色］［サイズ］を選択してください',
+        failMessage,
         style: TextStyle(color: paletteDarkRedColor),
       ),
     );
@@ -118,7 +139,10 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
 
   Widget _buildStockSelectorInternal(Product _product, TextStyle _textStyle) {
     List<Widget> _widgetList = [];
-
+    if (_showAddToCartFailedMessage) {
+      _widgetList.add(_buildAddToCartFailedMessage(_product.stock.stockType));
+      _widgetList.add(SizedBox(height: 12));
+    }
     if (_product.stock.stockType == StockType.sizeAndColor ||
         _product.stock.stockType == StockType.sizeOnly) {
       _widgetList.add(_buildStockSizePicker(_product.stock, _textStyle));
