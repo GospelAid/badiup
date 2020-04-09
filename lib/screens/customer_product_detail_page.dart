@@ -32,89 +32,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: _buildAppBar(context),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: _buildBodyWidgets(),
-          ),
-        ),
-        Container(
-          height: 64,
-          child: Row(
-            children: <Widget>[
-              _buildAddToCartButton(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildBodyWidgets() {
-    var bodyWidgets = List<Widget>();
-    bodyWidgets.add(
-      ProductDetail(
-        selectedItemColor: _selectedItemColor,
-        selectedItemSize: _selectedItemSize,
-        productDocumentId: widget.productDocumentId,
-      ),
-    );
-    bodyWidgets.add(SizedBox(height: 40));
-    bodyWidgets.add(_buildStockSelector());
-    bodyWidgets.add(SizedBox(height: 150));
-
-    return bodyWidgets;
-  }
-
-  Widget _buildAddToCartFailedMessage(StockType productStockType) {
-    String failMessage;
-    switch (productStockType) {
-      case StockType.sizeAndColor:
-        {
-          failMessage = "色・サイズ　を選択してください";
-        }
-        break;
-
-      case StockType.sizeOnly:
-        {
-          failMessage = "サイズを選択してください";
-        }
-        break;
-
-      case StockType.colorOnly:
-        {
-          failMessage = "色を選択してください";
-        }
-        break;
-      default:
-        {
-          failMessage = "";
-        }
-        break;
-    }
-    return Container(
-      alignment: AlignmentDirectional.center,
-      color: paletteRoseColor,
-      height: 75,
-      child: Text(
-        failMessage,
-        style: TextStyle(color: paletteDarkRedColor),
-      ),
-    );
-  }
-
-  Widget _buildStockSelector() {
     return StreamBuilder<DocumentSnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.products)
@@ -125,15 +42,99 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           return LinearProgressIndicator();
         }
 
-        return _buildStockSelectorInternal(
-          Product.fromSnapshot(snapshot.data),
-          TextStyle(
-            color: paletteBlackColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+        var product = Product.fromSnapshot(snapshot.data);
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: _buildAppBar(context, product),
+          body: _buildBody(product),
         );
       },
+    );
+  }
+
+  Widget _buildBody(Product product) {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: _buildBodyWidgets(product),
+          ),
+        ),
+        Container(
+          height: 64,
+          child: Row(
+            children: <Widget>[
+              _buildAddToCartButton(product),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildBodyWidgets(Product product) {
+    var bodyWidgets = List<Widget>();
+    bodyWidgets.add(
+      ProductDetail(
+        selectedItemColor: _selectedItemColor,
+        selectedItemSize: _selectedItemSize,
+        productDocumentId: widget.productDocumentId,
+      ),
+    );
+    bodyWidgets.add(SizedBox(height: 40));
+    bodyWidgets.add(_buildStockSelector(product));
+    bodyWidgets.add(SizedBox(height: 150));
+
+    return bodyWidgets;
+  }
+
+  Widget _buildAddToCartFailedMessage(StockType productStockType) {
+    String errorMessge;
+    switch (productStockType) {
+      case StockType.sizeAndColor:
+        {
+          errorMessge = "色・サイズ　を選択してください";
+        }
+        break;
+
+      case StockType.sizeOnly:
+        {
+          errorMessge = "サイズを選択してください";
+        }
+        break;
+
+      case StockType.colorOnly:
+        {
+          errorMessge = "色を選択してください";
+        }
+        break;
+      default:
+        {
+          errorMessge = "";
+        }
+        break;
+    }
+    return Container(
+      alignment: AlignmentDirectional.center,
+      color: paletteRoseColor,
+      height: 75,
+      child: Text(
+        errorMessge,
+        style: TextStyle(color: paletteDarkRedColor),
+      ),
+    );
+  }
+
+  Widget _buildStockSelector(Product product) {
+    return _buildStockSelectorInternal(
+      product,
+      TextStyle(
+        color: paletteBlackColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 
@@ -310,15 +311,19 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .toList();
   }
 
-  Widget _buildAddToCartButton() {
+  Widget _buildAddToCartButton(Product product) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          _addToCart();
-          if (_selectedItemColor != null && _selectedItemSize != null) {
+          if (_canAddToCart(product)) {
+            _addToCart();
             _scaffoldKey.currentState.showSnackBar(
               _buildAddedToCartNotification(),
             );
+          } else {
+            setState(() {
+              _showAddToCartFailedMessage = true;
+            });
           }
         },
         child: Container(
@@ -345,6 +350,17 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
+  bool _canAddToCart(Product _product) {
+    if (_product.stock.stockType == StockType.sizeAndColor) {
+      return _selectedItemColor != null && _selectedItemSize != null;
+    } else if (_product.stock.stockType == StockType.sizeOnly) {
+      return _selectedItemSize != null;
+    } else if (_product.stock.stockType == StockType.colorOnly) {
+      return _selectedItemColor != null;
+    }
+    return true;
+  }
+
   SnackBar _buildAddedToCartNotification() {
     return SnackBar(
       behavior: SnackBarBehavior.fixed,
@@ -362,23 +378,17 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Future<void> _addToCart() async {
-    if (_selectedItemColor != null && _selectedItemSize != null) {
-      var customer = Customer.fromSnapshot(await db
-          .collection(constants.DBCollections.users)
-          .document(currentSignedInUser.email)
-          .get());
+    var customer = Customer.fromSnapshot(await db
+        .collection(constants.DBCollections.users)
+        .document(currentSignedInUser.email)
+        .get());
 
-      _updateCartModel(customer);
+    _updateCartModel(customer);
 
-      await db
-          .collection(constants.DBCollections.users)
-          .document(currentSignedInUser.email)
-          .updateData(customer.toMap());
-    } else {
-      setState(() {
-        _showAddToCartFailedMessage = true;
-      });
-    }
+    await db
+        .collection(constants.DBCollections.users)
+        .document(currentSignedInUser.email)
+        .updateData(customer.toMap());
   }
 
   void _updateCartModel(Customer customer) {
@@ -414,22 +424,9 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     }
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, Product product) {
     return AppBar(
-      title: StreamBuilder<DocumentSnapshot>(
-        stream: Firestore.instance
-            .collection(constants.DBCollections.products)
-            .document(widget.productDocumentId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Text("");
-          }
-          var product = Product.fromSnapshot(snapshot.data);
-
-          return Text(product.name);
-        },
-      ),
+      title: Text(product.name),
       actions: <Widget>[
         CartButton(),
       ],
