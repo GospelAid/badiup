@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/models/order_model.dart';
+import 'package:badiup/screens/admin_order_detail_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/widgets/main_menu.dart';
@@ -68,30 +69,82 @@ class _AdminHomePageState extends State<AdminHomePage> {
       _fcm.configure(
         onMessage: (Map<String, dynamic> message) async {
           print("onMessage: $message");
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              content: ListTile(
-                title: Text(message['notification']['title']),
-                subtitle: Text(message['notification']['body']),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('OK'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          );
+          var dataMessage = message['data'] ?? message;
+          if (message != null &&
+              message['aps'] != null &&
+              message['aps']['alert'] != null &&
+              dataMessage['orderDocumentId'] != null) {
+            _getOnMessageDialog(message);
+          }
         },
         onLaunch: (Map<String, dynamic> message) async {
-          // TODO: Navigate to Order detail page
+          print("onLaunch: $message");
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['orderDocumentId'] != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminOrderDetailPage(
+                  orderDocumentId: dataMessage['orderDocumentId'],
+                ),
+              ),
+            );
+          }
         },
         onResume: (Map<String, dynamic> message) async {
-          // TODO: Navigate to Order detail page
+          print("onResume: $message");
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['orderDocumentId'] != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminOrderDetailPage(
+                  orderDocumentId: dataMessage['orderDocumentId'],
+                ),
+              ),
+            );
+          }
         },
       );
     }
+  }
+
+  void _getOnMessageDialog(Map<String, dynamic> message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: ListTile(
+          title: Text(
+            message['aps']['alert']['title'],
+            style: getAlertStyle(),
+          ),
+          subtitle: Text(
+            message['aps']['alert']['body'],
+            style: TextStyle(color: paletteBlackColor),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('注文を見る'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminOrderDetailPage(
+                    orderDocumentId: message['orderDocumentId'],
+                  ),
+                ),
+              );
+            },
+          ),
+          FlatButton(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

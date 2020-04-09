@@ -8,9 +8,11 @@ import Photos
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-    }
+    // Commenting these lines out actually enable the push notifications to work, unlike as suggested in official documentation. 
+    // Check here for more info: https://github.com/FirebaseExtended/flutterfire/issues/1644
+    // if #available(iOS 10.0, *) {
+    //   UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    // }
 
     GeneratedPluginRegistrant.register(with: self)
 
