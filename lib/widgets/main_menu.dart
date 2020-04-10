@@ -84,7 +84,7 @@ class _MainMenuState extends State<MainMenu> {
         TKScreens.drawer,
         "productListing",
       )),
-      leading: Icon(Icons.image, color: kPaletteWhite),
+      leading: Icon(Icons.list, color: kPaletteWhite),
       title: Text(
         '商品',
         textAlign: TextAlign.justify,
@@ -249,35 +249,39 @@ class _MainMenuState extends State<MainMenu> {
                 style: getAlertStyle(),
               ),
               content: Text('ログアウトします。よろしいですか？'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text(
-                    'いいえ',
-                    style: TextStyle(color: paletteBlackColor),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                FlatButton(
-                  child: Text(
-                    'はい',
-                    style: TextStyle(color: paletteForegroundColor),
-                  ),
-                  onPressed: () async {
-                    signOutGoogle();
-                    Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) {
-                      return LoginPage();
-                    }), ModalRoute.withName('/'));
-                  },
-                ),
-              ],
+              actions: _getLogoutDialogActions(context),
             );
           },
         );
       },
     );
+  }
+
+  List<Widget> _getLogoutDialogActions(BuildContext context) {
+    return <Widget>[
+      FlatButton(
+        child: Text(
+          'いいえ',
+          style: TextStyle(color: paletteBlackColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      FlatButton(
+        child: Text(
+          'はい',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () async {
+          signOutGoogle();
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) {
+            return LoginPage();
+          }), ModalRoute.withName('/'));
+        },
+      ),
+    ];
   }
 
   Widget _buildPrivacyPolicyLink(BuildContext context) {
