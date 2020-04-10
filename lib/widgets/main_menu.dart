@@ -239,11 +239,43 @@ class _MainMenuState extends State<MainMenu> {
         ),
       ),
       onTap: () {
-        signOutGoogle();
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) {
-          return LoginPage();
-        }), ModalRoute.withName('/'));
+        showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'ログアウト',
+                style: getAlertStyle(),
+              ),
+              content: Text('ログアウトします。よろしいですか？'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'いいえ',
+                    style: TextStyle(color: paletteBlackColor),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text(
+                    'はい',
+                    style: TextStyle(color: paletteForegroundColor),
+                  ),
+                  onPressed: () async {
+                    signOutGoogle();
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) {
+                      return LoginPage();
+                    }), ModalRoute.withName('/'));
+                  },
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }
