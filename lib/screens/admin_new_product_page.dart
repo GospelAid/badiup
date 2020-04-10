@@ -118,6 +118,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           if (_productStockType == StockType.quantityOnly) {
             _quantityEditingController.text =
                 _product.stock.items.first.quantity.toString();
+          } else {
+            _shouldDisplayStock = true;
           }
         });
       } else {
@@ -716,7 +718,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return Switch(
       value: _productPublishStatus == PublishStatus.Published,
       onChanged: (value) {
-        if (_formIsValid()) {
+        if (value == false || _formIsValid()) {
           setState(() {
             _productPublishStatus =
                 value ? PublishStatus.Published : PublishStatus.Draft;
@@ -1239,7 +1241,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             borderRadius: BorderRadius.circular(5.0),
           ),
           onPressed: () async {
-            if (_product.isPublished) {
+            if (_productPublishStatus == PublishStatus.Published) {
               if (_formIsValid()) {
                 _displayConfirmSaveChangesDialog(context);
               }
@@ -1495,6 +1497,22 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     List<String> _imageUrls,
     PublishStatus publishStatus,
   ) {
+    List<StockItem> stockItemList = List<StockItem>();
+    if (_productStockType == StockType.quantityOnly) {
+      var quantity = int.tryParse(_quantityEditingController.text) ?? 0;
+      if (quantity != 0) {
+        stockItemList.add(StockItem(quantity: quantity));
+      }
+    } else {
+      stockItemList = _productStockMap.entries
+          .map((e) => StockItem(
+                color: e.key.color,
+                size: e.key.size,
+                quantity: e.value,
+              ))
+          .toList();
+    }
+
     final _product = Product(
       name: _nameEditingController.text,
       description: _descriptionEditingController.text,
@@ -1503,22 +1521,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       created: DateTime.now().toUtc(),
       isPublished: publishStatus == PublishStatus.Published,
       category: _productCategory,
-      stock: Stock(
-          items: _productStockType == StockType.quantityOnly
-              ? <StockItem>[
-                  StockItem(
-                    quantity:
-                        int.tryParse(_quantityEditingController.text) ?? 0,
-                  ),
-                ]
-              : _productStockMap.entries
-                  .map((e) => StockItem(
-                        color: e.key.color,
-                        size: e.key.size,
-                        quantity: e.value,
-                      ))
-                  .toList(),
-          stockType: _productStockType),
+      stock: Stock(items: stockItemList, stockType: _productStockType),
     );
     return _product;
   }
