@@ -84,10 +84,36 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       ),
     );
     bodyWidgets.add(SizedBox(height: 40));
+    bodyWidgets.add(Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: kPaletteBorderColor)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: product.stock.stockType == StockType.quantityOnly
+            ? Container()
+            : Text(
+                _getSelectStockDisplayText(product.stock.stockType),
+                style: TextStyle(color: paletteBlackColor),
+              ),
+      ),
+    ));
+    bodyWidgets.add(SizedBox(height: 40));
     bodyWidgets.add(_buildStockSelector(product));
     bodyWidgets.add(SizedBox(height: 150));
 
     return bodyWidgets;
+  }
+
+  String _getSelectStockDisplayText(StockType productStockType) {
+    if (productStockType == StockType.colorOnly)
+      return "下記より色をお選びください";
+    else if (productStockType == StockType.sizeAndColor)
+      return "下記よりサイズと色をお選びください";
+    else if (productStockType == StockType.sizeOnly)
+      return "下記よりサイズをお選びください";
+    else
+      return null;
   }
 
   Widget _buildAddToCartFailedMessage(StockType productStockType) {
