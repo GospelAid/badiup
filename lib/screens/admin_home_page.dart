@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:badiup/colors.dart';
 import 'package:badiup/models/order_model.dart';
-import 'package:badiup/screens/admin_order_detail_page.dart';
+import 'package:badiup/screens/order_detail_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/widgets/main_menu.dart';
@@ -84,7 +84,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AdminOrderDetailPage(
+                builder: (context) => OrderDetailPage(
                   orderDocumentId: dataMessage['orderDocumentId'],
                 ),
               ),
@@ -98,7 +98,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AdminOrderDetailPage(
+                builder: (context) => OrderDetailPage(
                   orderDocumentId: dataMessage['orderDocumentId'],
                 ),
               ),
@@ -131,7 +131,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AdminOrderDetailPage(
+                  builder: (context) => OrderDetailPage(
                     orderDocumentId: message['orderDocumentId'],
                   ),
                 ),
