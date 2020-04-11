@@ -7,21 +7,22 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/admin_order_tracking_page.dart';
+import 'package:badiup/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class AdminOrderDetailPage extends StatefulWidget {
-  AdminOrderDetailPage({Key key, this.orderDocumentId}) : super(key: key);
+class OrderDetailPage extends StatefulWidget {
+  OrderDetailPage({Key key, this.orderDocumentId}) : super(key: key);
 
   final String orderDocumentId;
 
   @override
-  _AdminOrderDetailPageState createState() => _AdminOrderDetailPageState();
+  _OrderDetailPageState createState() => _OrderDetailPageState();
 }
 
-class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
+class _OrderDetailPageState extends State<OrderDetailPage> {
   final currencyFormat = NumberFormat("#,##0");
 
   @override
@@ -68,14 +69,27 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
       child: ListView(
         children: <Widget>[
           _buildOrderPlacedDateText(order.placedDate),
-          _buildOrderStatusDescriptionBar(order),
-          order.status == OrderStatus.dispatched &&
-                  order.trackingDetails.code != null
-              ? Container(
-                  alignment: AlignmentDirectional.center,
-                  child: Text("追跡番号は " + order.trackingDetails.code + " です"),
-                )
+          SizedBox(height: 16.0),
+          currentSignedInUser.isAdmin() &&
+                  order.status != OrderStatus.dispatched
+              ? _buildOrderStatusDescriptionBar(order)
               : Container(),
+          Container(
+            height: 56,
+            color: order.status == OrderStatus.dispatched
+                ? Color(0xFF688E26)
+                : paletteGreyColor4,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: AlignmentDirectional.center,
+            child: Text(
+              _getOrderStatusDisplayText(order),
+              style: TextStyle(
+                color: order.status == OrderStatus.dispatched
+                    ? kPaletteWhite
+                    : paletteBlackColor,
+              ),
+            ),
+          ),
           _buildOrderItemList(order.items),
           _buildOrderPriceDescriptionBar(order.getOrderPrice()),
           SizedBox(height: 60.0),
@@ -83,6 +97,13 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         ],
       ),
     );
+  }
+
+  String _getOrderStatusDisplayText(Order order) {
+    return order.status == OrderStatus.dispatched &&
+            order.trackingDetails.code != null
+        ? "この商品は発送済みです。追跡番号は " + order.trackingDetails.code + " です"
+        : "この商品は未発送です。";
   }
 
   Widget _buildOrderPlacedDateText(DateTime placedDate) {
@@ -106,21 +127,30 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
 
   Widget _buildOrderStatusDescriptionBar(Order order) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         height: 56,
-        color: order.status == OrderStatus.dispatched
-            ? paletteDarkGreyColor
-            : paletteDarkRedColor,
+        color: paletteDarkRedColor,
         child: RaisedButton(
           color: Colors.transparent,
-          onPressed: order.status == OrderStatus.dispatched
-              ? null
-              : () async {
-                  await _updateOrder();
-                },
+          onPressed: () async {
+            await _updateOrder();
+          },
           elevation: 0.0,
-          child: _buildOrderStatusDescription(order.status),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                '未発送の商品です。追跡番号を入力する',
+                style: TextStyle(
+                  color: kPaletteWhite,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(width: 8),
+              Icon(Icons.launch),
+            ],
+          ),
         ),
       ),
     );
@@ -149,28 +179,6 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           .document(widget.orderDocumentId)
           .updateData(_order.toMap());
     }
-  }
-
-  Widget _buildOrderStatusDescription(OrderStatus orderStatus) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(
-          (orderStatus == OrderStatus.dispatched)
-              ? '発送済'
-              : '未発送の商品です。追跡番号を入力する',
-          style: TextStyle(
-            color: kPaletteWhite,
-            fontSize: 16.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(width: 8),
-        orderStatus == OrderStatus.dispatched
-            ? Container()
-            : Icon(Icons.launch),
-      ],
-    );
   }
 
   Widget _buildOrderItemList(List<OrderItem> orderItems) {

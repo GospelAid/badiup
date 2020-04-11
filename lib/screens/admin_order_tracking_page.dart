@@ -27,7 +27,7 @@ class _StockOrderTrackingDetailsPageState
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: <Widget>[
             _buildDeliveryMethodSelector(),
             _buildTrackingCodeFormField(),
