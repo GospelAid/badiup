@@ -121,7 +121,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     switch (productStockType) {
       case StockType.sizeAndColor:
         {
-          errorMessge = "色・サイズ　を選択してください";
+          errorMessge = "サイズと色を選択してください";
         }
         break;
 
