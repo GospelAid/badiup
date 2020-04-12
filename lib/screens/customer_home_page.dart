@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:badiup/colors.dart';
+import 'package:badiup/screens/customer_product_detail_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/main_menu.dart';
@@ -53,30 +55,82 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
       _fcm.configure(
         onMessage: (Map<String, dynamic> message) async {
           print("onMessage: $message");
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              content: ListTile(
-                title: Text(message['notification']['title']),
-                subtitle: Text(message['notification']['body']),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('OK'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          );
+          var dataMessage = message['data'] ?? message;
+          if (message != null &&
+              message['aps'] != null &&
+              message['aps']['alert'] != null &&
+              dataMessage['productDocumentId'] != null) {
+            _getOnMessageDialog(message);
+          }
         },
         onLaunch: (Map<String, dynamic> message) async {
-          // TODO: Navigate to Order detail page
+          print("onLaunch: $message");
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['productDocumentId'] != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CustomerProductDetailPage(
+                  productDocumentId: dataMessage['productDocumentId'],
+                ),
+              ),
+            );
+          }
         },
         onResume: (Map<String, dynamic> message) async {
-          // TODO: Navigate to Order detail page
+          print("onResume: $message");
+          var dataMessage = message['data'] ?? message;
+          if (message != null && dataMessage['productDocumentId'] != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CustomerProductDetailPage(
+                  productDocumentId: dataMessage['productDocumentId'],
+                ),
+              ),
+            );
+          }
         },
       );
     }
+  }
+
+  void _getOnMessageDialog(Map<String, dynamic> message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: ListTile(
+          title: Text(
+            message['aps']['alert']['title'],
+            style: getAlertStyle(),
+          ),
+          subtitle: Text(
+            message['aps']['alert']['body'],
+            style: TextStyle(color: paletteBlackColor),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('商品を見る'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CustomerProductDetailPage(
+                    productDocumentId: message['productDocumentId'],
+                  ),
+                ),
+              );
+            },
+          ),
+          FlatButton(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
