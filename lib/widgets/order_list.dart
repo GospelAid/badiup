@@ -165,7 +165,7 @@ class _OrderListState extends State<OrderList> {
     return Row(
       children: <Widget>[
         Text(
-          "¥${currencyFormat.format(order.getOrderPrice())}",
+          "¥${currencyFormat.format(order.totalPrice)}",
           style: TextStyle(
             fontSize: 20,
             color: paletteDarkRedColor,

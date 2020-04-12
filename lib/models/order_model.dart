@@ -16,6 +16,7 @@ class Order {
   OrderStatus status;
   DateTime dispatchedDate;
   TrackingDetails trackingDetails;
+  double totalPrice;
 
   Order({
     this.documentId,
@@ -29,6 +30,7 @@ class Order {
     this.shippingAddress,
     this.dispatchedDate,
     this.trackingDetails,
+    this.totalPrice,
   });
 
   double getOrderPrice() {
@@ -57,8 +59,9 @@ class Order {
       'details': details,
       'orderId': orderId,
       'dispatchedDate': dispatchedDate,
-      'trackingDetails': trackingDetails != null 
-          ? trackingDetails.toMap() : null,
+      'trackingDetails':
+          trackingDetails != null ? trackingDetails.toMap() : null,
+      'totalPrice': totalPrice,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
@@ -87,7 +90,8 @@ class Order {
         orderId = map['orderId'],
         dispatchedDate = map['dispatchedDate'] != null
             ? map['dispatchedDate'].toDate()
-            : null;
+            : null,
+        totalPrice = map['totalPrice'] ?? 0;
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, snapshot.documentID);

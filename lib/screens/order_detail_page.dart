@@ -91,7 +91,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
           ),
           _buildOrderItemList(order.items),
-          _buildOrderPriceDescriptionBar(order.getOrderPrice()),
+          _buildOrderPriceDescriptionBar(order.totalPrice),
           SizedBox(height: 60.0),
           _buildCustomerDetails(order),
         ],
