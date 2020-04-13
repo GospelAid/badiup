@@ -401,6 +401,7 @@ class _CartPageState extends State<CartPage> {
       status: OrderStatus.pending,
       placedDate: DateTime.now().toUtc(),
       shippingAddress: _getShippingAddress(),
+      totalPrice: _totalPrice,
       items: [],
     );
 
