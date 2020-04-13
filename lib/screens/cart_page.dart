@@ -12,12 +12,15 @@ import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/order_success_page.dart';
+import 'package:badiup/screens/privacy_policy_page.dart';
+import 'package:badiup/screens/terms_service_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/quantity_selector.dart';
 import 'package:badiup/widgets/shipping_address_input_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -124,7 +127,9 @@ class _CartPageState extends State<CartPage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CustomerHomePage()),
+              MaterialPageRoute(
+                builder: (context) => CustomerHomePage(),
+              ),
             );
           },
           text: "商品リストへ",
@@ -507,6 +512,8 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 12),
             _paymentMethod != null ? _buildPaymentInfo() : _buildCardButton(),
             SizedBox(height: 32),
+            SizedBox(height: 27),
+            _buildAboutDeliveryMethodInfo(),
           ],
         ),
       ),
@@ -569,7 +576,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildPaymentInfo() {
-    var borderSide = BorderSide(color: Color(0xFFA2A2A2));
+    var borderSide = BorderSide(color: kPaletteBorderColor);
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: borderSide),
@@ -655,6 +662,94 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  Widget _buildAboutDeliveryMethodInfo() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: kPaletteBorderColor)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 37),
+        child: Column(
+          children: <Widget>[
+            _buildAboutDeliveryMethod(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutDeliveryMethod() {
+    return Column(
+      children: <Widget>[
+        Text(
+          '配送方法について',
+          style: TextStyle(
+            fontSize: 18,
+            color: paletteBlackColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 37),
+        _buildAboutDeliveryMethodIntroText(),
+        SizedBox(height: 27),
+        RichText(
+          textAlign: TextAlign.justify,
+          text: TextSpan(
+            text: '個人情報保護方針',
+            style: TextStyle(
+                color: paletteDarkRedColor,
+                fontSize: 15.0,
+                fontWeight: FontWeight.w300),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PrivacyPolicyPage(),
+                  ),
+                );
+              },
+            children: <TextSpan>[
+              TextSpan(
+                text: 'と',
+                style: TextStyle(
+                  color: paletteBlackColor,
+                ),
+              ),
+              TextSpan(
+                text: '利用規約',
+                style: TextStyle(
+                  color: paletteDarkRedColor,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TermsOfServicePage(),
+                      ),
+                    );
+                  },
+              ),
+              TextSpan(
+                text: 'に同意して注文',
+                style: TextStyle(
+                  color: paletteBlackColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutDeliveryMethodIntroText() {
+    return buildTextFieldFromDocument(
+      textDocumentId: 'aboutDeliveryMethodIntroText',
+    );
+  }
+
   double _calculateSubTotalPrice(
     AsyncSnapshot<QuerySnapshot> snapshot2,
     Customer customer,
@@ -678,8 +773,8 @@ class _CartPageState extends State<CartPage> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Color(0xFFEFEFEF),
-        border: Border(top: BorderSide(color: Color(0xFFA2A2A2))),
+        color: paletteGreyColor4,
+        border: Border(top: BorderSide(color: kPaletteBorderColor)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -781,7 +876,7 @@ class _CartPageState extends State<CartPage> {
       padding: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: const Color(0xFFA2A2A2)),
+          bottom: BorderSide(color: kPaletteBorderColor),
         ),
       ),
       child: Row(
@@ -858,7 +953,10 @@ class _CartPageState extends State<CartPage> {
             ),
             child: Row(
               children: <Widget>[
-                Text("削除", style: TextStyle(color: kPaletteWhite)),
+                Text(
+                  "削除",
+                  style: TextStyle(color: kPaletteWhite),
+                ),
                 Icon(Icons.close, color: kPaletteWhite),
               ],
             ),
@@ -902,13 +1000,19 @@ class _CartPageState extends State<CartPage> {
   ) {
     return <Widget>[
       FlatButton(
-        child: Text('キャンセル', style: TextStyle(color: paletteBlackColor)),
+        child: Text(
+          'キャンセル',
+          style: TextStyle(color: paletteBlackColor),
+        ),
         onPressed: () {
           Navigator.pop(context);
         },
       ),
       FlatButton(
-        child: Text('削除する', style: TextStyle(color: paletteForegroundColor)),
+        child: Text(
+          '削除する',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
         onPressed: () async {
           Navigator.pop(context);
           await _deleteItemFromCart(productDocumentId);
