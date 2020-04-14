@@ -169,12 +169,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text('ホーム',
-          style: TextStyle(
-            color: paletteBlackColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          )),
+      title: Text(
+        'ホーム',
+        style: TextStyle(
+          color: paletteBlackColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
       centerTitle: true,
       backgroundColor: paletteLightGreyColor,
       elevation: 0.0,

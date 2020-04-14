@@ -156,7 +156,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("BADI UP"),
+      title: Text("商品リスト"),
       centerTitle: true,
       actions: <Widget>[
         CartButton(),

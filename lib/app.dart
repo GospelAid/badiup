@@ -13,7 +13,6 @@ class BadiUpApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Badi Up',
       theme: _getAppTheme(),
       home: FutureBuilder<FirebaseUser>(
           future: FirebaseAuth.instance.currentUser(),
@@ -47,8 +46,8 @@ class BadiUpApp extends StatelessWidget {
           updateCurrentSignedInUser(snapshot.data);
 
           return currentSignedInUser.isAdmin()
-              ? AdminHomePage(title: 'BADI UP')
-              : CustomerHomePage(title: 'BADI UP');
+              ? AdminHomePage()
+              : CustomerHomePage();
         } else {
           return LoginPage();
         }
