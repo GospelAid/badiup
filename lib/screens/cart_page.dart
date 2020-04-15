@@ -200,7 +200,7 @@ class _CartPageState extends State<CartPage> {
     bool _paymentSuccessful = true;
 
     final http.Response response = await http.post(
-      'https://us-central1-badiup2.cloudfunctions.net/createPaymentIntent/create-payment-intent',
+      'https://us-central1-badiup2.cloudfunctions.net/api/create-payment-intent',
       body: json.encode({
         'userId': currentSignedInUser.email,
         'paymentMethodId': _paymentMethod.id,
