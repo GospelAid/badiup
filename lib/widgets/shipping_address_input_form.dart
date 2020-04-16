@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ShippingAddressInputForm extends StatefulWidget {
   ShippingAddressInputForm({
@@ -43,12 +47,14 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            child: Text("お届け先",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.w600,
-                )),
+            child: Text(
+              "お届け先",
+              style: TextStyle(
+                fontSize: 20,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           SizedBox(height: 24.0),
           _buildAddressInputRows(),
@@ -65,12 +71,14 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       children: <Widget>[
         Container(
           padding: EdgeInsets.only(top: 8.0),
-          child: Text("住所",
-              style: TextStyle(
-                fontSize: 16.0,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              )),
+          child: Text(
+            "住所",
+            style: TextStyle(
+              fontSize: 16.0,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
         ),
         SizedBox(width: 16.0),
         Container(
@@ -81,17 +89,21 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
               left: BorderSide(color: paletteGreyColor4),
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildPostcodeInputRow(),
-              _buildPrefectureInputRow(),
-              _buildMunicipalityInputRow(),
-              _buildBuildingNameInputRow(),
-            ],
-          ),
+          child: _buildAddressInputInternal(),
         ),
+      ],
+    );
+  }
+
+  Widget _buildAddressInputInternal() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _buildPostcodeInputRow(),
+        _buildPrefectureInputRow(),
+        _buildMunicipalityInputRow(),
+        _buildBuildingNameInputRow(),
       ],
     );
   }
@@ -101,12 +113,14 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       width: 245.0,
       child: Row(
         children: <Widget>[
-          Text("〒",
-              style: TextStyle(
-                fontSize: 16.0,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              )),
+          Text(
+            "〒",
+            style: TextStyle(
+              fontSize: 16.0,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
           SizedBox(width: 4.0),
           Container(
             width: 100.0,
@@ -117,8 +131,7 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '郵便番号',
-                contentPadding:
-                    EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
+                contentPadding: EdgeInsets.only(left: 14.0),
               ),
             ),
           ),
@@ -147,10 +160,44 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
           borderRadius: BorderRadius.circular(6.0),
         ),
         onPressed: () async {
-          // TODO get address from JP postcode
+          await _getAddressByPostCode();
         },
       ),
     );
+  }
+
+  Future _getAddressByPostCode() async {
+    if (widget.postcodeTextController.text == null ||
+        widget.postcodeTextController.text == '') {
+      return;
+    }
+
+    try {
+      final http.Response response = await http.get(
+        'https://us-central1-badiup2.cloudfunctions.net/api/postcodes/' +
+            widget.postcodeTextController.text,
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+      );
+
+      String responseString =
+          response.body.replaceAll('\\n', '').replaceAll('\\', '');
+      responseString = responseString.substring(1, responseString.length - 1);
+      Map<String, dynamic> addressInfo = jsonDecode(responseString);
+      Map<String, dynamic> addressInfoInternal =
+          (addressInfo['data'] as List).first;
+
+      setState(() {
+        widget.prefectureTextController.text =
+            _selectedPrefecture = addressInfoInternal['pref'];
+        widget.municipalityTextController.text = addressInfoInternal['city'];
+        widget.buildingNameTextController.text = addressInfoInternal['town'];
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   Widget _buildPrefectureInputRow() {
@@ -163,8 +210,8 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
         icon: Icon(Icons.keyboard_arrow_down, color: paletteBlackColor),
         onChanged: (String newValue) {
           setState(() {
-            _selectedPrefecture = newValue;
-            widget.prefectureTextController.text = newValue;
+            widget.prefectureTextController.text =
+                _selectedPrefecture = newValue;
           });
         },
         items: [
