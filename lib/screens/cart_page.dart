@@ -9,7 +9,6 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
-import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/order_success_page.dart';
 import 'package:badiup/screens/privacy_policy_page.dart';
@@ -40,6 +39,7 @@ class _CartPageState extends State<CartPage> {
   TextEditingController municipalityTextController;
   TextEditingController buildingNameTextController;
   TextEditingController phoneNumberTextController;
+  StatusController addressSearchStatusController;
 
   final currencyFormat = NumberFormat("#,##0");
   bool paymentMethodAdded = false;
@@ -58,6 +58,13 @@ class _CartPageState extends State<CartPage> {
     municipalityTextController = TextEditingController();
     buildingNameTextController = TextEditingController();
     phoneNumberTextController = TextEditingController();
+    addressSearchStatusController = StatusController();
+
+    addressSearchStatusController.addListener(() {
+      setState(() {
+        _formSubmitInProgress = addressSearchStatusController.inProgress;
+      });
+    });
 
     _shippingCost = 0;
 
@@ -512,8 +519,7 @@ class _CartPageState extends State<CartPage> {
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
             _paymentMethod != null ? _buildPaymentInfo() : _buildCardButton(),
-            SizedBox(height: 32),
-            SizedBox(height: 27),
+            SizedBox(height: 48),
             _buildAboutDeliveryMethodInfo(),
           ],
         ),
@@ -528,6 +534,7 @@ class _CartPageState extends State<CartPage> {
       municipalityTextController: municipalityTextController,
       postcodeTextController: postcodeTextController,
       prefectureTextController: prefectureTextController,
+      addressSearchStatusController: addressSearchStatusController,
     );
   }
 
@@ -577,13 +584,9 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildPaymentInfo() {
-    var borderSide = BorderSide(color: kPaletteBorderColor);
     return Container(
-      decoration: BoxDecoration(
-        border: Border(bottom: borderSide),
-      ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
+        padding: EdgeInsets.only(top: 32),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
