@@ -5,6 +5,16 @@ import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+class StatusController extends ValueNotifier<bool> {
+  StatusController({bool value = false}) : super(value);
+
+  bool get inProgress => value;
+
+  set inProgress(bool newValue) {
+    value = newValue;
+  }
+}
+
 class ShippingAddressInputForm extends StatefulWidget {
   ShippingAddressInputForm({
     this.postcodeTextController,
@@ -12,6 +22,7 @@ class ShippingAddressInputForm extends StatefulWidget {
     this.municipalityTextController,
     this.buildingNameTextController,
     this.phoneNumberTextController,
+    this.addressSearchStatusController,
   });
 
   final TextEditingController postcodeTextController;
@@ -19,6 +30,7 @@ class ShippingAddressInputForm extends StatefulWidget {
   final TextEditingController municipalityTextController;
   final TextEditingController buildingNameTextController;
   final TextEditingController phoneNumberTextController;
+  final StatusController addressSearchStatusController;
 
   @override
   _ShippingAddressInputFormState createState() =>
@@ -172,32 +184,44 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       return;
     }
 
+    setState(() {
+      widget.addressSearchStatusController.inProgress = true;
+    });
+
     try {
-      final http.Response response = await http.get(
-        'https://us-central1-badiup2.cloudfunctions.net/api/postcodes/' +
-            widget.postcodeTextController.text,
-        headers: {
-          "content-type": "application/json",
-          "accept": "application/json",
-        },
-      );
-
-      String responseString =
-          response.body.replaceAll('\\n', '').replaceAll('\\', '');
-      responseString = responseString.substring(1, responseString.length - 1);
-      Map<String, dynamic> addressInfo = jsonDecode(responseString);
-      Map<String, dynamic> addressInfoInternal =
-          (addressInfo['data'] as List).first;
-
-      setState(() {
-        widget.prefectureTextController.text =
-            _selectedPrefecture = addressInfoInternal['pref'];
-        widget.municipalityTextController.text = addressInfoInternal['city'];
-        widget.buildingNameTextController.text = addressInfoInternal['town'];
-      });
+      await _getAddressByPostCodeInternal();
     } catch (e) {
       print(e);
     }
+
+    setState(() {
+      widget.addressSearchStatusController.inProgress = false;
+    });
+  }
+
+  Future _getAddressByPostCodeInternal() async {
+    final http.Response response = await http.get(
+      'https://us-central1-badiup2.cloudfunctions.net/api/postcodes/' +
+          widget.postcodeTextController.text,
+      headers: {
+        "content-type": "application/json",
+        "accept": "application/json",
+      },
+    );
+
+    String responseString =
+        response.body.replaceAll('\\n', '').replaceAll('\\', '');
+    responseString = responseString.substring(1, responseString.length - 1);
+    Map<String, dynamic> addressInfo = jsonDecode(responseString);
+    Map<String, dynamic> addressInfoInternal =
+        (addressInfo['data'] as List).first;
+
+    setState(() {
+      widget.prefectureTextController.text =
+          _selectedPrefecture = addressInfoInternal['pref'];
+      widget.municipalityTextController.text = addressInfoInternal['city'];
+      widget.buildingNameTextController.text = addressInfoInternal['town'];
+    });
   }
 
   Widget _buildPrefectureInputRow() {
