@@ -501,7 +501,6 @@ class _ProductListingState extends State<ProductListing> {
     int totalQuantity = 0;
     product.stock.items
         .forEach((stock) => totalQuantity = totalQuantity + stock.quantity);
-    print(totalQuantity);
     return Container(
       height: 30,
       width: 60,

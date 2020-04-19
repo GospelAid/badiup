@@ -82,14 +82,25 @@ class _ProductDetailState extends State<ProductDetail> {
           stockQuantityRemaining = stockElement.quantity;
         }
       });
-    } else {
-      stockQuantityRemaining = product.stock.items
-          .where((element) => element.quantity > 0)
-          .first
-          .quantity;
+    }
+    if (widget.selectedItemSize == null && widget.selectedItemColor != null) {
+      product.stock.items.forEach((stockElement) {
+        if (
+            stockElement.color == widget.selectedItemColor) {
+          stockQuantityRemaining = stockElement.quantity;
+        }
+      });
+    }
+    if (widget.selectedItemSize != null && widget.selectedItemColor == null) {
+      product.stock.items.forEach((stockElement) {
+        if (stockElement.size == widget.selectedItemSize 
+            ) {
+          stockQuantityRemaining = stockElement.quantity;
+        }
+      });
     }
     List<Widget> textStructureWidgetList = List<Widget>();
-    if (stockQuantityRemaining < 10) {
+    if (stockQuantityRemaining <= 10) {
       textStructureWidgetList.add(Text(
         "この商品の在庫は現在",
         style: TextStyle(
@@ -115,7 +126,7 @@ class _ProductDetailState extends State<ProductDetail> {
         ),
       ));
     }
-    return stockQuantityRemaining < 10
+    return stockQuantityRemaining <= 10
         ? Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: textStructureWidgetList,
