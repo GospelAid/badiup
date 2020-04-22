@@ -1,6 +1,7 @@
 import 'package:badiup/models/address_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/models/tracking_details.dart';
+import 'package:badiup/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,6 +18,7 @@ class Order {
   DateTime dispatchedDate;
   TrackingDetails trackingDetails;
   double totalPrice;
+  final PaymentOption paymentMethod;
 
   Order({
     this.documentId,
@@ -31,6 +33,7 @@ class Order {
     this.dispatchedDate,
     this.trackingDetails,
     this.totalPrice,
+    this.paymentMethod,
   });
 
   double getOrderPrice() {
@@ -62,6 +65,7 @@ class Order {
       'trackingDetails':
           trackingDetails != null ? trackingDetails.toMap() : null,
       'totalPrice': totalPrice,
+      'paymentMethod': paymentMethod.index,
     };
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
@@ -91,7 +95,8 @@ class Order {
         dispatchedDate = map['dispatchedDate'] != null
             ? map['dispatchedDate'].toDate()
             : null,
-        totalPrice = map['totalPrice'] ?? 0;
+        totalPrice = map['totalPrice'] ?? 0,
+        paymentMethod = PaymentOption.values[map['paymentMethod']];
 
   Order.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, snapshot.documentID);
