@@ -1,5 +1,7 @@
+import 'package:badiup/colors.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 enum Category {
   apparel,
@@ -48,6 +50,33 @@ class Product {
     this.category,
     this.stock,
   });
+
+  String getPublishedStatusText() {
+    if (isPublished) {
+      return '公開済';
+    } else {
+      return '未公開';
+    }
+  }
+
+  Widget getStatusDisplay() {
+    return Container(
+      height: 24,
+      width: 52,
+      decoration: BoxDecoration(
+        color: isPublished ? paletteRoseColor : paletteGreyColor4,
+      ),
+      child: Center(
+        child: Text(
+          getPublishedStatusText(),
+          style: TextStyle(
+            color: isPublished ? paletteForegroundColor : paletteBlackColor,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {

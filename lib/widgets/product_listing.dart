@@ -337,6 +337,9 @@ class _ProductListingState extends State<ProductListing> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               _buildProductInfoPaneTitle(product),
+              currentSignedInUser.isAdmin()
+                  ? product.getStatusDisplay()
+                  : Container(),
             ],
           ),
           _buildProductInfoPaneDescriptionRow(product),
