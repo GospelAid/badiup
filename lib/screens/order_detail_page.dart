@@ -8,6 +8,7 @@ import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/models/tracking_details.dart';
 import 'package:badiup/screens/admin_order_tracking_page.dart';
 import 'package:badiup/sign_in.dart';
+import 'package:badiup/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -426,12 +427,67 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               _buildGreyBar(),
               _buildCustomerContactInfoBox(_customer, order),
               _buildShippingAddressInfoBox(_customer, order),
+              _buildPaymentMethodInfoBox(order.paymentMethod),
               _buildShippingMethodInfoBox(),
             ],
           );
         },
       ),
     );
+  }
+
+  Widget _buildPaymentMethodInfoBox(PaymentOption paymentMethod) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: kPaletteBorderColor),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        top: 12.0,
+        left: 24.0,
+        right: 24.0,
+        bottom: 50.0,
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "支払い方法",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _getPaymentMethodDisplayText(paymentMethod),
+              style: TextStyle(
+                fontSize: 16,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getPaymentMethodDisplayText(PaymentOption paymentMethod) {
+    switch (paymentMethod) {
+      case PaymentOption.card:
+        return 'クレジットカード';
+      case PaymentOption.furikomi:
+        return '振り込み';
+      default:
+    }
+    return null;
   }
 
   Widget _buildGreyBar() {
@@ -665,7 +721,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           Container(
             alignment: Alignment.centerLeft,
             child: Text(
-                // TODO use widget.order.shippingMethod
+                // TODO: Show this only after order has been dispatched. Also show tracking number here.
                 "ゆうパック　通常配送（3~5日程度）",
                 style: TextStyle(
                   fontSize: 16,

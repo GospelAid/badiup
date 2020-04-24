@@ -44,10 +44,11 @@ class _CartPageState extends State<CartPage> {
   final currencyFormat = NumberFormat("#,##0");
   bool paymentMethodAdded = false;
   bool _formSubmitInProgress = false;
-  PaymentMethod _paymentMethod;
+  PaymentMethod _cardPaymentMethod;
   double _totalPrice;
   double _shippingCost;
   String _formSubmitFailedMessage;
+  PaymentOption _paymentOption = PaymentOption.card;
 
   @override
   void initState() {
@@ -152,7 +153,8 @@ class _CartPageState extends State<CartPage> {
         prefectureTextController.text.isNotEmpty &&
         buildingNameTextController.text.isNotEmpty &&
         phoneNumberTextController.text.isNotEmpty &&
-        _paymentMethod != null;
+        (_paymentOption == PaymentOption.card && _cardPaymentMethod != null ||
+            _paymentOption == PaymentOption.furikomi);
   }
 
   Widget _buildProcessOrderButton(BuildContext context, Cart cart) {
@@ -206,28 +208,30 @@ class _CartPageState extends State<CartPage> {
   Future<bool> _makePayment() async {
     bool _paymentSuccessful = true;
 
-    final http.Response response = await http.post(
-      'https://us-central1-badiup2.cloudfunctions.net/api/create-payment-intent',
-      body: json.encode({
-        'userId': currentSignedInUser.email,
-        'paymentMethodId': _paymentMethod.id,
-      }),
-      headers: {
-        "content-type": "application/json",
-        "accept": "application/json",
-      },
-    );
+    if (_paymentOption == PaymentOption.card) {
+      final http.Response response = await http.post(
+        'https://us-central1-badiup2.cloudfunctions.net/api/create-payment-intent',
+        body: json.encode({
+          'userId': currentSignedInUser.email,
+          'paymentMethodId': _cardPaymentMethod.id,
+        }),
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+      );
 
-    if (response.statusCode == 200) {
-      StripePayment.authenticatePaymentIntent(
-        clientSecret: json.decode(response.body)['clientSecret'],
-      ).then((paymentIntent) async {
-        if (paymentIntent.status != 'succeeded') {
-          _paymentSuccessful = false;
-        }
-      });
-    } else {
-      _paymentSuccessful = false;
+      if (response.statusCode == 200) {
+        StripePayment.authenticatePaymentIntent(
+          clientSecret: json.decode(response.body)['clientSecret'],
+        ).then((paymentIntent) async {
+          if (paymentIntent.status != 'succeeded') {
+            _paymentSuccessful = false;
+          }
+        });
+      } else {
+        _paymentSuccessful = false;
+      }
     }
 
     return _paymentSuccessful;
@@ -409,6 +413,7 @@ class _CartPageState extends State<CartPage> {
       placedDate: DateTime.now().toUtc(),
       shippingAddress: _getShippingAddress(),
       totalPrice: _totalPrice,
+      paymentMethod: _paymentOption,
       items: [],
     );
 
@@ -518,12 +523,61 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 32),
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
-            _paymentMethod != null ? _buildPaymentInfo() : _buildCardButton(),
+            _buildPaymentOptionSelector(),
+            SizedBox(height: 12),
+            _buildPaymentInfoOrButton(),
             SizedBox(height: 48),
             _buildAboutDeliveryMethodInfo(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPaymentOptionSelector() {
+    return Column(
+      children: <Widget>[
+        RadioListTile<PaymentOption>(
+          title: const Text('クレジットカードで払う'),
+          value: PaymentOption.card,
+          groupValue: _paymentOption,
+          onChanged: (PaymentOption value) {
+            setState(() {
+              _paymentOption = value;
+            });
+          },
+        ),
+        RadioListTile<PaymentOption>(
+          title: const Text('振り込みで払う'),
+          value: PaymentOption.furikomi,
+          groupValue: _paymentOption,
+          onChanged: (PaymentOption value) {
+            setState(() {
+              _paymentOption = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentInfoOrButton() {
+    switch (_paymentOption) {
+      case PaymentOption.card:
+        return _cardPaymentMethod != null
+            ? _buildPaymentInfo()
+            : _buildCardButton();
+      case PaymentOption.furikomi:
+        return _buildFurikomiInfo();
+      default:
+        return Container();
+    }
+  }
+
+  Widget _buildFurikomiInfo() {
+    return Text(
+      "商品と請求書を同梱いたします。\n記載の振込先に、商品到着後一週間を目処にお振込みください。\n（振込み手数料はご負担ください）",
+      style: TextStyle(color: paletteBlackColor),
     );
   }
 
@@ -578,7 +632,7 @@ class _CartPageState extends State<CartPage> {
       CardFormPaymentRequest(),
     ).then((PaymentMethod paymentMethod) async {
       setState(() {
-        _paymentMethod = paymentMethod;
+        _cardPaymentMethod = paymentMethod;
       });
     }).catchError((e) => {});
   }
@@ -606,9 +660,9 @@ class _CartPageState extends State<CartPage> {
       children: <Widget>[
         Text("クレジットカード", style: textStyle),
         Text(
-          _paymentMethod.card.brand.toUpperCase() +
+          _cardPaymentMethod.card.brand.toUpperCase() +
               " ****" +
-              _paymentMethod.card.last4,
+              _cardPaymentMethod.card.last4,
           style: textStyle,
         ),
         Row(
