@@ -29,6 +29,7 @@ class CartPage extends StatefulWidget {
 
   @override
   _CartPageState createState() => _CartPageState();
+
 }
 
 class _CartPageState extends State<CartPage> {
@@ -331,7 +332,7 @@ class _CartPageState extends State<CartPage> {
         stockIndex++) {
       var _productStockRequest = _productStockRequestList[stockIndex];
 
-      StockItem _productStockItem = _getProductStockItem(
+      StockItem _productStockItem = getRequestedStockItem(
         _product,
         _productStockRequest,
       );
@@ -346,34 +347,6 @@ class _CartPageState extends State<CartPage> {
         .collection(constants.DBCollections.products)
         .document(_productDocumentId)
         .updateData(_product.toMap());
-  }
-
-  StockItem _getProductStockItem(
-    Product _product,
-    StockItem _productStockRequest,
-  ) {
-    StockItem _productStockItem;
-
-    if (_product.stock.stockType == StockType.sizeAndColor) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) =>
-            stockItem.size == _productStockRequest.size &&
-            stockItem.color == _productStockRequest.color,
-        orElse: () => null,
-      );
-    } else if (_product.stock.stockType == StockType.sizeOnly) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) => stockItem.size == _productStockRequest.size,
-        orElse: () => null,
-      );
-    } else if (_product.stock.stockType == StockType.colorOnly) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) => stockItem.color == _productStockRequest.color,
-        orElse: () => null,
-      );
-    }
-
-    return _productStockItem;
   }
 
   Address _getShippingAddress() {
