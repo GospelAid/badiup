@@ -4,6 +4,7 @@ import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/screens/cart_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/product_detail.dart';
@@ -443,20 +444,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           cartItem.stockRequest?.size == _selectedItemSize);
 
       if (productIndex != -1) {
-        StockItem productStock = StockItem();
-        if (_stockRequest.color != null && _stockRequest.size != null) {
-          productStock = _product.stock.items.firstWhere((stockItem) =>
-              stockItem?.color == _selectedItemColor &&
-              stockItem?.size == _selectedItemSize);
-        }
-        if (_stockRequest.color == null && _stockRequest.size != null) {
-          productStock = _product.stock.items
-              .firstWhere((stockItem) => stockItem?.size == _selectedItemSize);
-        }
-        if (_stockRequest.color != null && _stockRequest.size == null) {
-          productStock = _product.stock.items.firstWhere(
-              (stockItem) => stockItem?.color == _selectedItemColor);
-        }
+        StockItem productStock = getRequestedStockItem(_product, _stockRequest);
         if (customer.cart.items[productIndex].stockRequest.quantity <
             productStock.quantity) {
           customer.cart.items[productIndex].stockRequest.quantity++;

@@ -28,6 +28,31 @@ String getDisplayText(Category category) {
   }
 }
 
+StockItem getRequestedStockItem(
+    Product _product, StockItem _productStockRequest) {
+  StockItem _productStockItem;
+  if (_product.stock.stockType == StockType.sizeAndColor) {
+    _productStockItem = _product.stock.items.firstWhere(
+      (stockItem) =>
+          stockItem.size == _productStockRequest.size &&
+          stockItem.color == _productStockRequest.color,
+      orElse: () => null,
+    );
+  } else if (_product.stock.stockType == StockType.sizeOnly) {
+    _productStockItem = _product.stock.items.firstWhere(
+      (stockItem) => stockItem.size == _productStockRequest.size,
+      orElse: () => null,
+    );
+  } else if (_product.stock.stockType == StockType.colorOnly) {
+    _productStockItem = _product.stock.items.firstWhere(
+      (stockItem) => stockItem.color == _productStockRequest.color,
+      orElse: () => null,
+    );
+  }
+
+  return _productStockItem;
+}
+
 class Product {
   final String name;
   final String description;
