@@ -15,8 +15,8 @@ class StatusController extends ValueNotifier<bool> {
   }
 }
 
-class ShippingAddressInputForm extends StatefulWidget {
-  ShippingAddressInputForm({
+class AddressInputForm extends StatefulWidget {
+  AddressInputForm({
     this.postcodeTextController,
     this.prefectureTextController,
     this.municipalityTextController,
@@ -33,11 +33,10 @@ class ShippingAddressInputForm extends StatefulWidget {
   final StatusController addressSearchStatusController;
 
   @override
-  _ShippingAddressInputFormState createState() =>
-      _ShippingAddressInputFormState();
+  _AddressInputFormState createState() => _AddressInputFormState();
 }
 
-class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
+class _AddressInputFormState extends State<AddressInputForm> {
   String _selectedPrefecture = "愛知県";
 
   @override
@@ -57,18 +56,6 @@ class _ShippingAddressInputFormState extends State<ShippingAddressInputForm> {
       ),
       child: Column(
         children: <Widget>[
-          Container(
-            alignment: Alignment.center,
-            child: Text(
-              "お届け先",
-              style: TextStyle(
-                fontSize: 20,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          SizedBox(height: 24.0),
           _buildAddressInputRows(),
           SizedBox(height: 24.0),
           _buildPhoneNumberInputRow(),

@@ -425,7 +425,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           return Column(
             children: <Widget>[
               _buildGreyBar(),
-              _buildCustomerContactInfoBox(_customer, order),
+              _buildBillingAddressInfoBox(_customer, order),
               _buildShippingAddressInfoBox(_customer, order),
               _buildPaymentMethodInfoBox(order.paymentMethod),
               _buildShippingMethodInfoBox(),
@@ -504,7 +504,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerContactInfoBox(Customer customer, Order order) {
+  Widget _buildBillingAddressInfoBox(Customer customer, Order order) {
     return Container(
       padding:
           EdgeInsets.only(top: 12.0, left: 24.0, right: 24.0, bottom: 36.0),
@@ -524,7 +524,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           SizedBox(height: 24.0),
           _buildCustomerName(customer),
           SizedBox(height: 12.0),
-          _buildCustomerAddress(customer),
+          _buildBillingAddress(order),
           SizedBox(height: 6.0),
           _buildCustomerPhoneNumber(
             customer,
@@ -601,8 +601,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerAddress(Customer customer) =>
-      _buildAddressRow(customer.getAvailableShippingAddress());
+  Widget _buildBillingAddress(Order order) =>
+      _buildAddressRow(order.billingAddress);
 
   Widget _buildCustomerPhoneNumber(Customer customer, String phoneNumber) {
     return Container(
