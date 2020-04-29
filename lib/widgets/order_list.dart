@@ -107,9 +107,7 @@ class _OrderListState extends State<OrderList> {
     return Container(
       height: 20,
       width: 50,
-      decoration: BoxDecoration(
-        color: Color(0xFFEFEFEF),
-      ),
+      decoration: BoxDecoration(color: paletteGreyColor4),
       child: Center(
         child: Text(
           order.getOrderStatusText(),

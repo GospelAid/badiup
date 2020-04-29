@@ -68,7 +68,7 @@ class _ProductDetailState extends State<ProductDetail> {
             ? _buildFewItemsInStockMessage(product)
             : Container(),
         SizedBox(height: 8.0),
-        _buildProductCategory(product.category),
+        _buildProductCategoryAndPublishStatusRow(product),
       ],
     );
   }
@@ -123,23 +123,27 @@ class _ProductDetailState extends State<ProductDetail> {
         : Container();
   }
 
-  Widget _buildProductCategory(Category category) => category != null
-      ? Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(8),
-              alignment: AlignmentDirectional.center,
-              height: 40,
-              color: paletteDarkGreyColor,
-              child: Text(
-                getDisplayText(category),
-                style: TextStyle(color: kPaletteWhite),
-              ),
-            ),
-          ],
-        )
-      : Container();
+  Widget _buildProductCategoryAndPublishStatusRow(Product product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(8),
+          alignment: AlignmentDirectional.center,
+          height: 40,
+          color: paletteDarkGreyColor,
+          child: Text(
+            getDisplayText(product.category),
+            style: TextStyle(color: kPaletteWhite),
+          ),
+        ),
+        currentSignedInUser.isAdmin()
+            ? product.getStatusDisplay()
+            : Container(),
+      ],
+    );
+  }
 
   Widget _buildProductPrice(Product product) {
     final currencyFormat = NumberFormat("#,##0");
