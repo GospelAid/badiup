@@ -15,9 +15,9 @@ import 'package:badiup/screens/privacy_policy_page.dart';
 import 'package:badiup/screens/terms_service_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
+import 'package:badiup/widgets/address_input_form.dart';
 import 'package:badiup/widgets/banner_button.dart';
 import 'package:badiup/widgets/quantity_selector.dart';
-import 'package:badiup/widgets/shipping_address_input_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -34,16 +34,24 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  TextEditingController postcodeTextController;
-  TextEditingController prefectureTextController;
-  TextEditingController municipalityTextController;
-  TextEditingController buildingNameTextController;
-  TextEditingController phoneNumberTextController;
-  StatusController addressSearchStatusController;
+  TextEditingController shippingPostcodeTextController;
+  TextEditingController shippingPrefectureTextController;
+  TextEditingController shippingMunicipalityTextController;
+  TextEditingController shippingBuildingNameTextController;
+  TextEditingController shippingPhoneNumberTextController;
+  StatusController shippingAddressSearchStatusController;
+
+  TextEditingController billingPostcodeTextController;
+  TextEditingController billingPrefectureTextController;
+  TextEditingController billingMunicipalityTextController;
+  TextEditingController billingBuildingNameTextController;
+  TextEditingController billingPhoneNumberTextController;
+  StatusController billingAddressSearchStatusController;
 
   final currencyFormat = NumberFormat("#,##0");
   bool paymentMethodAdded = false;
   bool _formSubmitInProgress = false;
+  bool _billingAddressSameAsShipping = true;
   PaymentMethod _cardPaymentMethod;
   double _totalPrice;
   double _shippingCost;
@@ -54,16 +62,30 @@ class _CartPageState extends State<CartPage> {
   void initState() {
     super.initState();
 
-    postcodeTextController = TextEditingController();
-    prefectureTextController = TextEditingController();
-    municipalityTextController = TextEditingController();
-    buildingNameTextController = TextEditingController();
-    phoneNumberTextController = TextEditingController();
-    addressSearchStatusController = StatusController();
+    shippingPostcodeTextController = TextEditingController();
+    shippingPrefectureTextController = TextEditingController();
+    shippingMunicipalityTextController = TextEditingController();
+    shippingBuildingNameTextController = TextEditingController();
+    shippingPhoneNumberTextController = TextEditingController();
+    shippingAddressSearchStatusController = StatusController();
 
-    addressSearchStatusController.addListener(() {
+    billingPostcodeTextController = TextEditingController();
+    billingPrefectureTextController = TextEditingController();
+    billingMunicipalityTextController = TextEditingController();
+    billingBuildingNameTextController = TextEditingController();
+    billingPhoneNumberTextController = TextEditingController();
+    billingAddressSearchStatusController = StatusController();
+
+    shippingAddressSearchStatusController.addListener(() {
       setState(() {
-        _formSubmitInProgress = addressSearchStatusController.inProgress;
+        _formSubmitInProgress =
+            shippingAddressSearchStatusController.inProgress;
+      });
+    });
+
+    billingAddressSearchStatusController.addListener(() {
+      setState(() {
+        _formSubmitInProgress = billingAddressSearchStatusController.inProgress;
       });
     });
 
@@ -147,12 +169,19 @@ class _CartPageState extends State<CartPage> {
   }
 
   bool _isFormValid() {
-    return postcodeTextController != null &&
-        postcodeTextController.text.isNotEmpty &&
-        municipalityTextController.text.isNotEmpty &&
-        prefectureTextController.text.isNotEmpty &&
-        buildingNameTextController.text.isNotEmpty &&
-        phoneNumberTextController.text.isNotEmpty &&
+    return shippingPostcodeTextController != null &&
+        shippingPostcodeTextController.text.isNotEmpty &&
+        shippingMunicipalityTextController.text.isNotEmpty &&
+        shippingPrefectureTextController.text.isNotEmpty &&
+        shippingBuildingNameTextController.text.isNotEmpty &&
+        shippingPhoneNumberTextController.text.isNotEmpty &&
+        (_billingAddressSameAsShipping ||
+            (billingPostcodeTextController != null &&
+                billingPostcodeTextController.text.isNotEmpty &&
+                billingMunicipalityTextController.text.isNotEmpty &&
+                billingPrefectureTextController.text.isNotEmpty &&
+                billingBuildingNameTextController.text.isNotEmpty &&
+                billingPhoneNumberTextController.text.isNotEmpty)) &&
         (_paymentOption == PaymentOption.card && _cardPaymentMethod != null ||
             _paymentOption == PaymentOption.furikomi);
   }
@@ -394,12 +423,25 @@ class _CartPageState extends State<CartPage> {
 
   Address _getShippingAddress() {
     return Address(
-      postcode: postcodeTextController.text,
-      prefecture: prefectureTextController.text,
-      phoneNumber: phoneNumberTextController.text,
-      city: municipalityTextController.text,
-      line1: prefectureTextController.text + municipalityTextController.text,
-      line2: buildingNameTextController.text,
+      postcode: shippingPostcodeTextController.text,
+      prefecture: shippingPrefectureTextController.text,
+      phoneNumber: shippingPhoneNumberTextController.text,
+      city: shippingMunicipalityTextController.text,
+      line1: shippingPrefectureTextController.text +
+          shippingMunicipalityTextController.text,
+      line2: shippingBuildingNameTextController.text,
+    );
+  }
+
+  Address _getBillingAddress() {
+    return Address(
+      postcode: billingPostcodeTextController.text,
+      prefecture: billingPrefectureTextController.text,
+      phoneNumber: billingPhoneNumberTextController.text,
+      city: billingMunicipalityTextController.text,
+      line1: billingPrefectureTextController.text +
+          billingMunicipalityTextController.text,
+      line2: billingBuildingNameTextController.text,
     );
   }
 
@@ -412,6 +454,7 @@ class _CartPageState extends State<CartPage> {
       status: OrderStatus.pending,
       placedDate: DateTime.now().toUtc(),
       shippingAddress: _getShippingAddress(),
+      billingAddress: _getBillingAddress(),
       totalPrice: _totalPrice,
       paymentMethod: _paymentOption,
       items: [],
@@ -520,6 +563,8 @@ class _CartPageState extends State<CartPage> {
                 : Container(),
             SizedBox(height: 16),
             _buildShippingAddressInputForm(),
+            SizedBox(height: 8),
+            _buildBillingAddressInputForm(),
             SizedBox(height: 32),
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
@@ -531,6 +576,51 @@ class _CartPageState extends State<CartPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBillingAddressInputForm() {
+    return Column(
+      children: <Widget>[
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "注文者情報",
+            style: TextStyle(
+              fontSize: 20,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(height: 24.0),
+        CheckboxListTile(
+          title: Text('お届け先住所と同じ'),
+          value: _billingAddressSameAsShipping,
+          onChanged: (bool value) {
+            setState(() {
+              _billingAddressSameAsShipping = value;
+            });
+          },
+        ),
+        _billingAddressSameAsShipping
+            ? Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: kPaletteBorderColor),
+                  ),
+                ),
+              )
+            : AddressInputForm(
+                phoneNumberTextController: billingPhoneNumberTextController,
+                buildingNameTextController: billingBuildingNameTextController,
+                municipalityTextController: billingMunicipalityTextController,
+                postcodeTextController: billingPostcodeTextController,
+                prefectureTextController: billingPrefectureTextController,
+                addressSearchStatusController:
+                    billingAddressSearchStatusController,
+              ),
+      ],
     );
   }
 
@@ -581,14 +671,30 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  ShippingAddressInputForm _buildShippingAddressInputForm() {
-    return ShippingAddressInputForm(
-      phoneNumberTextController: phoneNumberTextController,
-      buildingNameTextController: buildingNameTextController,
-      municipalityTextController: municipalityTextController,
-      postcodeTextController: postcodeTextController,
-      prefectureTextController: prefectureTextController,
-      addressSearchStatusController: addressSearchStatusController,
+  Widget _buildShippingAddressInputForm() {
+    return Column(
+      children: <Widget>[
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "お届け先",
+            style: TextStyle(
+              fontSize: 20,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(height: 24.0),
+        AddressInputForm(
+          phoneNumberTextController: shippingPhoneNumberTextController,
+          buildingNameTextController: shippingBuildingNameTextController,
+          municipalityTextController: shippingMunicipalityTextController,
+          postcodeTextController: shippingPostcodeTextController,
+          prefectureTextController: shippingPrefectureTextController,
+          addressSearchStatusController: shippingAddressSearchStatusController,
+        ),
+      ],
     );
   }
 
