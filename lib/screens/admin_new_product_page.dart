@@ -6,6 +6,7 @@ import 'package:badiup/config.dart' as config;
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/custom_color_model.dart';
 import 'package:badiup/screens/multi_select_gallery.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
@@ -36,7 +37,7 @@ class AdminNewProductPage extends StatefulWidget {
   AdminNewProductPage({
     Key key,
     this.title,
-    this.productDocumentId,
+    this.productDocumentId
   }) : super(key: key);
 
   final String title;
@@ -61,6 +62,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   final _quantityEditingController = TextEditingController();
   Category _productCategory;
   StockType _productStockType;
+  CustomColorList _customColorList;
 
   bool _shouldDisplayStock = false;
   LinkedHashMap<StockIdentifier, int> _productStockMap =
@@ -218,15 +220,29 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _displayConfirmExitDialog,
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        // Build a form to input new product details
-        body: _buildNewProductForm(context),
-        key: _scaffoldKey,
-      ),
-    );
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.colors)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+
+        var _colorIterableList = snapshot.data.documents
+            .map((snapshot) => CustomColor.fromSnapshot(snapshot))
+            .toList();
+        _customColorList =
+            CustomColorList(customColorList: _colorIterableList);
+
+        return WillPopScope(
+          onWillPop: _displayConfirmExitDialog,
+          child: Scaffold(
+            appBar: _buildAppBar(),
+            // Build a form to input new product details
+            body: _buildNewProductForm(context),
+            key: _scaffoldKey,
+          ),
+        );
+      });
   }
 
   @override
@@ -380,8 +396,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       context,
       MaterialPageRoute(
           builder: (context) => StockSelector(
-                productStockType: _productStockType,
-              )),
+            productStockType: _productStockType
+          )),
     );
 
     if (newStockItem != null) {
@@ -434,7 +450,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         decoration: BoxDecoration(
           color: _productStockType == StockType.sizeOnly
               ? Colors.transparent
-              : getDisplayColorForItemColor(stockItem.color),
+              : _customColorList.getDisplayColorForItemColor(stockItem.color),
           border: _productStockType == StockType.sizeOnly
               ? Border.all(color: paletteGreyColor)
               : null,
@@ -488,7 +504,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             padding: EdgeInsets.all(0.0),
             icon: Icon(Icons.delete,
                 color: _productStockType != StockType.sizeOnly &&
-                        stockItem.color == ItemColor.black
+                        stockItem.color == "black"
                     ? paletteGreyColor
                     : paletteBlackColor,
                 size: 22),
@@ -549,7 +565,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   Widget _buildStockItemText(StockItem stockItem) {
     Color _color = _productStockType == StockType.sizeOnly
         ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
+        : _customColorList.getDisplayTextColorForItemColor(stockItem.color);
 
     return Padding(
       padding: EdgeInsets.all(12),
@@ -569,7 +585,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
           _productStockType == StockType.sizeOnly
               ? Container()
               : Text(
-                  getDisplayTextForItemColor(stockItem.color),
+                  _customColorList.getDisplayTextForItemColor(stockItem.color),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

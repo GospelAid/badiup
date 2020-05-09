@@ -4,6 +4,7 @@ import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/custom_color_model.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/product_detail.dart';
@@ -25,9 +26,9 @@ class CustomerProductDetailPage extends StatefulWidget {
 
 class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  CustomColorList _customColorList;
   ItemSize _selectedItemSize;
-  ItemColor _selectedItemColor;
+  String _selectedItemColor;
   bool _showAddToCartFailedMessage = false;
 
   @override
@@ -53,25 +54,40 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Widget _buildBody(Product product) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: _buildBodyWidgets(product),
-          ),
-        ),
-        Container(
-          height: 64,
-          child: Row(
-            children: <Widget>[
-              _buildAddToCartButton(product),
-            ],
-          ),
-        ),
-      ],
-    );
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection(constants.DBCollections.colors)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+
+        var _colorIterableList = snapshot.data.documents
+            .map((snapshot) => CustomColor.fromSnapshot(snapshot))
+            .toList();
+        
+        _customColorList =
+            CustomColorList(customColorList: _colorIterableList);
+
+        return Stack(
+          alignment: AlignmentDirectional.bottomCenter,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: _buildBodyWidgets(product),
+              ),
+            ),
+            Container(
+              height: 64,
+              child: Row(
+                children: <Widget>[
+                  _buildAddToCartButton(product),
+                ],
+              ),
+            ),
+          ],
+        );
+      });
   }
 
   List<Widget> _buildBodyWidgets(Product product) {
@@ -176,7 +192,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   Widget _buildStockColorPickerButton(Stock stock, TextStyle textStyle) {
     var _availableStockColors = _getAvailableStockColors(stock);
 
-    return DropdownButton<ItemColor>(
+    return DropdownButton<String>(
       value: _selectedItemColor,
       focusColor: paletteBlackColor,
       hint: Container(
@@ -196,17 +212,17 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       elevation: 2,
       style: textStyle,
       underline: Container(),
-      onChanged: (ItemColor newValue) {
+      onChanged: (String newValue) {
         setState(() {
           _selectedItemColor = newValue;
         });
       },
       items: _availableStockColors
-          .map<DropdownMenuItem<ItemColor>>((ItemColor value) {
-        return DropdownMenuItem<ItemColor>(
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
           value: value,
           child: _buildDropdownMenuItem(
-            getDisplayTextForItemColor(value),
+            _customColorList.getDisplayTextForItemColor(value),
             textStyle,
           ),
         );
@@ -300,13 +316,13 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .toList();
   }
 
-  List<ItemColor> _getAvailableStockColors(Stock stock) {
+  List<String> _getAvailableStockColors(Stock stock) {
     var _availableStockColors = _selectedItemSize != null
         ? stock.items.where((stockItem) =>
             stockItem.quantity != 0 && stockItem.size == _selectedItemSize)
         : stock.items.where((stockItem) => stockItem.quantity != 0);
     return _availableStockColors
-        .map<ItemColor>((stockItem) => stockItem.color)
+        .map<String>((stockItem) => stockItem.color)
         .toSet()
         .toList();
   }

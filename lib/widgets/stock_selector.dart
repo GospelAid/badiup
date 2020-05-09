@@ -1,6 +1,10 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/custom_color_model.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:badiup/screens/admin_new_color_page.dart';
 
 class StockSelector extends StatefulWidget {
   StockSelector({Key key, this.productStockItem, this.productStockType})
@@ -15,8 +19,10 @@ class StockSelector extends StatefulWidget {
 
 class _StockSelectorState extends State<StockSelector> {
   ItemSize _stockSize = ItemSize.small;
-  ItemColor _stockColor = ItemColor.black;
+  String _stockColor = "black";
   var _stockQuantityEditingController = TextEditingController();
+  List<CustomColor> _colorIterableList;
+  CustomColorList _customColorList;
 
   @override
   initState() {
@@ -31,7 +37,45 @@ class _StockSelectorState extends State<StockSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(), body: _buildAddStockScreen());
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance
+            .collection(constants.DBCollections.colors)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return LinearProgressIndicator();
+
+          _colorIterableList = snapshot.data.documents
+              .map((snapshot) => CustomColor.fromSnapshot(snapshot))
+              .toList();
+
+          _customColorList =
+              CustomColorList(customColorList: _colorIterableList);
+
+          return Scaffold(
+              appBar: AppBar(
+                actions: <Widget>[
+                  _buildNewColorButton(context),
+                ],
+              ),
+              body: _buildAddStockScreen());
+        });
+  }
+
+  Widget _buildNewColorButton(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        Icons.opacity,
+        semanticLabel: 'new_color',
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminNewColorPage(),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildAddStockScreen() {
@@ -79,7 +123,7 @@ class _StockSelectorState extends State<StockSelector> {
 
   Widget _buildStockColorDisplay(TextStyle textStyle) {
     var controller = TextEditingController(
-      text: _getStockColorDisplayText(_stockColor),
+      text: _customColorList.getDisplayTextForItemColor(_stockColor),
     );
 
     return TextField(
@@ -104,8 +148,8 @@ class _StockSelectorState extends State<StockSelector> {
   String _getStockSizeDisplayText(ItemSize size) =>
       getDisplayTextForItemSize(size);
 
-  String _getStockColorDisplayText(ItemColor color) =>
-      getDisplayTextForItemColor(color);
+  String _getStockColorDisplayText(String color) =>
+      _customColorList.getDisplayTextForItemColor(color);
 
   Widget _buildStockFormActionButtons() {
     return Padding(
@@ -167,19 +211,22 @@ class _StockSelectorState extends State<StockSelector> {
   }
 
   Widget _buildStockColorPicker(TextStyle _textStyle) {
-    return _buildPicker<ItemColor>(
+    List<String> _colorNameList =
+        _colorIterableList.map((color) => color.name).toList();
+
+    return _buildPicker<String>(
       pickerValue: _stockColor,
       textStyle: _textStyle,
       valueOnChanged: widget.productStockItem == null
-          ? (ItemColor newValue) {
+          ? (String newValue) {
               setState(() {
                 _stockColor = newValue;
               });
             }
           : null,
-      items: ItemColor.values.map<DropdownMenuItem<ItemColor>>(
-        (ItemColor value) {
-          return DropdownMenuItem<ItemColor>(
+      items: _colorNameList.map<DropdownMenuItem<String>>(
+        (String value) {
+          return DropdownMenuItem<String>(
             value: value,
             child: Text(
               _getStockColorDisplayText(value),

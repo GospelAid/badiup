@@ -1,6 +1,7 @@
 import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
+//TOREMOVE: remove ItemColor once custom color model is integrated in both admin and customer pages. 
 enum ItemColor {
   black,
   brown,
@@ -40,54 +41,21 @@ String getDisplayTextForStockType(StockType stockType) {
   }
 }
 
-String getDisplayTextForItemColor(ItemColor itemColor) {
-  switch (itemColor) {
-    case ItemColor.black:
+//TOREMOVE: remove getDisplayTextForItemColor once custom color model is integrated in both admin and customer pages. 
+String getDisplayTextForItemColor(String colorName) {
+  switch (colorName) {
+    case "black":
       return "ブラック";
-    case ItemColor.brown:
+    case "brown":
       return "ブラウン";
-    case ItemColor.white:
+    case "white":
       return "ホワイト";
-    case ItemColor.pink:
+    case "pink":
       return "ピンク";
-    case ItemColor.grey:
+    case "grey":
       return "グレー";
     default:
       return "";
-  }
-}
-
-Color getDisplayColorForItemColor(ItemColor itemColor) {
-  switch (itemColor) {
-    case ItemColor.black:
-      return paletteBlackColor;
-    case ItemColor.brown:
-      return paletteBrownColor;
-    case ItemColor.white:
-      return kPaletteWhite;
-    case ItemColor.pink:
-      return kPalettePurple100;
-    case ItemColor.grey:
-      return paletteGreyColor;
-    default:
-      return Colors.transparent;
-  }
-}
-
-Color getDisplayTextColorForItemColor(ItemColor itemColor) {
-  switch (itemColor) {
-    case ItemColor.black:
-      return kPaletteWhite;
-    case ItemColor.brown:
-      return kPaletteWhite;
-    case ItemColor.white:
-      return paletteGreyColor2;
-    case ItemColor.pink:
-      return kPaletteWhite; 
-    case ItemColor.grey:
-      return kPaletteWhite;
-    default:
-      return paletteGreyColor2;
   }
 }
 
@@ -111,7 +79,7 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
 }
 
 class StockItem {
-  final ItemColor color;
+  final String color;
   final ItemSize size;
   int quantity;
 
@@ -123,20 +91,31 @@ class StockItem {
 
   Map<String, dynamic> toMap() {
     return {
-      'color': color?.index,
+      'color': color,
       'size': size?.index,
       'quantity': quantity,
     };
   }
 
+  // TOREMOVE: Update color value type from int to String in order's stock item in Firestore first then remove this indexColorMap
+  static Map indexColorMap = {
+    "0": "black",
+    "1": "brown",
+    "2": "white",
+    "3": "pink",
+    "4": "grey",
+  };
+
   StockItem.fromMap(Map<String, dynamic> map)
-      : color = map['color'] != null ? ItemColor.values[map['color']] : null,
+    // TOREMOVE: Remove "map['color'] is int" condition once color value type gets updated from int to String in order's stock item in Firestore
+      : color = map['color'] is int 
+        ? indexColorMap[map['color'].toString()] : map['color'] is String ? map['color'] : null,
         size = map['size'] != null ? ItemSize.values[map['size']] : null,
         quantity = map['quantity'];
 }
 
 class StockIdentifier {
-  final ItemColor color;
+  final String color;
   final ItemSize size;
 
   StockIdentifier({

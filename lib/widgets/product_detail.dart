@@ -22,7 +22,7 @@ class ProductDetail extends StatefulWidget {
   }) : super(key: key);
 
   final String productDocumentId;
-  final ItemColor selectedItemColor;
+  final String selectedItemColor;
   final ItemSize selectedItemSize;
 
   @override

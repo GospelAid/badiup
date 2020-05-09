@@ -35,7 +35,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   OrderFilterButtons selectedOrderButton = OrderFilterButtons.all;
-
   OrderStatus orderStatusToFilter = OrderStatus.all;
 
   _saveDeviceToken() async {

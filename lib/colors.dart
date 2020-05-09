@@ -33,3 +33,14 @@ TextStyle getAlertStyle() {
     fontWeight: FontWeight.bold,
   );
 }
+
+TextStyle getTextStyleWithHex(hex) {
+  return TextStyle(
+    color: Color(int.parse(hex)),
+    fontWeight: FontWeight.w600,
+  );
+}
+
+Color getColorWithHex(hex) {
+  return Color(int.parse(hex));
+}

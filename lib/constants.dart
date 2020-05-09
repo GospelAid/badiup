@@ -8,6 +8,7 @@ class DBCollections {
   static const String products = "products";
   static const String orders = "orders";
   static const String texts = "texts";
+  static const String colors = "colors";
 }
 
 class StorageCollections {

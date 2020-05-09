@@ -2,6 +2,7 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/models/custom_color_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/widgets/product_detail.dart';
@@ -11,7 +12,7 @@ import 'package:flutter/material.dart';
 class AdminProductDetailPage extends StatefulWidget {
   AdminProductDetailPage({
     Key key,
-    this.productDocumentId,
+    this.productDocumentId
   }) : super(key: key);
 
   final String productDocumentId;
@@ -21,6 +22,8 @@ class AdminProductDetailPage extends StatefulWidget {
 }
 
 class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
+  CustomColorList _customColorList;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -47,33 +50,48 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
   }
 
   Widget _buildAdminProductDetailInternal(Product product) {
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverList(
-          delegate: SliverChildListDelegate(<Widget>[
-            ProductDetail(
-              productDocumentId: widget.productDocumentId,
-            ),
-            SizedBox(height: 40),
-          ]),
-        ),
-        SliverGrid(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-          ),
-          delegate: SliverChildListDelegate(
-            _buildStockGridItems(product),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildListDelegate(<Widget>[
-            SizedBox(height: 100),
-          ]),
-        ),
-      ],
-    );
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance
+            .collection(constants.DBCollections.colors)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return LinearProgressIndicator();
+
+          var _colorIterableList = snapshot.data.documents
+              .map((snapshot) => CustomColor.fromSnapshot(snapshot))
+              .toList();
+          
+          _customColorList =
+              CustomColorList(customColorList: _colorIterableList);
+
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildListDelegate(<Widget>[
+                  ProductDetail(
+                    productDocumentId: widget.productDocumentId,
+                  ),
+                  SizedBox(height: 40),
+                ]),
+              ),
+              SliverGrid(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                ),
+                delegate: SliverChildListDelegate(
+                  _buildStockGridItems(product),
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildListDelegate(<Widget>[
+                  SizedBox(height: 100),
+                ]),
+              ),
+            ],
+          );
+        });
   }
 
   List<Widget> _buildStockGridItems(Product product) {
@@ -85,7 +103,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
         decoration: BoxDecoration(
           color: product.stock.stockType == StockType.sizeOnly
               ? Colors.transparent
-              : getDisplayColorForItemColor(stockItem.color),
+              : _customColorList.getDisplayColorForItemColor(stockItem.color),
           border: product.stock.stockType == StockType.sizeOnly
               ? Border.all(color: paletteGreyColor)
               : null,
@@ -111,7 +129,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
   Widget _buildStockItemText(StockItem stockItem, StockType stockType) {
     Color _color = stockType == StockType.sizeOnly
         ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
+        : _customColorList.getDisplayTextColorForItemColor(stockItem.color);
 
     return Padding(
       padding: EdgeInsets.all(12),
@@ -131,7 +149,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
           stockType == StockType.sizeOnly
               ? Container()
               : Text(
-                  getDisplayTextForItemColor(stockItem.color),
+                  _customColorList.getDisplayTextForItemColor(stockItem.color),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
