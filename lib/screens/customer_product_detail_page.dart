@@ -347,8 +347,17 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     return Expanded(
       child: GestureDetector(
         onTap: () async {
-          if (_canAddToCart(product)) {
-            _addToCart(product);
+          var customer = Customer.fromSnapshot(await db
+              .collection(constants.DBCollections.users)
+              .document(currentSignedInUser.email)
+              .get());
+          var _stockRequest = StockItem(
+            color: _selectedItemColor,
+            size: _selectedItemSize,
+            quantity: 1,
+          );
+          if (_canAddToCart(product, customer, _stockRequest)) {
+            _addToCart(product, customer, _stockRequest);
           } else {
             setState(() {
               _showAddToCartFailedMessage = true;
@@ -379,7 +388,8 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  bool _canAddToCart(Product _product) {
+  bool _canAddToCart(
+      Product _product, Customer customer, StockItem _stockRequest) {
     if (_product.stock.stockType == StockType.sizeAndColor) {
       return _selectedItemColor != null && _selectedItemSize != null;
     } else if (_product.stock.stockType == StockType.sizeOnly) {
@@ -387,7 +397,34 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     } else if (_product.stock.stockType == StockType.colorOnly) {
       return _selectedItemColor != null;
     }
-    return true;
+
+    int productIndex = customer.cart.items.indexWhere((cartItem) =>
+        cartItem.productDocumentId == widget.productDocumentId &&
+        cartItem.stockRequest?.color == _selectedItemColor &&
+        cartItem.stockRequest?.size == _selectedItemSize);
+
+    bool addToCartSuccess = true;
+
+    if (productIndex != -1) {
+      StockItem productStock = getRequestedStockItem(_product, _stockRequest);
+      if (customer.cart.items[productIndex].stockRequest.quantity >=
+          productStock.quantity) {
+        addToCartSuccess = false;
+      }
+    }
+
+    if (addToCartSuccess) {
+      setState(() {
+        _showAddToCartFailedMessage = false;
+        _failedMessageQuantityType = false;
+      });
+    } else {
+      setState(() {
+        _showAddToCartFailedMessage = true;
+        _failedMessageQuantityType = true;
+      });
+    }
+    return addToCartSuccess;
   }
 
   SnackBar _buildAddedToCartNotification() {
@@ -406,13 +443,9 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  Future<void> _addToCart(Product _product) async {
-    var customer = Customer.fromSnapshot(await db
-        .collection(constants.DBCollections.users)
-        .document(currentSignedInUser.email)
-        .get());
-
-    _updateCartModel(customer, _product);
+  Future<void> _addToCart(
+      Product _product, Customer customer, StockItem _stockRequest) async {
+    _updateCartModel(customer, _product, _stockRequest);
 
     await db
         .collection(constants.DBCollections.users)
@@ -420,14 +453,8 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .updateData(customer.toMap());
   }
 
-  void _updateCartModel(Customer customer, Product _product) {
-    bool addToCartSuccess = true;
-    var _stockRequest = StockItem(
-      color: _selectedItemColor,
-      size: _selectedItemSize,
-      quantity: 1,
-    );
-
+  void _updateCartModel(
+      Customer customer, Product _product, StockItem _stockRequest) {
     if (customer.cart == null) {
       customer.cart = Cart(
         items: [
@@ -438,40 +465,14 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         ],
       );
     } else {
-      int productIndex = customer.cart.items.indexWhere((cartItem) =>
-          cartItem.productDocumentId == widget.productDocumentId &&
-          cartItem.stockRequest?.color == _selectedItemColor &&
-          cartItem.stockRequest?.size == _selectedItemSize);
-
-      if (productIndex != -1) {
-        StockItem productStock = getRequestedStockItem(_product, _stockRequest);
-        if (customer.cart.items[productIndex].stockRequest.quantity <
-            productStock.quantity) {
-          customer.cart.items[productIndex].stockRequest.quantity++;
-        } else {
-          addToCartSuccess = false;
-        }
-      } else {
-        customer.cart.items.add(CartItem(
-          productDocumentId: widget.productDocumentId,
-          stockRequest: _stockRequest,
-        ));
-      }
+      customer.cart.items.add(CartItem(
+        productDocumentId: widget.productDocumentId,
+        stockRequest: _stockRequest,
+      ));
     }
-    if (addToCartSuccess) {
-      _scaffoldKey.currentState.showSnackBar(
-        _buildAddedToCartNotification(),
-      );
-      setState(() {
-        _showAddToCartFailedMessage = false;
-        _failedMessageQuantityType = false;
-      });
-    }else{
-      setState(() {
-        _showAddToCartFailedMessage = true;
-        _failedMessageQuantityType = true;
-      });
-    }
+    _scaffoldKey.currentState.showSnackBar(
+      _buildAddedToCartNotification(),
+    );
   }
 
   Widget _buildAppBar(BuildContext context, Product product) {
