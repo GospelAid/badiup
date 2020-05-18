@@ -454,7 +454,9 @@ class _CartPageState extends State<CartPage> {
       status: OrderStatus.pending,
       placedDate: DateTime.now().toUtc(),
       shippingAddress: _getShippingAddress(),
-      billingAddress: _getBillingAddress(),
+      billingAddress: _billingAddressSameAsShipping
+          ? _getShippingAddress()
+          : _getBillingAddress(),
       totalPrice: _totalPrice,
       paymentMethod: _paymentOption,
       items: [],

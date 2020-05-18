@@ -360,7 +360,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   fontWeight: FontWeight.w300,
                   color: paletteBlackColor,
                 ),
-              )
+              ),
             ],
           ),
         ],
@@ -373,33 +373,34 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       height: 40,
       child: Container(
-          color: kPaletteWhite,
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                child: Text(
-                  '総合計',
-                  style: TextStyle(
-                    color: paletteBlackColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+        color: kPaletteWhite,
+        padding: EdgeInsets.symmetric(horizontal: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Container(
+              child: Text(
+                '総合計',
+                style: TextStyle(
+                  color: paletteBlackColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              Container(
-                child: Text(
-                  "¥" + currencyFormat.format(orderPrice),
-                  style: TextStyle(
-                    color: paletteDarkRedColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+            ),
+            Container(
+              child: Text(
+                "¥" + currencyFormat.format(orderPrice),
+                style: TextStyle(
+                  color: paletteDarkRedColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -428,7 +429,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               _buildBillingAddressInfoBox(_customer, order),
               _buildShippingAddressInfoBox(_customer, order),
               _buildPaymentMethodInfoBox(order.paymentMethod),
-              _buildShippingMethodInfoBox(),
+              order.status == OrderStatus.dispatched
+                  ? _buildShippingMethodInfoBox(order)
+                  : Container(),
             ],
           );
         },
@@ -542,18 +545,22 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
-          Text(customer.name,
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w600,
-              )),
-          Text(" 様",
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              )),
+          Text(
+            customer.name,
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            " 様",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
         ],
       ),
     );
@@ -648,20 +655,24 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       ),
       child: Row(
         children: <Widget>[
-          Text("メール",
+          Text(
+            "メール",
+            style: TextStyle(
+              fontSize: 16,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          SizedBox(width: 16.0),
+          Expanded(
+            child: Text(
+              customer.email,
               style: TextStyle(
                 fontSize: 16,
                 color: paletteBlackColor,
                 fontWeight: FontWeight.w300,
-              )),
-          SizedBox(width: 16.0),
-          Expanded(
-            child: Text(customer.email,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.w300,
-                )),
+              ),
+            ),
           ),
         ],
       ),
@@ -682,18 +693,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            child: Text("お届け先",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.bold,
-                )),
+            child: Text(
+              "お届け先",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           SizedBox(height: 24.0),
           _buildCustomerName(customer),
           SizedBox(height: 12.0),
           _buildShippingAddress(order.shippingAddress),
-          //_buildShippingAddressInfo(),
         ],
       ),
     );
@@ -702,7 +714,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Widget _buildShippingAddress(Address shippingAddress) =>
       _buildAddressRow(shippingAddress);
 
-  Widget _buildShippingMethodInfoBox() {
+  Widget _buildShippingMethodInfoBox(Order order) {
     return Container(
       padding:
           EdgeInsets.only(top: 12.0, left: 24.0, right: 24.0, bottom: 50.0),
@@ -710,24 +722,28 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            child: Text("配送方法",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.bold,
-                )),
+            child: Text(
+              "配送方法",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           SizedBox(height: 25.0),
           Container(
             alignment: Alignment.centerLeft,
             child: Text(
-                // TODO: Show this only after order has been dispatched. Also show tracking number here.
-                "ゆうパック　通常配送（3~5日程度）",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: paletteBlackColor,
-                  fontWeight: FontWeight.w300,
-                )),
+              getDisplayTextForDeliveryMethod(
+                order.trackingDetails.deliveryMethod,
+              ),
+              style: TextStyle(
+                fontSize: 16,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
           ),
         ],
       ),

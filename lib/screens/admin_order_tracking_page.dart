@@ -218,7 +218,7 @@ class _StockOrderTrackingDetailsPageState
         return DropdownMenuItem<DeliveryMethod>(
           value: value,
           child: Text(
-            getAdminDisplayTextForDeliveryMethod(value),
+            getDisplayTextForDeliveryMethod(value),
             style: optionTextStyle,
           ),
         );
