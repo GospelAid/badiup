@@ -3,7 +3,7 @@ enum DeliveryMethod {
   sagawa,
 }
 
-String getAdminDisplayTextForDeliveryMethod(DeliveryMethod deliveryMethod) {
+String getDisplayTextForDeliveryMethod(DeliveryMethod deliveryMethod) {
   switch (deliveryMethod) {
     case DeliveryMethod.japanPost:
       return "ゆうパック";
