@@ -1,13 +1,15 @@
 import 'package:badiup/colors.dart';
+import 'package:badiup/models/order_model.dart';
 import 'package:badiup/screens/customer_home_page.dart';
+import 'package:badiup/screens/order_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class OrderSuccessPage extends StatefulWidget {
-  OrderSuccessPage({Key key, this.orderId})
-      : assert(orderId != null),
+  OrderSuccessPage({Key key, this.order})
+      : assert(order != null),
         super(key: key);
 
-  final String orderId;
+  final Order order;
 
   @override
   _OrderSuccessPageState createState() => _OrderSuccessPageState();
@@ -72,10 +74,22 @@ class _OrderSuccessPageState extends State<OrderSuccessPage> {
           "注文は完了しました。",
           style: TextStyle(color: paletteBlackColor),
         ),
-        Text(
-          "注文番号：${widget.orderId}",
-          style: TextStyle(color: paletteForegroundColor),
-        )
+        SizedBox(height: 16),
+        RaisedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrderDetailPage(
+                  orderDocumentId: widget.order.documentId,
+                ),
+              ),
+            );
+          },
+          child: Text(
+            "注文番号：${widget.order.orderId}",
+          ),
+        ),
       ],
     );
   }
