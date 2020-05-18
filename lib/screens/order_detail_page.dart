@@ -65,6 +65,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildBody(BuildContext context, Order order) {
+    double subTotal =
+        order.items.fold(.0, (a, b) => a + b.stockRequest.quantity * b.price);
+
     return Container(
       color: paletteLightGreyColor,
       child: ListView(
@@ -75,26 +78,91 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   order.status != OrderStatus.dispatched
               ? _buildOrderStatusDescriptionBar(order)
               : Container(),
-          Container(
-            height: 56,
-            color: order.status == OrderStatus.dispatched
-                ? Color(0xFF688E26)
-                : paletteGreyColor4,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            alignment: AlignmentDirectional.center,
-            child: Text(
-              _getOrderStatusDisplayText(order),
-              style: TextStyle(
-                color: order.status == OrderStatus.dispatched
-                    ? kPaletteWhite
-                    : paletteBlackColor,
-              ),
-            ),
-          ),
+          _buildOrderStatus(order),
           _buildOrderItemList(order.items),
+          SizedBox(height: 16),
+          _buildSubTotal(subTotal),
+          SizedBox(height: 8),
+          _buildShippingCharges(subTotal < 5000 ? 500 : 0),
+          SizedBox(height: 8),
           _buildOrderPriceDescriptionBar(order.totalPrice),
           SizedBox(height: 60.0),
           _buildCustomerDetails(order),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderStatus(Order order) {
+    return Container(
+      height: 56,
+      color: order.status == OrderStatus.dispatched
+          ? Color(0xFF688E26)
+          : paletteGreyColor4,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      alignment: AlignmentDirectional.center,
+      child: Text(
+        _getOrderStatusDisplayText(order),
+        style: TextStyle(
+          color: order.status == OrderStatus.dispatched
+              ? kPaletteWhite
+              : paletteBlackColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShippingCharges(double shippingCharges) {
+    String shippingText = shippingCharges == 0 ? "送料無料" : "¥500";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "送料",
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          Text(
+            shippingText,
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubTotal(double subTotalPrice) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "小計",
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          Text(
+            "¥${currencyFormat.format(subTotalPrice)}",
+            style: TextStyle(
+              color: paletteBlackColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
         ],
       ),
     );
