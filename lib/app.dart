@@ -111,5 +111,5 @@ TextTheme _buildAppTextTheme(TextTheme base) {
           color: paletteBlackColor,
         ),
       )
-      .apply(fontFamily: 'Rubik');
+      .apply(fontFamily: 'Hiragino Sans');
 }
