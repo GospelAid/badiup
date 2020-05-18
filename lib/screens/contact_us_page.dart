@@ -150,7 +150,7 @@ class ContactUsPage extends StatelessWidget {
 
   Widget _buildStoreContactRow() {
     return Container(
-      height: 120.0,
+      height: 130.0,
       child: Row(
         children: <Widget>[
           Container(

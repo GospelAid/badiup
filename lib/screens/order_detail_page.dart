@@ -171,7 +171,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   String _getOrderStatusDisplayText(Order order) {
     return order.status == OrderStatus.dispatched &&
             order.trackingDetails.code != null
-        ? "この商品は発送済みです。追跡番号は " + order.trackingDetails.code + " です"
+        ? "この商品は発送済みです。"
         : "この商品は未発送です。";
   }
 
@@ -813,6 +813,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               ),
             ),
           ),
+          Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "追跡番号: " + order.trackingDetails.code,
+              style: TextStyle(
+                fontSize: 16,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          )
         ],
       ),
     );
