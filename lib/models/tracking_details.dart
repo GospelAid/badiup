@@ -8,7 +8,7 @@ String getDisplayTextForDeliveryMethod(DeliveryMethod deliveryMethod) {
     case DeliveryMethod.japanPost:
       return "ゆうパック";
     case DeliveryMethod.sagawa:
-      return "宅急便";
+      return "ヤマト宅急便";
     default:
       return "";
   }
