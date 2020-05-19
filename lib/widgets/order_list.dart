@@ -105,15 +105,21 @@ class _OrderListState extends State<OrderList> {
 
   Widget _buildOrderStatus(Order order) {
     return Container(
-      height: 20,
-      width: 50,
-      decoration: BoxDecoration(color: paletteGreyColor4),
+      height: 24,
+      width: 52,
+      decoration: BoxDecoration(
+        color: order.status == OrderStatus.dispatched
+            ? paletteRoseColor
+            : paletteGreyColor4,
+      ),
       child: Center(
         child: Text(
           order.getOrderStatusText(),
           style: TextStyle(
-            color: paletteForegroundColor,
-            fontSize: 11,
+            color: order.status == OrderStatus.dispatched
+                ? paletteForegroundColor
+                : paletteBlackColor,
+            fontSize: 14,
           ),
         ),
       ),
