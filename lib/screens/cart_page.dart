@@ -207,7 +207,7 @@ class _CartPageState extends State<CartPage> {
 
       if (await _makePayment()) {
         await _updateProductStock(cart);
-        String orderId = await _placeOrder();
+        Order order = await _placeOrder();
 
         setState(() {
           // Payment successful and order placed
@@ -217,7 +217,7 @@ class _CartPageState extends State<CartPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrderSuccessPage(orderId: orderId),
+            builder: (context) => OrderSuccessPage(order: order),
           ),
         );
       } else {
@@ -316,7 +316,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Future<String> _placeOrder() async {
+  Future<Order> _placeOrder() async {
     var customer = Customer.fromSnapshot(await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
@@ -324,7 +324,7 @@ class _CartPageState extends State<CartPage> {
 
     Order orderRequest = await _getOrderRequest(customer);
 
-    await db
+    DocumentReference orderDocRef = await db
         .collection(constants.DBCollections.orders)
         .add(orderRequest.toMap());
 
@@ -335,7 +335,7 @@ class _CartPageState extends State<CartPage> {
         .document(currentSignedInUser.email)
         .updateData(customer.toMap());
 
-    return orderRequest.orderId;
+    return Order.fromSnapshot(await orderDocRef.snapshots().first);
   }
 
   Future _updateProductStock(Cart cart) async {
