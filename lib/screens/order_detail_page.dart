@@ -65,8 +65,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildBody(BuildContext context, Order order) {
-    double subTotal =
-        order.items.fold(.0, (a, b) => a + b.stockRequest.quantity * b.price);
+    double subTotal = order.items.fold(.0, (a, b) => a + b.price);
 
     return Container(
       color: paletteLightGreyColor,
@@ -593,14 +592,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
           ),
           SizedBox(height: 24.0),
-          _buildCustomerName(customer),
+          _buildCustomerName(order.billingAddress.recipientName),
           SizedBox(height: 12.0),
           _buildBillingAddress(order),
           SizedBox(height: 6.0),
-          _buildCustomerPhoneNumber(
-            customer,
-            order.shippingAddress.phoneNumber,
-          ),
+          _buildCustomerPhoneNumber(order.billingAddress.phoneNumber),
           SizedBox(height: 6.0),
           _buildCustomerEmailAddress(customer),
         ],
@@ -608,13 +604,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  Widget _buildCustomerName(Customer customer) {
+  Widget _buildCustomerName(String name) {
     return Container(
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
           Text(
-            customer.name,
+            name,
             style: TextStyle(
               fontSize: 16,
               color: paletteBlackColor,
@@ -679,7 +675,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Widget _buildBillingAddress(Order order) =>
       _buildAddressRow(order.billingAddress);
 
-  Widget _buildCustomerPhoneNumber(Customer customer, String phoneNumber) {
+  Widget _buildCustomerPhoneNumber(String phoneNumber) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(top: 6.0),
@@ -771,9 +767,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
           ),
           SizedBox(height: 24.0),
-          _buildCustomerName(customer),
+          _buildCustomerName(order.shippingAddress.recipientName),
           SizedBox(height: 12.0),
           _buildShippingAddress(order.shippingAddress),
+          SizedBox(height: 12.0),
+          _buildCustomerPhoneNumber(order.shippingAddress.phoneNumber),
         ],
       ),
     );

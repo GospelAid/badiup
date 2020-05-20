@@ -34,6 +34,7 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  TextEditingController shippingRecipientNameController;
   TextEditingController shippingPostcodeTextController;
   TextEditingController shippingPrefectureTextController;
   TextEditingController shippingMunicipalityTextController;
@@ -41,6 +42,7 @@ class _CartPageState extends State<CartPage> {
   TextEditingController shippingPhoneNumberTextController;
   StatusController shippingAddressSearchStatusController;
 
+  TextEditingController billingRecipientNameController;
   TextEditingController billingPostcodeTextController;
   TextEditingController billingPrefectureTextController;
   TextEditingController billingMunicipalityTextController;
@@ -62,6 +64,7 @@ class _CartPageState extends State<CartPage> {
   void initState() {
     super.initState();
 
+    shippingRecipientNameController = TextEditingController();
     shippingPostcodeTextController = TextEditingController();
     shippingPrefectureTextController = TextEditingController();
     shippingMunicipalityTextController = TextEditingController();
@@ -69,6 +72,7 @@ class _CartPageState extends State<CartPage> {
     shippingPhoneNumberTextController = TextEditingController();
     shippingAddressSearchStatusController = StatusController();
 
+    billingRecipientNameController = TextEditingController();
     billingPostcodeTextController = TextEditingController();
     billingPrefectureTextController = TextEditingController();
     billingMunicipalityTextController = TextEditingController();
@@ -170,6 +174,7 @@ class _CartPageState extends State<CartPage> {
 
   bool _isFormValid() {
     return shippingPostcodeTextController != null &&
+        shippingRecipientNameController.text.isNotEmpty &&
         shippingPostcodeTextController.text.isNotEmpty &&
         shippingMunicipalityTextController.text.isNotEmpty &&
         shippingPrefectureTextController.text.isNotEmpty &&
@@ -177,6 +182,7 @@ class _CartPageState extends State<CartPage> {
         shippingPhoneNumberTextController.text.isNotEmpty &&
         (_billingAddressSameAsShipping ||
             (billingPostcodeTextController != null &&
+                billingRecipientNameController.text.isNotEmpty &&
                 billingPostcodeTextController.text.isNotEmpty &&
                 billingMunicipalityTextController.text.isNotEmpty &&
                 billingPrefectureTextController.text.isNotEmpty &&
@@ -423,6 +429,7 @@ class _CartPageState extends State<CartPage> {
 
   Address _getShippingAddress() {
     return Address(
+      recipientName: shippingRecipientNameController.text,
       postcode: shippingPostcodeTextController.text,
       prefecture: shippingPrefectureTextController.text,
       phoneNumber: shippingPhoneNumberTextController.text,
@@ -435,6 +442,7 @@ class _CartPageState extends State<CartPage> {
 
   Address _getBillingAddress() {
     return Address(
+      recipientName: billingRecipientNameController.text,
       postcode: billingPostcodeTextController.text,
       prefecture: billingPrefectureTextController.text,
       phoneNumber: billingPhoneNumberTextController.text,
@@ -614,6 +622,7 @@ class _CartPageState extends State<CartPage> {
                 ),
               )
             : AddressInputForm(
+                recipientNameController: billingRecipientNameController,
                 phoneNumberTextController: billingPhoneNumberTextController,
                 buildingNameTextController: billingBuildingNameTextController,
                 municipalityTextController: billingMunicipalityTextController,
@@ -689,6 +698,7 @@ class _CartPageState extends State<CartPage> {
         ),
         SizedBox(height: 24.0),
         AddressInputForm(
+          recipientNameController: shippingRecipientNameController,
           phoneNumberTextController: shippingPhoneNumberTextController,
           buildingNameTextController: shippingBuildingNameTextController,
           municipalityTextController: shippingMunicipalityTextController,

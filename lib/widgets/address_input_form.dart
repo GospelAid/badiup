@@ -17,6 +17,7 @@ class StatusController extends ValueNotifier<bool> {
 
 class AddressInputForm extends StatefulWidget {
   AddressInputForm({
+    this.recipientNameController,
     this.postcodeTextController,
     this.prefectureTextController,
     this.municipalityTextController,
@@ -25,6 +26,7 @@ class AddressInputForm extends StatefulWidget {
     this.addressSearchStatusController,
   });
 
+  final TextEditingController recipientNameController;
   final TextEditingController postcodeTextController;
   final TextEditingController prefectureTextController;
   final TextEditingController municipalityTextController;
@@ -56,6 +58,8 @@ class _AddressInputFormState extends State<AddressInputForm> {
       ),
       child: Column(
         children: <Widget>[
+          _buildRecipientInputRow(),
+          SizedBox(height: 24.0),
           _buildAddressInputRows(),
           SizedBox(height: 24.0),
           _buildPhoneNumberInputRow(),
@@ -312,6 +316,51 @@ class _AddressInputFormState extends State<AddressInputForm> {
           hintText: '建物名など',
         ),
       ),
+    );
+  }
+
+  Widget _buildRecipientInputRow() {
+    return Row(
+      children: <Widget>[
+        Container(
+          child: Text(
+            "氏名",
+            style: TextStyle(
+              fontSize: 16.0,
+              color: paletteBlackColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ),
+        SizedBox(width: 16.0),
+        Container(
+          padding: EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: paletteGreyColor4),
+            ),
+          ),
+          child: Container(
+            height: 30.0,
+            width: 245.0,
+            child: TextFormField(
+              validator: (value) {
+                if (value.isEmpty) {
+                  return '氏名が入力されていません';
+                }
+                return null;
+              },
+              controller: widget.recipientNameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
+                hintText: '氏名',
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

@@ -1,4 +1,5 @@
 class Address {
+  final String recipientName;
   final String line1;
   final String line2;
   final String city;
@@ -7,6 +8,7 @@ class Address {
   final String phoneNumber;
 
   Address({
+    this.recipientName,
     this.line1,
     this.line2,
     this.city,
@@ -21,6 +23,7 @@ class Address {
 
   Map<String, dynamic> toMap() {
     return {
+      'recipientName': recipientName,
       'line1': line1,
       'line2': line2,
       'city': city,
@@ -31,10 +34,12 @@ class Address {
   }
 
   Address.fromMap(Map<String, dynamic> map)
-      : assert(map['line1'] != null),
+      : assert(map['recipientName'] != null),
+        assert(map['line1'] != null),
         assert(map['line2'] != null),
         assert(map['postcode'] != null),
         assert(map['phoneNumber'] != null),
+        recipientName = map['recipientName'],
         line1 = map['line1'],
         line2 = map['line2'],
         city = map['city'],
