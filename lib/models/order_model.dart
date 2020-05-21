@@ -15,6 +15,7 @@ class Order {
   final String orderId;
   Address shippingAddress;
   Address billingAddress;
+  final String notes;
   OrderStatus status;
   DateTime dispatchedDate;
   TrackingDetails trackingDetails;
@@ -32,6 +33,7 @@ class Order {
     this.orderId,
     this.shippingAddress,
     this.billingAddress,
+    this.notes,
     this.dispatchedDate,
     this.trackingDetails,
     this.totalPrice,
@@ -72,6 +74,7 @@ class Order {
     map['items'] = items.map((item) => item.toMap()).toList();
     map['shippingAddress'] = shippingAddress.toMap();
     map['billingAddress'] = billingAddress.toMap();
+    map['notes'] = notes;
 
     return map;
   }
@@ -92,6 +95,7 @@ class Order {
         billingAddress = map['billingAddress'] != null
             ? Address.fromMap(map['billingAddress'].cast<String, dynamic>())
             : Address(),
+        notes = map['notes'],
         trackingDetails = map['trackingDetails'] != null
             ? TrackingDetails.fromMap(
                 map['trackingDetails'].cast<String, dynamic>())

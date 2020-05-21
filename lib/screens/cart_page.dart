@@ -50,6 +50,8 @@ class _CartPageState extends State<CartPage> {
   TextEditingController billingPhoneNumberTextController;
   StatusController billingAddressSearchStatusController;
 
+  TextEditingController orderNotesController;
+
   final currencyFormat = NumberFormat("#,##0");
   bool paymentMethodAdded = false;
   bool _formSubmitInProgress = false;
@@ -79,6 +81,8 @@ class _CartPageState extends State<CartPage> {
     billingBuildingNameTextController = TextEditingController();
     billingPhoneNumberTextController = TextEditingController();
     billingAddressSearchStatusController = StatusController();
+
+    orderNotesController = TextEditingController();
 
     shippingAddressSearchStatusController.addListener(() {
       setState(() {
@@ -465,6 +469,7 @@ class _CartPageState extends State<CartPage> {
       billingAddress: _billingAddressSameAsShipping
           ? _getShippingAddress()
           : _getBillingAddress(),
+      notes: orderNotesController.text,
       totalPrice: _totalPrice,
       paymentMethod: _paymentOption,
       items: [],
@@ -576,6 +581,8 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 8),
             _buildBillingAddressInputForm(),
             SizedBox(height: 32),
+            _buildNotesInputForm(),
+            SizedBox(height: 32),
             _buildPaymentInfoTitle(),
             SizedBox(height: 12),
             _buildPaymentOptionSelector(),
@@ -584,6 +591,46 @@ class _CartPageState extends State<CartPage> {
             SizedBox(height: 48),
             _buildAboutDeliveryMethodInfo(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotesInputForm() {
+    return Row(
+      children: <Widget>[
+        Text(
+          "備考欄",
+          style: TextStyle(
+            fontSize: 16.0,
+            color: paletteBlackColor,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        SizedBox(width: 16.0),
+        _buildNotesTextFormField(),
+      ],
+    );
+  }
+
+  Widget _buildNotesTextFormField() {
+    return Container(
+      padding: EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: paletteGreyColor4),
+        ),
+      ),
+      child: Container(
+        width: 245.0,
+        child: TextFormField(
+          maxLines: 4,
+          controller: orderNotesController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.only(left: 14.0, top: 0.0, bottom: 0.0),
+            hintText: '到着日時の指定などがあればご記入ください。',
+          ),
         ),
       ),
     );

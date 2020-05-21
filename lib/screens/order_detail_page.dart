@@ -87,6 +87,57 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           _buildOrderPriceDescriptionBar(order.totalPrice),
           SizedBox(height: 60.0),
           _buildCustomerDetails(order),
+          _buildNotes(order),
+          _buildPaymentMethodInfoBox(order.paymentMethod),
+          order.status == OrderStatus.dispatched
+              ? _buildShippingMethodInfoBox(order)
+              : Container(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotes(Order order) {
+    return Container(
+      decoration: BoxDecoration(
+        color: kPaletteWhite,
+        border: Border(
+          bottom: BorderSide(color: kPaletteBorderColor),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        top: 12.0,
+        left: 24.0,
+        right: 24.0,
+        bottom: 50.0,
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              "備考欄",
+              style: TextStyle(
+                fontSize: 18,
+                color: paletteBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 25.0),
+          order.notes != null
+              ? Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    order.notes,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: paletteBlackColor,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
@@ -495,10 +546,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               _buildGreyBar(),
               _buildBillingAddressInfoBox(_customer, order),
               _buildShippingAddressInfoBox(_customer, order),
-              _buildPaymentMethodInfoBox(order.paymentMethod),
-              order.status == OrderStatus.dispatched
-                  ? _buildShippingMethodInfoBox(order)
-                  : Container(),
             ],
           );
         },
@@ -509,6 +556,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Widget _buildPaymentMethodInfoBox(PaymentOption paymentMethod) {
     return Container(
       decoration: BoxDecoration(
+        color: kPaletteWhite,
         border: Border(
           bottom: BorderSide(color: kPaletteBorderColor),
         ),
@@ -782,6 +830,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Widget _buildShippingMethodInfoBox(Order order) {
     return Container(
+      color: kPaletteWhite,
       padding:
           EdgeInsets.only(top: 12.0, left: 24.0, right: 24.0, bottom: 50.0),
       child: Column(
