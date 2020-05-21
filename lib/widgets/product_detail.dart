@@ -278,7 +278,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Widget _buildProductListingItemTileImage(Product product) {
     return Container(
-      height: 232.5,
+      height: 200,
       color: paletteDarkGreyColor,
       child: _getProductListingImage(product),
     );

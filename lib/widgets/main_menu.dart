@@ -58,10 +58,6 @@ class _MainMenuState extends State<MainMenu> {
     widgetList.addAll(<Widget>[
       Container(
         padding: EdgeInsets.only(left: 12.0),
-        child: _buildDrawerSettingsTile(context),
-      ),
-      Container(
-        padding: EdgeInsets.only(left: 12.0),
         child: _buildDrawerContactUsTile(context),
       ),
       Container(
@@ -348,6 +344,7 @@ class _MainMenuState extends State<MainMenu> {
       ),
       Text(
         currentSignedInUser.email,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: kPaletteWhite,
           fontSize: 12,
