@@ -29,6 +29,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   ItemSize _selectedItemSize;
   ItemColor _selectedItemColor;
   bool _showAddToCartFailedMessage = false;
+  String _addToCartFailedMessage = "";
 
   @override
   Widget build(BuildContext context) {
@@ -117,37 +118,12 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   }
 
   Widget _buildAddToCartFailedMessage(StockType productStockType) {
-    String errorMessge;
-    switch (productStockType) {
-      case StockType.sizeAndColor:
-        {
-          errorMessge = "サイズと色を選択してください";
-        }
-        break;
-
-      case StockType.sizeOnly:
-        {
-          errorMessge = "サイズを選択してください";
-        }
-        break;
-
-      case StockType.colorOnly:
-        {
-          errorMessge = "色を選択してください";
-        }
-        break;
-      default:
-        {
-          errorMessge = "";
-        }
-        break;
-    }
     return Container(
       alignment: AlignmentDirectional.center,
       color: paletteRoseColor,
       height: 75,
       child: Text(
-        errorMessge,
+        _addToCartFailedMessage,
         style: TextStyle(color: paletteDarkRedColor),
       ),
     );
@@ -170,6 +146,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
       _widgetList.add(_buildAddToCartFailedMessage(_product.stock.stockType));
       _widgetList.add(SizedBox(height: 12));
     }
+
     if (_product.stock.stockType == StockType.sizeAndColor ||
         _product.stock.stockType == StockType.sizeOnly) {
       _widgetList.add(_buildStockSizePicker(_product.stock, _textStyle));
@@ -340,8 +317,8 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
   Widget _buildAddToCartButton(Product product) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          if (_canAddToCart(product)) {
+        onTap: () async {
+          if (await _canAddToCart(product)) {
             _addToCart();
             _scaffoldKey.currentState.showSnackBar(
               _buildAddedToCartNotification(),
@@ -376,15 +353,46 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  bool _canAddToCart(Product _product) {
+  Future<bool> _canAddToCart(Product _product) async {
+    bool canAddToCart = true;
+
     if (_product.stock.stockType == StockType.sizeAndColor) {
-      return _selectedItemColor != null && _selectedItemSize != null;
+      _addToCartFailedMessage = "サイズと色を選択してください";
+      canAddToCart = _selectedItemColor != null && _selectedItemSize != null;
     } else if (_product.stock.stockType == StockType.sizeOnly) {
-      return _selectedItemSize != null;
+      _addToCartFailedMessage = "サイズを選択してください";
+      canAddToCart = _selectedItemSize != null;
     } else if (_product.stock.stockType == StockType.colorOnly) {
-      return _selectedItemColor != null;
+      _addToCartFailedMessage = "色を選択してください";
+      canAddToCart = _selectedItemColor != null;
     }
-    return true;
+
+    if (canAddToCart) {
+      var customer = Customer.fromSnapshot(await db
+          .collection(constants.DBCollections.users)
+          .document(currentSignedInUser.email)
+          .get());
+
+      int productIndexInCart = customer.cart.items.indexWhere((cartItem) =>
+          cartItem.productDocumentId == widget.productDocumentId &&
+          cartItem.stockRequest?.color == _selectedItemColor &&
+          cartItem.stockRequest?.size == _selectedItemSize);
+
+      if (productIndexInCart != -1) {
+        StockItem productStock = _product.getRequestedStockItem(StockItem(
+          color: _selectedItemColor,
+          size: _selectedItemSize,
+        ));
+
+        _addToCartFailedMessage = "在庫切れ";
+        if (customer.cart.items[productIndexInCart].stockRequest.quantity >=
+            productStock.quantity) {
+          canAddToCart = false;
+        }
+      }
+    }
+
+    return canAddToCart;
   }
 
   SnackBar _buildAddedToCartNotification() {
