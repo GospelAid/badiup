@@ -78,6 +78,33 @@ class Product {
     );
   }
 
+  StockItem getRequestedStockItem(StockItem stockRequest) {
+    StockItem productStockItem;
+
+    if (stock.stockType == StockType.sizeAndColor) {
+      productStockItem = stock.items.firstWhere(
+        (stockItem) =>
+            stockItem.size == stockRequest.size &&
+            stockItem.color == stockRequest.color,
+        orElse: () => null,
+      );
+    } else if (stock.stockType == StockType.sizeOnly) {
+      productStockItem = stock.items.firstWhere(
+        (stockItem) => stockItem.size == stockRequest.size,
+        orElse: () => null,
+      );
+    } else if (stock.stockType == StockType.colorOnly) {
+      productStockItem = stock.items.firstWhere(
+        (stockItem) => stockItem.color == stockRequest.color,
+        orElse: () => null,
+      );
+    } else {
+      productStockItem = stock.items.first;
+    }
+
+    return productStockItem;
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
