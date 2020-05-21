@@ -609,7 +609,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
-          Text(
+          SelectableText(
             name,
             style: TextStyle(
               fontSize: 16,
@@ -648,7 +648,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
+                SelectableText(
                   "〒 " + (address.postcode ?? ""),
                   style: TextStyle(
                     fontSize: 16,
@@ -656,7 +656,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     fontWeight: FontWeight.w300,
                   ),
                 ),
-                Text(
+                SelectableText(
                   (address.line1 ?? "") + (address.line2 ?? ""),
                   style: TextStyle(
                     fontSize: 16,
@@ -695,7 +695,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
           ),
           SizedBox(width: 16.0),
-          Text(
+          SelectableText(
             phoneNumber ?? "",
             style: TextStyle(
               fontSize: 16,
@@ -729,7 +729,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           SizedBox(width: 16.0),
           Expanded(
-            child: Text(
+            child: SelectableText(
               customer.email,
               style: TextStyle(
                 fontSize: 16,
@@ -800,7 +800,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           SizedBox(height: 25.0),
           Container(
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: SelectableText(
               getDisplayTextForDeliveryMethod(
                 order.trackingDetails.deliveryMethod,
               ),
@@ -813,7 +813,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           Container(
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: SelectableText(
               "追跡番号: " + order.trackingDetails.code,
               style: TextStyle(
                 fontSize: 16,
