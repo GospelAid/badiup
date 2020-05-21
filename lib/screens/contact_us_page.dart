@@ -107,7 +107,7 @@ class ContactUsPage extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(left: 10.0),
             alignment: Alignment.centerLeft,
-            child: Text('バディカフェ', style: _tableTextStyle),
+            child: SelectableText('バディカフェ', style: _tableTextStyle),
           ),
         ],
       ),
@@ -137,8 +137,8 @@ class ContactUsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('〒444-2149', style: _tableTextStyle),
-                  Text('愛知県岡崎市細川町字窪地77-207', style: _tableTextStyle),
+                  SelectableText('〒444-2149', style: _tableTextStyle),
+                  SelectableText('愛知県岡崎市細川町字窪地77-207', style: _tableTextStyle),
                 ],
               ),
             ),
@@ -195,6 +195,7 @@ class ContactUsPage extends StatelessWidget {
             _badiCafePhoneNumber,
             style: TextStyle(
               color: paletteDarkRedColor,
+              decoration: TextDecoration.underline,
             ),
           ),
         ],
