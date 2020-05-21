@@ -344,6 +344,7 @@ class _MainMenuState extends State<MainMenu> {
       ),
       Text(
         currentSignedInUser.email,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: kPaletteWhite,
           fontSize: 12,
