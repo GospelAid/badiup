@@ -284,7 +284,7 @@ class _CartPageState extends State<CartPage> {
                         getDisplayTextForItemColor(_productStockRequest.color) +
                         "】"
                     : "") +
-                "の在庫は注文量よりも少ないです。注文数を減らしてください。";
+                "の在庫が足りません。注文数を減らしてください。";
           });
 
           return false;
