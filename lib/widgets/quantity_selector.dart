@@ -117,7 +117,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           width: buttonSize,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: widget.controller.value == widget.controller.maxCounterValue
+            color: widget.controller.value >= widget.controller.maxCounterValue
                 ? paletteDarkGreyColor
                 : paletteForegroundColor,
             borderRadius: widget.orientation == Orientation.landscape
@@ -161,7 +161,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
           width: buttonSize,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: widget.controller.value == 1
+            color: widget.controller.value <= 1
                 ? paletteDarkGreyColor
                 : paletteBlackColor,
             borderRadius: widget.orientation == Orientation.landscape

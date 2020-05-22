@@ -551,33 +551,30 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         ? paletteGreyColor2
         : getDisplayTextColorForItemColor(stockItem.color);
 
-    return Padding(
-      padding: EdgeInsets.all(12),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _productStockType == StockType.colorOnly
-              ? Container()
-              : Text(
-                  getDisplayTextForItemSize(stockItem.size),
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w600,
-                    color: _color,
-                  ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        _productStockType == StockType.colorOnly
+            ? Container()
+            : Text(
+                getDisplayTextForItemSize(stockItem.size),
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w600,
+                  color: _color,
                 ),
-          _productStockType == StockType.sizeOnly
-              ? Container()
-              : Text(
-                  getDisplayTextForItemColor(stockItem.color),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: _color,
-                  ),
+              ),
+        _productStockType == StockType.sizeOnly
+            ? Container()
+            : Text(
+                getDisplayTextForItemColor(stockItem.color),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: _color,
                 ),
-        ],
-      ),
+              ),
+      ],
     );
   }
 
