@@ -373,6 +373,10 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           .document(currentSignedInUser.email)
           .get());
 
+      if (customer.cart == null) {
+        customer.cart = Cart(items: []);
+      }
+
       int productIndexInCart = customer.cart.items.indexWhere((cartItem) =>
           cartItem.productDocumentId == widget.productDocumentId &&
           cartItem.stockRequest?.color == _selectedItemColor &&

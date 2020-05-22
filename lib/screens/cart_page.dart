@@ -209,32 +209,120 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  Future<bool> _ensureStockAvailable(Cart cart) async {
+    HashMap<String, List<StockItem>> _hashMap =
+        HashMap<String, List<StockItem>>();
+
+    for (var i = 0; i < cart.items.length; i++) {
+      var _cartItem = cart.items[i];
+      if (_hashMap.containsKey(_cartItem.productDocumentId)) {
+        _hashMap[_cartItem.productDocumentId].add(_cartItem.stockRequest);
+      } else {
+        _hashMap[_cartItem.productDocumentId] = [_cartItem.stockRequest];
+      }
+    }
+
+    for (var productIndex = 0;
+        productIndex < _hashMap.keys.length;
+        productIndex++) {
+      var _productDocumentId = _hashMap.keys.elementAt(productIndex);
+
+      if (!(await _ensureStockAvailableForProductDocumentId(
+        _hashMap[_productDocumentId],
+        _productDocumentId,
+      ))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<bool> _ensureStockAvailableForProductDocumentId(
+      List<StockItem> stockRequestList, String productDocumentId) async {
+    var _product = Product.fromSnapshot(await db
+        .collection(constants.DBCollections.products)
+        .document(productDocumentId)
+        .get());
+
+    for (var stockIndex = 0;
+        stockIndex < stockRequestList.length;
+        stockIndex++) {
+      var _productStockRequest = stockRequestList[stockIndex];
+
+      int _productStockItemIndex = 0;
+
+      if (_product.stock.stockType == StockType.sizeAndColor) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) =>
+              stockItem.size == _productStockRequest.size &&
+              stockItem.color == _productStockRequest.color,
+        );
+      } else if (_product.stock.stockType == StockType.sizeOnly) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) => stockItem.size == _productStockRequest.size,
+        );
+      } else if (_product.stock.stockType == StockType.colorOnly) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) => stockItem.color == _productStockRequest.color,
+        );
+      }
+
+      if (_productStockItemIndex != -1) {
+        if (_product.stock.items[_productStockItemIndex].quantity <
+            _productStockRequest.quantity) {
+          setState(() {
+            _formSubmitInProgress = false;
+            _formSubmitFailedMessage = _product.name +
+                (_productStockRequest.size != null
+                    ? "【サイズ：" +
+                        getDisplayTextForItemSize(_productStockRequest.size) +
+                        "】"
+                    : "") +
+                (_productStockRequest.color != null
+                    ? "【色：" +
+                        getDisplayTextForItemColor(_productStockRequest.color) +
+                        "】"
+                    : "") +
+                "の在庫が足りません。注文数を減らしてください。";
+          });
+
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
   Future _processOrder(Cart cart, BuildContext context) async {
     if (_isFormValid()) {
       setState(() {
         _formSubmitInProgress = true;
       });
 
-      if (await _makePayment()) {
-        await _updateProductStock(cart);
-        Order order = await _placeOrder();
+      if (await _ensureStockAvailable(cart)) {
+        if (await _makePayment()) {
+          await _updateProductStock(cart);
+          Order order = await _placeOrder();
 
-        setState(() {
-          // Payment successful and order placed
-          _formSubmitInProgress = false;
-        });
+          setState(() {
+            // Payment successful and order placed
+            _formSubmitInProgress = false;
+          });
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderSuccessPage(order: order),
-          ),
-        );
-      } else {
-        setState(() {
-          _formSubmitInProgress = false;
-          _formSubmitFailedMessage = "支払いに失敗しました。入力内容をもう一度ご確認ください。";
-        });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrderSuccessPage(order: order),
+            ),
+          );
+        } else {
+          setState(() {
+            _formSubmitInProgress = false;
+            _formSubmitFailedMessage = "支払いに失敗しました。入力内容をもう一度ご確認ください。";
+          });
+        }
       }
     } else {
       setState(() {
@@ -386,14 +474,27 @@ class _CartPageState extends State<CartPage> {
         stockIndex++) {
       var _productStockRequest = _productStockRequestList[stockIndex];
 
-      StockItem _productStockItem = _getProductStockItem(
-        _product,
-        _productStockRequest,
-      );
+      int _productStockItemIndex = 0;
 
-      // TODO: handle case when final stock becomes < 1
-      if (_productStockItem != null) {
-        _productStockItem.quantity -= _productStockRequest.quantity;
+      if (_product.stock.stockType == StockType.sizeAndColor) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) =>
+              stockItem.size == _productStockRequest.size &&
+              stockItem.color == _productStockRequest.color,
+        );
+      } else if (_product.stock.stockType == StockType.sizeOnly) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) => stockItem.size == _productStockRequest.size,
+        );
+      } else if (_product.stock.stockType == StockType.colorOnly) {
+        _productStockItemIndex = _product.stock.items.indexWhere(
+          (stockItem) => stockItem.color == _productStockRequest.color,
+        );
+      }
+
+      if (_productStockItemIndex != -1) {
+        _product.stock.items[_productStockItemIndex].quantity -=
+            _productStockRequest.quantity;
       }
     }
 
@@ -401,34 +502,6 @@ class _CartPageState extends State<CartPage> {
         .collection(constants.DBCollections.products)
         .document(_productDocumentId)
         .updateData(_product.toMap());
-  }
-
-  StockItem _getProductStockItem(
-    Product _product,
-    StockItem _productStockRequest,
-  ) {
-    StockItem _productStockItem;
-
-    if (_product.stock.stockType == StockType.sizeAndColor) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) =>
-            stockItem.size == _productStockRequest.size &&
-            stockItem.color == _productStockRequest.color,
-        orElse: () => null,
-      );
-    } else if (_product.stock.stockType == StockType.sizeOnly) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) => stockItem.size == _productStockRequest.size,
-        orElse: () => null,
-      );
-    } else if (_product.stock.stockType == StockType.colorOnly) {
-      _productStockItem = _product.stock.items.firstWhere(
-        (stockItem) => stockItem.color == _productStockRequest.color,
-        orElse: () => null,
-      );
-    }
-
-    return _productStockItem;
   }
 
   Address _getShippingAddress() {
@@ -759,9 +832,9 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildFormSubmitFailedMessage() {
     return Container(
+      padding: EdgeInsets.all(8),
       alignment: AlignmentDirectional.center,
       color: paletteRoseColor,
-      height: 75,
       child: Text(
         _formSubmitFailedMessage,
         style: TextStyle(color: paletteDarkRedColor),

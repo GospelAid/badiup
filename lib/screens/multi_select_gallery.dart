@@ -29,6 +29,12 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
 
   @override
   Widget build(BuildContext context) {
+    _channel.invokeMethod<int>("getItemCount").then((count) {
+      setState(() {
+        _numberOfItems = count;
+      });
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text("ギャラリー"),
@@ -158,7 +164,7 @@ class _MultiSelectGalleryState extends State<MultiSelectGallery> {
       });
     } else {
       galleryImage = await _getHDImageAssetFromDeviceGallery(index);
-      
+
       setState(() {
         _selectedImages.add(galleryImage);
       });
