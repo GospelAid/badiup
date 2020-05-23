@@ -145,13 +145,7 @@ class _CartPageState extends State<CartPage> {
           return _buildEmptyCart();
         }
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            _buildCartItemListingInternal(customer.cart),
-            _buildProcessOrderButton(context, customer.cart),
-          ],
-        );
+        return _buildCartItemListingInternal(customer.cart);
       },
     );
   }
@@ -584,11 +578,10 @@ class _CartPageState extends State<CartPage> {
 
     widgetList.add(SizedBox(height: 50));
     widgetList.add(_buildSummary());
+    widgetList.add(_buildProcessOrderButton(context, cart));
 
-    return Expanded(
-      child: ListView(
-        children: widgetList,
-      ),
+    return ListView(
+      children: widgetList,
     );
   }
 

@@ -184,8 +184,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         style: TextStyle(color: paletteForegroundColor),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         await _submitForm(PublishStatus.Draft);
-        Navigator.pop(context, true);
+        Navigator.pop(_scaffoldKey.currentContext);
       },
     );
   }
