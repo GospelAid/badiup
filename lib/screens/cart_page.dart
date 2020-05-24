@@ -101,7 +101,7 @@ class _CartPageState extends State<CartPage> {
 
     StripePayment.setOptions(
       StripeOptions(
-        publishableKey: "pk_test_TwCMCEid9SP9Ii8Ztuwl3ere00cbfx1xjn",
+        publishableKey: "pk_live_8hFKszCmdTGw3sQ2iRVeg7XZ00bjfErdtK",
         merchantId: "BADIUP",
         androidPayMode: 'test',
       ),
