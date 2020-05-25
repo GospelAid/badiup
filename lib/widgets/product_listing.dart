@@ -208,16 +208,36 @@ class _ProductListingState extends State<ProductListing> {
   ) {
     activeImageMap.putIfAbsent(product.documentId, () => 0);
 
-    return Container(
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        top: 16.0,
-        right: 16.0,
-      ),
-      child: _buildProductListingItemTile(
-        context,
-        product,
-        index,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              if (currentSignedInUser.isAdmin()) {
+                return AdminProductDetailPage(
+                  productDocumentId: product.documentId,
+                );
+              } else {
+                return CustomerProductDetailPage(
+                  productDocumentId: product.documentId,
+                );
+              }
+            },
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.only(
+          left: 16.0,
+          top: 16.0,
+          right: 16.0,
+        ),
+        child: _buildProductListingItemTile(
+          context,
+          product,
+          index,
+        ),
       ),
     );
   }
@@ -246,7 +266,7 @@ class _ProductListingState extends State<ProductListing> {
           alignment: AlignmentDirectional.center,
           children: widgetList,
         ),
-        _buildProductListingItemTileInfoPane(product),
+        _buildProductInfoPaneContents(product),
       ],
     );
   }
@@ -295,35 +315,6 @@ class _ProductListingState extends State<ProductListing> {
           curve: Curves.ease,
         );
       },
-    );
-  }
-
-  Widget _buildProductListingItemTileInfoPane(Product product) {
-    return GestureDetector(
-      key: Key(makeTestKeyString(
-        TKUsers.admin,
-        TKScreens.productListing,
-        "infoPane_" + product.name,
-      )),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              if (currentSignedInUser.isAdmin()) {
-                return AdminProductDetailPage(
-                  productDocumentId: product.documentId,
-                );
-              } else {
-                return CustomerProductDetailPage(
-                  productDocumentId: product.documentId,
-                );
-              }
-            },
-          ),
-        );
-      },
-      child: _buildProductInfoPaneContents(product),
     );
   }
 

@@ -128,7 +128,7 @@ class _OrderListState extends State<OrderList> {
 
   Widget _buildOrderListTile(Order order) {
     return ListTile(
-      title: _buildOrderId(order),
+      title: _buildCustomerName(order),
       subtitle: _buildOrderPrice(order),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -171,7 +171,7 @@ class _OrderListState extends State<OrderList> {
         Text(
           "¥${currencyFormat.format(order.totalPrice)}",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             color: paletteDarkRedColor,
             fontWeight: FontWeight.bold,
           ),
@@ -180,7 +180,7 @@ class _OrderListState extends State<OrderList> {
           "（税込）",
           style: TextStyle(
             color: paletteBlackColor,
-            fontSize: 14.0,
+            fontSize: 12.0,
             fontWeight: FontWeight.normal,
           ),
         ),
@@ -188,16 +188,14 @@ class _OrderListState extends State<OrderList> {
     );
   }
 
-  Widget _buildOrderId(Order order) {
-    return Padding(
-      padding: EdgeInsets.only(top: 16),
-      child: Text(
-        order.orderId,
-        style: TextStyle(
-          fontSize: 12,
-          color: paletteBlackColor,
-          fontWeight: FontWeight.bold,
-        ),
+  Widget _buildCustomerName(Order order) {
+    return Text(
+      order.billingAddress.recipientName,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 18,
+        color: paletteBlackColor,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

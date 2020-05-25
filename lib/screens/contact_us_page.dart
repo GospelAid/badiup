@@ -150,7 +150,7 @@ class ContactUsPage extends StatelessWidget {
 
   Widget _buildStoreContactRow() {
     return Container(
-      height: 130.0,
+      height: 150.0,
       child: Row(
         children: <Widget>[
           Container(
@@ -171,6 +171,7 @@ class ContactUsPage extends StatelessWidget {
                   Text('【受付時間】', style: _tableTextStyle),
                   Text('月〜金（祝日除く）', style: _tableTextStyle),
                   Text('9:00-16:00', style: _tableTextStyle),
+                  SelectableText('admin@badicafe.com', style: _tableTextStyle),
                 ],
               ),
             ),

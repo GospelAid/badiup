@@ -101,7 +101,7 @@ class _CartPageState extends State<CartPage> {
 
     StripePayment.setOptions(
       StripeOptions(
-        publishableKey: "pk_test_TwCMCEid9SP9Ii8Ztuwl3ere00cbfx1xjn",
+        publishableKey: "pk_live_8hFKszCmdTGw3sQ2iRVeg7XZ00bjfErdtK",
         merchantId: "BADIUP",
         androidPayMode: 'test',
       ),
@@ -145,13 +145,7 @@ class _CartPageState extends State<CartPage> {
           return _buildEmptyCart();
         }
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            _buildCartItemListingInternal(customer.cart),
-            _buildProcessOrderButton(context, customer.cart),
-          ],
-        );
+        return _buildCartItemListingInternal(customer.cart);
       },
     );
   }
@@ -584,11 +578,10 @@ class _CartPageState extends State<CartPage> {
 
     widgetList.add(SizedBox(height: 50));
     widgetList.add(_buildSummary());
+    widgetList.add(_buildProcessOrderButton(context, cart));
 
-    return Expanded(
-      child: ListView(
-        children: widgetList,
-      ),
+    return ListView(
+      children: widgetList,
     );
   }
 
