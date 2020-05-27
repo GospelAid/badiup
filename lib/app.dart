@@ -13,6 +13,7 @@ class BadiUpApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: _getAppTheme(),
       home: FutureBuilder<FirebaseUser>(
           future: FirebaseAuth.instance.currentUser(),

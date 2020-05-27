@@ -65,7 +65,6 @@
 **/ios/Flutter/flutter_assets/
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
-**/ios/Runner/Info.plist
 
 # Google related
 GoogleService-Info.plist

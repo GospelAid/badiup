@@ -14,10 +14,12 @@ class Cart {
   }
 
   Cart.fromMap(Map<String, dynamic> map) {
-    items = map['items']
-        .map<CartItem>(
-            (cartItem) => CartItem.fromMap(cartItem.cast<String, dynamic>()))
-        .toList();
+    items = map['items'] != null
+        ? map['items']
+            .map<CartItem>((cartItem) =>
+                CartItem.fromMap(cartItem.cast<String, dynamic>()))
+            .toList()
+        : [];
   }
 }
 

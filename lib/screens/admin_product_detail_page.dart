@@ -113,30 +113,37 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
         ? paletteGreyColor2
         : getDisplayTextColorForItemColor(stockItem.color);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        stockType == StockType.colorOnly
-            ? Container()
-            : Text(
-                getDisplayTextForItemSize(stockItem.size),
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w600,
-                  color: _color,
-                ),
-              ),
-        stockType == StockType.sizeOnly
-            ? Container()
-            : Text(
-                getDisplayTextForItemColor(stockItem.color),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: _color,
-                ),
-              ),
-      ],
+    return Container(
+      width: 90,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            stockType == StockType.colorOnly
+                ? Container()
+                : Text(
+                    getDisplayTextForItemSize(stockItem.size),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _color,
+                    ),
+                  ),
+            stockType == StockType.sizeOnly
+                ? Container()
+                : Text(
+                    getDisplayTextForItemColor(stockItem.color),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _color,
+                    ),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 

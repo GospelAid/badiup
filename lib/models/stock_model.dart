@@ -7,15 +7,31 @@ enum ItemColor {
   white,
   pink,
   grey,
+  whiteAndCaramel,
+  whiteAndWhite,
+  blackAndBlack,
+  caramel,
 }
 
 enum ItemSize {
-  large3,
-  large2,
-  large,
-  medium,
-  small,
-  extraSmall,
+  ladiesLarge,
+  ladiesMedium,
+  ladiesSmall,
+  mens3xl,
+  mensXxl,
+  mensXl,
+  mensLarge,
+  mensMedium,
+  mensSmall,
+  singleItem,
+  fiveItemPack,
+  tenItemPack,
+  oneCup,
+  fiveCups,
+  tenCups,
+  twentyCups,
+  thirtyFiveCups,
+  seventyCups,
 }
 
 enum StockType {
@@ -52,6 +68,14 @@ String getDisplayTextForItemColor(ItemColor itemColor) {
       return "ピンク";
     case ItemColor.grey:
       return "グレー";
+    case ItemColor.whiteAndCaramel:
+      return "白×キャメル";
+    case ItemColor.whiteAndWhite:
+      return "白×白";
+    case ItemColor.blackAndBlack:
+      return "黒×黒";
+    case ItemColor.caramel:
+      return "カラメル";
     default:
       return "";
   }
@@ -60,10 +84,14 @@ String getDisplayTextForItemColor(ItemColor itemColor) {
 Color getDisplayColorForItemColor(ItemColor itemColor) {
   switch (itemColor) {
     case ItemColor.black:
+    case ItemColor.blackAndBlack:
       return paletteBlackColor;
     case ItemColor.brown:
+    case ItemColor.caramel:
       return paletteBrownColor;
     case ItemColor.white:
+    case ItemColor.whiteAndWhite:
+    case ItemColor.whiteAndCaramel:
       return kPaletteWhite;
     case ItemColor.pink:
       return kPalettePurple100;
@@ -77,15 +105,13 @@ Color getDisplayColorForItemColor(ItemColor itemColor) {
 Color getDisplayTextColorForItemColor(ItemColor itemColor) {
   switch (itemColor) {
     case ItemColor.black:
-      return kPaletteWhite;
     case ItemColor.brown:
+    case ItemColor.pink:
+    case ItemColor.grey:
+    case ItemColor.caramel:
       return kPaletteWhite;
     case ItemColor.white:
       return paletteGreyColor2;
-    case ItemColor.pink:
-      return kPaletteWhite; 
-    case ItemColor.grey:
-      return kPaletteWhite;
     default:
       return paletteGreyColor2;
   }
@@ -93,18 +119,42 @@ Color getDisplayTextColorForItemColor(ItemColor itemColor) {
 
 String getDisplayTextForItemSize(ItemSize itemSize) {
   switch (itemSize) {
-    case ItemSize.large3:
-      return "3L";
-    case ItemSize.large2:
-      return "2L";
-    case ItemSize.large:
-      return "L";
-    case ItemSize.medium:
-      return "M";
-    case ItemSize.small:
-      return "S";
-    case ItemSize.extraSmall:
-      return "XS";
+    case ItemSize.ladiesSmall:
+      return "レディース S";
+    case ItemSize.ladiesMedium:
+      return "レディース M";
+    case ItemSize.ladiesLarge:
+      return "レディース L";
+    case ItemSize.mensSmall:
+      return "メンズ S";
+    case ItemSize.mensMedium:
+      return "メンズ M";
+    case ItemSize.mensLarge:
+      return "メンズ L";
+    case ItemSize.mensXl:
+      return "メンズ XL";
+    case ItemSize.mensXxl:
+      return "メンズ XXL";
+    case ItemSize.mens3xl:
+      return "メンズ 3XL";
+    case ItemSize.singleItem:
+      return "一個";
+    case ItemSize.fiveItemPack:
+      return "5個";
+    case ItemSize.tenItemPack:
+      return "贈答用箱入り10個";
+    case ItemSize.oneCup:
+      return "一杯";
+    case ItemSize.fiveCups:
+      return "5杯";
+    case ItemSize.tenCups:
+      return "10杯";
+    case ItemSize.twentyCups:
+      return "20杯";
+    case ItemSize.thirtyFiveCups:
+      return "35杯";
+    case ItemSize.seventyCups:
+      return "70杯";
     default:
       return "";
   }
