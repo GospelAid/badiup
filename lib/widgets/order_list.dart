@@ -75,7 +75,7 @@ class _OrderListState extends State<OrderList> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Text(
-            "まだ注文されてません。",
+            "注文履歴はありません",
             style: TextStyle(
               color: paletteForegroundColor,
               fontWeight: FontWeight.w600,
