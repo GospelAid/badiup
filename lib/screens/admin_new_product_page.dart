@@ -162,7 +162,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     return (_productImages?.length == 0 ?? true) &&
         (_nameEditingController?.text == "" ?? true) &&
         (_descriptionEditingController?.text == "" ?? true) &&
-        (_priceEditingController?.text == "" ?? true);
+        (_priceEditingController?.text == "" ?? true) &&
+        (((_productStockType == StockType.quantityOnly) &&
+                (_quantityEditingController?.text == "" ?? true)) &&
+            (_productStockMap.length == 0));
   }
 
   List<Widget> _buildConfirmExitDialogActions(
@@ -301,7 +304,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       SizedBox(height: 16.0),
       _buildPriceFormField(),
       SizedBox(height: 32.0),
+      _buildCategoryTitle(),
       _buildCategoryFormField(),
+      _buildStockTypeTitle(),
       _buildStockTypeFormField(),
       SizedBox(height: 4.0),
     ];
@@ -320,6 +325,46 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     }
 
     return _getSliverList(widgetList1, widgetList2);
+  }
+
+  Widget _buildStockTypeTitle() {
+    var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
+
+    return Container(
+      padding: EdgeInsets.only(top: 8),
+      alignment: AlignmentDirectional.center,
+      decoration: BoxDecoration(
+        border: Border(top: _borderSide),
+      ),
+      child: Text(
+        "在庫タイプ",
+        style: TextStyle(
+          color: paletteBlackColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryTitle() {
+    var _borderSide = BorderSide(width: 0.4, color: paletteBlackColor);
+
+    return Container(
+      padding: EdgeInsets.only(top: 8),
+      alignment: AlignmentDirectional.center,
+      decoration: BoxDecoration(
+        border: Border(top: _borderSide),
+      ),
+      child: Text(
+        "カテゴリ",
+        style: TextStyle(
+          color: paletteBlackColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
   }
 
   List<Widget> _getSliverList(
@@ -606,10 +651,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     var _borderSide = BorderSide(width: 0.3, color: paletteBlackColor);
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.only(bottom: 8),
       alignment: AlignmentDirectional.centerStart,
       decoration: BoxDecoration(
-        border: Border(top: _borderSide, bottom: _borderSide),
+        border: Border(bottom: _borderSide),
       ),
       child: _buildCategoryButton(),
     );
@@ -617,7 +662,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
   Widget _buildStockTypeDisplay(TextStyle textStyle) {
     var controller = TextEditingController(
-      text: "カテゴリタイプ：" + getDisplayTextForStockType(_productStockType),
+      text: getDisplayTextForStockType(_productStockType),
     );
 
     return TextField(
@@ -651,8 +696,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             .map<DropdownMenuItem<StockType>>((StockType value) {
           return DropdownMenuItem<StockType>(
             value: value,
-            child: Text("カテゴリタイプ：" + getDisplayTextForStockType(value),
-                style: textStyle),
+            child: Text(getDisplayTextForStockType(value), style: textStyle),
           );
         }).toList(),
       ),
@@ -684,7 +728,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             Category.values.map<DropdownMenuItem<Category>>((Category value) {
           return DropdownMenuItem<Category>(
             value: value,
-            child: Text("カテゴリ：" + getDisplayText(value), style: _textStyle),
+            child: Text(getDisplayText(value), style: _textStyle),
           );
         }).toList(),
       ),

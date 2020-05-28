@@ -26,6 +26,7 @@ const paletteGreyColor2 = const Color(0xFF767575);
 const paletteGreyColor3 = const Color(0xFFD2D0D1);
 const paletteGreyColor4 = const Color(0xFFEFEFEF);
 const paletteGreyColor5 = const Color(0xFFE3E3E3);
+const paletteDialogShadowColor = const Color(0xFF5C5C5C);
 
 TextStyle getAlertStyle() {
   return TextStyle(

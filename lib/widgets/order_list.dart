@@ -34,13 +34,61 @@ class _OrderListState extends State<OrderList> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(
-            child: Text("No orders found!"),
-          );
+          return Container();
         }
 
         return _buildOrderList(context, snapshot.data.documents);
       },
+    );
+  }
+
+  Widget _buildEmptyOrders() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: kPaletteWhite,
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+              boxShadow: [
+                BoxShadow(
+                  color: paletteDialogShadowColor.withOpacity(0.10),
+                  blurRadius: 30.0,
+                  spreadRadius: 0.0,
+                  offset: Offset(0.0, 30.0),
+                ),
+              ],
+            ),
+            child: _buildNoOrdersDialogInternal(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoOrdersDialogInternal() {
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            "まだ注文されてません。",
+            style: TextStyle(
+              color: paletteForegroundColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            "ぜひお買い物をお楽しみください。\nご利用をお待ちしております。",
+            style: TextStyle(color: paletteBlackColor),
+            textAlign: TextAlign.center,
+          )
+        ],
+      ),
     );
   }
 
@@ -79,9 +127,11 @@ class _OrderListState extends State<OrderList> {
       }
     });
 
-    return ListView(
-      children: widgetList,
-    );
+    return widgetList.length != 0
+        ? ListView(
+            children: widgetList,
+          )
+        : _buildEmptyOrders();
   }
 
   Widget _buildOrderListItem(BuildContext context, Order order) {

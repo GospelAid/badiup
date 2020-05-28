@@ -40,7 +40,7 @@ class _OrderSuccessPageState extends State<OrderSuccessPage> {
             borderRadius: BorderRadius.all(Radius.circular(30)),
             boxShadow: [
               BoxShadow(
-                color: Color(0xFF5C5C5C).withOpacity(0.10),
+                color: paletteDialogShadowColor.withOpacity(0.10),
                 blurRadius: 30.0,
                 spreadRadius: 0.0,
                 offset: Offset(0.0, 30.0),

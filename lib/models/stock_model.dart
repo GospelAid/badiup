@@ -44,13 +44,13 @@ enum StockType {
 String getDisplayTextForStockType(StockType stockType) {
   switch (stockType) {
     case StockType.colorOnly:
-      return "色のみ選択";
+      return "色のみ";
     case StockType.sizeAndColor:
-      return "サイズと色を選択";
+      return "サイズと色";
     case StockType.sizeOnly:
-      return "サイズのみ選択";
+      return "サイズのみ";
     case StockType.quantityOnly:
-      return "在庫数のみを選択";
+      return "在庫数のみ";
     default:
       return "";
   }
