@@ -5,24 +5,18 @@ import 'package:flutter/material.dart';
 
 enum Category {
   apparel,
-  coffeeDessert,
-  coffeeLiquid,
+  foodAndBeverage,
   misc,
-  miscDessert,
 }
 
 String getDisplayText(Category category) {
   switch (category) {
     case Category.apparel:
-      return "服飾";
-    case Category.coffeeDessert:
-      return "コーヒー豆使用お菓子";
-    case Category.coffeeLiquid:
-      return "コーヒー飲料水";
+      return "服＆ファッション小物";
+    case Category.foodAndBeverage:
+      return "食品/飲料";
     case Category.misc:
       return "雑貨";
-    case Category.miscDessert:
-      return "その他お菓子";
     default:
       return "";
   }
