@@ -2,15 +2,19 @@ import 'package:badiup/colors.dart';
 import 'package:flutter/material.dart';
 
 enum ItemColor {
-  black,
+  blackKana,
   brown,
-  white,
+  whiteKana,
   pink,
   grey,
-  whiteAndCaramel,
-  whiteAndWhite,
-  blackAndBlack,
-  caramel,
+  whiteWithCamelBeads,
+  whiteAndWhiteBeads,
+  blackWithBlackBeads,
+  camel,
+  whiteKanji,
+  blackKanji,
+  yellow,
+  purple,
 }
 
 enum ItemSize {
@@ -58,24 +62,32 @@ String getDisplayTextForStockType(StockType stockType) {
 
 String getDisplayTextForItemColor(ItemColor itemColor) {
   switch (itemColor) {
-    case ItemColor.black:
+    case ItemColor.blackKana:
       return "ブラック";
+    case ItemColor.blackKanji:
+      return "黒";
     case ItemColor.brown:
       return "ブラウン";
-    case ItemColor.white:
+    case ItemColor.whiteKana:
       return "ホワイト";
+    case ItemColor.whiteKanji:
+      return "白";
     case ItemColor.pink:
       return "ピンク";
     case ItemColor.grey:
       return "グレー";
-    case ItemColor.whiteAndCaramel:
-      return "白×キャメル";
-    case ItemColor.whiteAndWhite:
-      return "白×白";
-    case ItemColor.blackAndBlack:
-      return "黒×黒";
-    case ItemColor.caramel:
-      return "カラメル";
+    case ItemColor.whiteWithCamelBeads:
+      return "白×キャメルビーズ";
+    case ItemColor.whiteAndWhiteBeads:
+      return "白×白ビーズ";
+    case ItemColor.blackWithBlackBeads:
+      return "黒×黒ビーズ";
+    case ItemColor.camel:
+      return "キャメル";
+    case ItemColor.yellow:
+      return "黄";
+    case ItemColor.purple:
+      return "紫";
     default:
       return "";
   }
@@ -83,20 +95,27 @@ String getDisplayTextForItemColor(ItemColor itemColor) {
 
 Color getDisplayColorForItemColor(ItemColor itemColor) {
   switch (itemColor) {
-    case ItemColor.black:
-    case ItemColor.blackAndBlack:
+    case ItemColor.blackKana:
+    case ItemColor.blackKanji:
+    case ItemColor.blackWithBlackBeads:
       return paletteBlackColor;
     case ItemColor.brown:
-    case ItemColor.caramel:
       return paletteBrownColor;
-    case ItemColor.white:
-    case ItemColor.whiteAndWhite:
-    case ItemColor.whiteAndCaramel:
+    case ItemColor.camel:
+      return const Color(0xFFC19A6B);
+    case ItemColor.whiteKana:
+    case ItemColor.whiteKanji:
+    case ItemColor.whiteAndWhiteBeads:
+    case ItemColor.whiteWithCamelBeads:
       return kPaletteWhite;
     case ItemColor.pink:
       return kPalettePurple100;
     case ItemColor.grey:
       return paletteGreyColor;
+    case ItemColor.yellow:
+      return Colors.yellow;
+    case ItemColor.purple:
+      return Colors.purple;
     default:
       return Colors.transparent;
   }
@@ -104,13 +123,19 @@ Color getDisplayColorForItemColor(ItemColor itemColor) {
 
 Color getDisplayTextColorForItemColor(ItemColor itemColor) {
   switch (itemColor) {
-    case ItemColor.black:
+    case ItemColor.blackKana:
+    case ItemColor.blackKanji:
+    case ItemColor.blackWithBlackBeads:
     case ItemColor.brown:
     case ItemColor.pink:
     case ItemColor.grey:
-    case ItemColor.caramel:
+    case ItemColor.camel:
+    case ItemColor.purple:
       return kPaletteWhite;
-    case ItemColor.white:
+    case ItemColor.whiteKana:
+    case ItemColor.whiteKanji:
+    case ItemColor.whiteWithCamelBeads:
+    case ItemColor.whiteAndWhiteBeads:
       return paletteGreyColor2;
     default:
       return paletteGreyColor2;

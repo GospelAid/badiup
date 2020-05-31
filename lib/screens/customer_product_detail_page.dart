@@ -5,6 +5,7 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/sign_in.dart';
+import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/cart_button.dart';
 import 'package:badiup/widgets/product_detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -321,7 +322,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           if (await _canAddToCart(product)) {
             _addToCart();
             _scaffoldKey.currentState.showSnackBar(
-              _buildAddedToCartNotification(),
+              buildSnackBar("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
             );
           } else {
             setState(() {
@@ -397,22 +398,6 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     }
 
     return canAddToCart;
-  }
-
-  SnackBar _buildAddedToCartNotification() {
-    return SnackBar(
-      behavior: SnackBarBehavior.fixed,
-      content: Container(
-        alignment: AlignmentDirectional.centerStart,
-        height: 40,
-        child: Text("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
-      ),
-      action: SnackBarAction(
-        textColor: paletteGreyColor3,
-        label: "OK",
-        onPressed: () {},
-      ),
-    );
   }
 
   Future<void> _addToCart() async {

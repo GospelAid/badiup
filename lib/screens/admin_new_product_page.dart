@@ -72,6 +72,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   });
 
   PublishStatus _productPublishStatus = PublishStatus.Draft;
+  int _productDisplayOrder = 0;
 
   bool _formSubmitInProgress = false;
 
@@ -128,6 +129,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
 
       _productPublishStatus =
           _product.isPublished ? PublishStatus.Published : PublishStatus.Draft;
+      _productDisplayOrder = _product.displayOrder;
     });
   }
 
@@ -534,7 +536,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             padding: EdgeInsets.all(0.0),
             icon: Icon(Icons.delete,
                 color: _productStockType != StockType.sizeOnly &&
-                        stockItem.color == ItemColor.black
+                        stockItem.color == ItemColor.blackKana
                     ? paletteGreyColor
                     : paletteBlackColor,
                 size: 22),
@@ -1571,6 +1573,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       isPublished: publishStatus == PublishStatus.Published,
       category: _productCategory,
       stock: Stock(items: stockItemList, stockType: _productStockType),
+      displayOrder: _productDisplayOrder,
     );
     return _product;
   }
