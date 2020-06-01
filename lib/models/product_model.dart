@@ -32,6 +32,7 @@ class Product {
   final bool isPublished;
   final Category category;
   final Stock stock;
+  int displayOrder;
 
   Product({
     this.name,
@@ -43,6 +44,7 @@ class Product {
     this.isPublished,
     this.category,
     this.stock,
+    this.displayOrder,
   });
 
   String getPublishedStatusText() {
@@ -109,6 +111,7 @@ class Product {
       'isPublished': isPublished,
       'category': category?.index,
       'stock': stock.toMap(),
+      'displayOrder': displayOrder,
     };
   }
 
@@ -125,6 +128,7 @@ class Product {
         stock = map['stock'] != null
             ? Stock.fromMap(map['stock'].cast<String, dynamic>())
             : null,
+        displayOrder = map['displayOrder'] ?? 0,
         documentId = documentId;
 
   Product.fromSnapshot(DocumentSnapshot snapshot)

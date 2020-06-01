@@ -72,3 +72,19 @@ Widget buildTextFieldFromDocument({String textDocumentId}) {
     },
   );
 }
+
+Widget buildSnackBar(String text) {
+  return SnackBar(
+    behavior: SnackBarBehavior.fixed,
+    content: Container(
+      alignment: AlignmentDirectional.centerStart,
+      height: 40,
+      child: Text(text),
+    ),
+    action: SnackBarAction(
+      textColor: paletteGreyColor3,
+      label: "OK",
+      onPressed: () {},
+    ),
+  );
+}

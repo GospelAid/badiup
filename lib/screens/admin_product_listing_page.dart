@@ -25,7 +25,7 @@ class _AdminProductListingPageState extends State<AdminProductListingPage> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("商品リスト"),
+      title: Text("製品"),
       centerTitle: true,
       actions: <Widget>[
         _buildNewProductButton(context),

@@ -8,6 +8,7 @@ import 'package:badiup/screens/about_badi_page.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/screens/admin_product_detail_page.dart';
 import 'package:badiup/screens/customer_product_detail_page.dart';
+import 'package:badiup/screens/modify_product_display_order.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:badiup/utilities.dart';
@@ -23,7 +24,6 @@ class ProductListing extends StatefulWidget {
 }
 
 class _ProductListingState extends State<ProductListing> {
-  // product.documentId -> index of image to display
   HashMap activeImageMap = HashMap<String, int>();
   List<String> _categoryFilters = [];
   bool _isFilterMenuOpen = false;
@@ -34,7 +34,7 @@ class _ProductListingState extends State<ProductListing> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection(constants.DBCollections.products)
-          .orderBy('created', descending: true)
+          .orderBy('displayOrder')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -69,13 +69,41 @@ class _ProductListingState extends State<ProductListing> {
         "list",
       )),
       children: [
-        _buildCategoryFilterMenu(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(child: _buildCategoryFilterMenu()),
+            currentSignedInUser.isAdmin()
+                ? _buildModifyDisplayOrderButton()
+                : Container(),
+          ],
+        ),
         Expanded(
           child: ListView(
             children: widgets,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildModifyDisplayOrderButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return ModifyProductDisplayOrderPage();
+              },
+            ),
+          );
+        },
+        child: Icon(Icons.layers, size: 32),
+      ),
     );
   }
 

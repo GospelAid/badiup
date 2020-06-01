@@ -150,7 +150,7 @@ class ContactUsPage extends StatelessWidget {
 
   Widget _buildStoreContactRow() {
     return Container(
-      height: 150.0,
+      height: 190.0,
       child: Row(
         children: <Widget>[
           Container(
@@ -172,11 +172,26 @@ class ContactUsPage extends StatelessWidget {
                   Text('月〜金（祝日除く）', style: _tableTextStyle),
                   Text('9:00-16:00', style: _tableTextStyle),
                   SelectableText('admin@badicafe.com', style: _tableTextStyle),
+                  _buildLinkToWebsite(),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLinkToWebsite() {
+    String _websiteUrl = 'www.badicafe.com';
+    return GestureDetector(
+      onTap: () => urlLauncher.launch("https://$_websiteUrl"),
+      child: Text(
+        _websiteUrl,
+        style: TextStyle(
+          color: paletteDarkRedColor,
+          decoration: TextDecoration.underline,
+        ),
       ),
     );
   }

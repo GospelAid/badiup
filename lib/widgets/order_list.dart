@@ -2,6 +2,7 @@ import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/order_model.dart';
 import 'package:badiup/screens/order_detail_page.dart';
+import 'package:badiup/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -69,25 +70,32 @@ class _OrderListState extends State<OrderList> {
   }
 
   Widget _buildNoOrdersDialogInternal() {
+    var widgetList = <Widget>[
+      Text(
+        "注文履歴はありません",
+        style: TextStyle(
+          color: paletteForegroundColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ];
+
+    if (!currentSignedInUser.isAdmin()) {
+      widgetList.addAll(<Widget>[
+        SizedBox(height: 16),
+        Text(
+          "ぜひお買い物をお楽しみください。\nご利用をお待ちしております。",
+          style: TextStyle(color: paletteBlackColor),
+          textAlign: TextAlign.center,
+        ),
+      ]);
+    }
+
     return Padding(
       padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            "注文履歴はありません",
-            style: TextStyle(
-              color: paletteForegroundColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 16),
-          Text(
-            "ぜひお買い物をお楽しみください。\nご利用をお待ちしております。",
-            style: TextStyle(color: paletteBlackColor),
-            textAlign: TextAlign.center,
-          )
-        ],
+        children: widgetList,
       ),
     );
   }
