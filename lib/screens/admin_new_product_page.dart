@@ -63,8 +63,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   StockType _productStockType;
 
   bool _shouldDisplayStock = false;
-  LinkedHashMap<StockIdentifier, int> _productStockMap =
-      LinkedHashMap<StockIdentifier, int>(equals: (
+  LinkedHashMap<StockIdentifier, StockItem> _productStockMap =
+      LinkedHashMap<StockIdentifier, StockItem>(equals: (
     StockIdentifier id1,
     StockIdentifier id2,
   ) {
@@ -114,7 +114,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         _product.stock.items.forEach((stock) {
           _productStockMap.putIfAbsent(
               StockIdentifier(color: stock.color, size: stock.size),
-              () => stock.quantity);
+              () => stock);
 
           if (_productStockType == StockType.quantityOnly) {
             _quantityEditingController.text =
@@ -396,12 +396,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
   List<Widget> _buildStockList() {
     List<Widget> _widgetList = [];
 
-    _productStockMap.forEach((stockIdentifier, quantity) {
-      _widgetList.add(_buildStockItem(StockItem(
-        color: stockIdentifier.color,
-        size: stockIdentifier.size,
-        quantity: quantity,
-      )));
+    _productStockMap.forEach((stockIdentifier, stockItem) {
+      _widgetList.add(_buildStockItem(stockItem));
     });
 
     _widgetList.add(_buildAddStockButton());
@@ -427,9 +423,10 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     StockItem newStockItem = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => StockSelector(
-                productStockType: _productStockType,
-              )),
+        builder: (context) => StockSelector(
+          productStockType: _productStockType,
+        ),
+      ),
     );
 
     if (newStockItem != null) {
@@ -440,11 +437,12 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       );
 
       if (id != null) {
-        _productStockMap[id] += newStockItem.quantity;
+        _productStockMap[id].quantity += newStockItem.quantity;
+        _productStockMap[id].price = newStockItem.price;
       } else {
         _productStockMap.putIfAbsent(
           StockIdentifier(color: newStockItem.color, size: newStockItem.size),
-          () => newStockItem.quantity,
+          () => newStockItem,
         );
       }
     }
@@ -467,7 +465,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       );
 
       if (id != null) {
-        _productStockMap[id] = updatedStockItem.quantity;
+        _productStockMap[id].quantity = updatedStockItem.quantity;
+        _productStockMap[id].price = updatedStockItem.price;
       }
     }
   }
@@ -494,7 +493,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             _buildDeleteStockItemButton(stockItem),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[_buildStockItemText(stockItem)],
+              children: <Widget>[
+                buildStockItemText(stockItem, _productStockType),
+              ],
             ),
           ],
         ),
@@ -592,45 +593,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         },
       ),
     ];
-  }
-
-  Widget _buildStockItemText(StockItem stockItem) {
-    Color _color = _productStockType == StockType.sizeOnly
-        ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
-
-    return Container(
-      width: 90,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _productStockType == StockType.colorOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemSize(stockItem.size),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-            _productStockType == StockType.sizeOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemColor(stockItem.color),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildStockTypeFormField() {
@@ -1448,7 +1410,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     String _message = "";
 
     if (_productImages.length == 0) {
-      _message += '写真　';
+      _message += '写��　';
     }
 
     if (_priceEditingController.text.isEmpty) {
@@ -1552,16 +1514,13 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
     if (_productStockType == StockType.quantityOnly) {
       var quantity = int.tryParse(_quantityEditingController.text) ?? 0;
       if (quantity != 0) {
-        stockItemList.add(StockItem(quantity: quantity));
+        stockItemList.add(StockItem(
+          quantity: quantity,
+          price: double.tryParse(_priceEditingController.text) ?? .0,
+        ));
       }
     } else {
-      stockItemList = _productStockMap.entries
-          .map((e) => StockItem(
-                color: e.key.color,
-                size: e.key.size,
-                quantity: e.value,
-              ))
-          .toList();
+      stockItemList = _productStockMap.entries.map((e) => e.value).toList();
     }
 
     final _product = Product(

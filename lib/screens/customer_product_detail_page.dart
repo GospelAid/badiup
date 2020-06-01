@@ -319,8 +319,13 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     return Expanded(
       child: GestureDetector(
         onTap: () async {
-          if (await _canAddToCart(product)) {
-            _addToCart();
+          StockItem selectedStockItem = product.getRequestedStockItem(StockItem(
+            color: _selectedItemColor,
+            size: _selectedItemSize,
+          ));
+
+          if (await _canAddToCart(product, selectedStockItem)) {
+            _addToCart(selectedStockItem);
             _scaffoldKey.currentState.showSnackBar(
               buildSnackBar("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
             );
@@ -354,7 +359,8 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     );
   }
 
-  Future<bool> _canAddToCart(Product _product) async {
+  Future<bool> _canAddToCart(
+      Product _product, StockItem selectedStockItem) async {
     bool canAddToCart = true;
 
     if (_product.stock.stockType == StockType.sizeAndColor) {
@@ -384,14 +390,9 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           cartItem.stockRequest?.size == _selectedItemSize);
 
       if (productIndexInCart != -1) {
-        StockItem productStock = _product.getRequestedStockItem(StockItem(
-          color: _selectedItemColor,
-          size: _selectedItemSize,
-        ));
-
         _addToCartFailedMessage = "在庫切れ";
         if (customer.cart.items[productIndexInCart].stockRequest.quantity >=
-            productStock.quantity) {
+            selectedStockItem.quantity) {
           canAddToCart = false;
         }
       }
@@ -400,13 +401,13 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
     return canAddToCart;
   }
 
-  Future<void> _addToCart() async {
+  Future<void> _addToCart(StockItem selectedStockItem) async {
     var customer = Customer.fromSnapshot(await db
         .collection(constants.DBCollections.users)
         .document(currentSignedInUser.email)
         .get());
 
-    _updateCartModel(customer);
+    _updateCartModel(customer, selectedStockItem);
 
     await db
         .collection(constants.DBCollections.users)
@@ -414,11 +415,12 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .updateData(customer.toMap());
   }
 
-  void _updateCartModel(Customer customer) {
+  void _updateCartModel(Customer customer, StockItem selectedStockItem) {
     var _stockRequest = StockItem(
-      color: _selectedItemColor,
-      size: _selectedItemSize,
+      color: selectedStockItem.color,
+      size: selectedStockItem.size,
       quantity: 1,
+      price: selectedStockItem.price,
     );
 
     if (customer.cart == null) {

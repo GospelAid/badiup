@@ -591,26 +591,14 @@ class _CartPageState extends State<CartPage> {
           .collection(constants.DBCollections.users)
           .document(currentSignedInUser.email)
           .snapshots(),
-      builder: (context, snapshot1) {
-        if (!snapshot1.hasData) {
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
           return Container();
         }
-        var customer = Customer.fromSnapshot(snapshot1.data);
+        var customer = Customer.fromSnapshot(snapshot.data);
 
-        return StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection(constants.DBCollections.products)
-              .orderBy('created', descending: true)
-              .snapshots(),
-          builder: (context, snapshot2) {
-            if (!snapshot2.hasData) {
-              return Container();
-            }
-
-            return _buildSummaryContents(
-              _calculateSubTotalPrice(snapshot2, customer),
-            );
-          },
+        return _buildSummaryContents(
+          _calculateSubTotalPrice(customer),
         );
       },
     );
@@ -1040,20 +1028,12 @@ class _CartPageState extends State<CartPage> {
   }
 
   double _calculateSubTotalPrice(
-    AsyncSnapshot<QuerySnapshot> snapshot2,
     Customer customer,
   ) {
-    List<Product> productList = [];
-    snapshot2.data.documents.forEach((productDoc) {
-      productList.add(Product.fromSnapshot(productDoc));
-    });
-    var productPriceMap = Map.fromIterable(productList,
-        key: (e) => e.documentId, value: (e) => e.priceInYen);
-
     double _subTotalPrice = 0.0;
     customer.cart.items.forEach((cartItem) {
-      _subTotalPrice += productPriceMap[cartItem.productDocumentId] *
-          cartItem.stockRequest.quantity;
+      _subTotalPrice +=
+          cartItem.stockRequest.price * cartItem.stockRequest.quantity;
     });
     return _subTotalPrice;
   }
@@ -1223,7 +1203,7 @@ class _CartPageState extends State<CartPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        _buildProductPrice(product),
+        _buildProductPrice(stockRequest),
         _buildQuantitySelector(product, stockRequest),
       ],
     );
@@ -1409,9 +1389,9 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Text _buildProductPrice(Product product) {
+  Text _buildProductPrice(StockItem stockItem) {
     return Text(
-      "¥${currencyFormat.format(product.priceInYen)}",
+      "¥${currencyFormat.format(stockItem.price)}",
       style: TextStyle(
         color: paletteBlackColor,
         fontWeight: FontWeight.w600,

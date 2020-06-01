@@ -17,6 +17,7 @@ class _StockSelectorState extends State<StockSelector> {
   ItemSize _stockSize = ItemSize.mensSmall;
   ItemColor _stockColor = ItemColor.blackKana;
   var _stockQuantityEditingController = TextEditingController();
+  var _stockPriceEditingController = TextEditingController();
 
   @override
   initState() {
@@ -26,6 +27,8 @@ class _StockSelectorState extends State<StockSelector> {
       _stockColor = widget.productStockItem.color;
       _stockQuantityEditingController.text =
           widget.productStockItem.quantity.toString();
+      _stockPriceEditingController.text =
+          widget.productStockItem.price.toString();
     }
   }
 
@@ -54,6 +57,7 @@ class _StockSelectorState extends State<StockSelector> {
     }
 
     widgetList.add(_buildStockQuantityPicker());
+    widgetList.add(_buildStockPricePicker());
     widgetList.add(_buildStockFormActionButtons());
 
     return Padding(
@@ -137,6 +141,7 @@ class _StockSelectorState extends State<StockSelector> {
             color: _stockColor,
             size: _stockSize,
             quantity: int.tryParse(_stockQuantityEditingController.text) ?? 0,
+            price: double.tryParse(_stockPriceEditingController.text) ?? .0,
           ),
         );
       },
@@ -161,6 +166,17 @@ class _StockSelectorState extends State<StockSelector> {
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: '在庫',
+        alignLabelWithHint: true,
+      ),
+    );
+  }
+
+  Widget _buildStockPricePicker() {
+    return TextFormField(
+      controller: _stockPriceEditingController,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: 'SKU 値段 ￥',
         alignLabelWithHint: true,
       ),
     );

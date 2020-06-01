@@ -189,11 +189,13 @@ class StockItem {
   final ItemColor color;
   final ItemSize size;
   int quantity;
+  double price;
 
   StockItem({
     this.color,
     this.size,
     this.quantity,
+    this.price,
   });
 
   Map<String, dynamic> toMap() {
@@ -201,13 +203,15 @@ class StockItem {
       'color': color?.index,
       'size': size?.index,
       'quantity': quantity,
+      'price': price,
     };
   }
 
   StockItem.fromMap(Map<String, dynamic> map)
       : color = map['color'] != null ? ItemColor.values[map['color']] : null,
         size = map['size'] != null ? ItemSize.values[map['size']] : null,
-        quantity = map['quantity'];
+        quantity = map['quantity'],
+        price = (map['price'] ?? 0) + .0;
 }
 
 class StockIdentifier {

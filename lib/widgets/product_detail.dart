@@ -148,11 +148,21 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget _buildProductPrice(Product product) {
     final currencyFormat = NumberFormat("#,##0");
 
+    var selectedStockItem = product.getRequestedStockItem(StockItem(
+      color: widget.selectedItemColor,
+      size: widget.selectedItemSize,
+    ));
+
+    var priceToDisplay = product.priceInYen;
+    if (selectedStockItem != null && selectedStockItem.price != .0) {
+      priceToDisplay = selectedStockItem.price;
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Text(
-          "¥${currencyFormat.format(product.priceInYen)}",
+          "¥${currencyFormat.format(priceToDisplay)}",
           style: TextStyle(
             color: paletteForegroundColor,
             fontSize: 24.0,
