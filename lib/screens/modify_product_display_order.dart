@@ -127,9 +127,12 @@ class _ModifyProductDisplayOrderPageState
             children: <Widget>[
               Icon(Icons.drag_handle, color: paletteDarkGreyColor),
               SizedBox(width: 20),
-              Text(
-                product.name,
-                style: TextStyle(color: paletteBlackColor),
+              Expanded(
+                child: Text(
+                  product.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: paletteBlackColor),
+                ),
               ),
             ],
           ),

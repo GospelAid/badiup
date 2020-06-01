@@ -538,7 +538,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             padding: EdgeInsets.all(0.0),
             icon: Icon(Icons.delete,
                 color: _productStockType != StockType.sizeOnly &&
-                        stockItem.color == ItemColor.blackKana
+                        stockItem.color == ItemColor.blackKanji
                     ? paletteGreyColor
                     : paletteBlackColor,
                 size: 22),
@@ -1185,7 +1185,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       decoration: InputDecoration(
         labelText: 'タイトル',
       ),
-      maxLength: 20,
+      maxLength: 24,
       validator: (value) {
         if (value.isEmpty) {
           return 'タイトルが入力されていません';
