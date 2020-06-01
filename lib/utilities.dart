@@ -1,5 +1,6 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
+import 'package:badiup/models/stock_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -85,6 +86,68 @@ Widget buildSnackBar(String text) {
       textColor: paletteGreyColor3,
       label: "OK",
       onPressed: () {},
+    ),
+  );
+}
+
+Widget buildStockItemText(StockItem stockItem, StockType stockType) {
+  Color _color = stockType == StockType.sizeOnly
+      ? paletteGreyColor2
+      : getDisplayTextColorForItemColor(stockItem.color);
+
+  return Container(
+    width: 90,
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          stockType == StockType.colorOnly
+              ? Container()
+              : _buildStockItemSizeDisplayText(stockItem, _color),
+          stockType == StockType.sizeOnly
+              ? Container()
+              : _buildStockItemColorDisplayText(stockItem, _color),
+          stockType == StockType.quantityOnly
+              ? Container()
+              : _buildStockItemPriceDisplayText(stockItem, _color),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildStockItemSizeDisplayText(StockItem stockItem, Color _color) {
+  return Text(
+    getDisplayTextForItemSize(stockItem.size),
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: _color,
+    ),
+  );
+}
+
+Widget _buildStockItemColorDisplayText(StockItem stockItem, Color _color) {
+  return Text(
+    getDisplayTextForItemColor(stockItem.color),
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: _color,
+    ),
+  );
+}
+
+Widget _buildStockItemPriceDisplayText(StockItem stockItem, Color _color) {
+  return Text(
+    '¥' + stockItem.price.toString(),
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: _color,
     ),
   );
 }

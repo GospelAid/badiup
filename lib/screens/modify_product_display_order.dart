@@ -27,7 +27,7 @@ class _ModifyProductDisplayOrderPageState
 
   Widget _buildAppBar() {
     return AppBar(
-      title: Text("公開済み製品リスト"),
+      title: Text("公開中リスト"),
       actions: <Widget>[
         GestureDetector(
           child: Padding(
@@ -65,7 +65,7 @@ class _ModifyProductDisplayOrderPageState
     }
 
     _scaffoldKey.currentState.showSnackBar(
-      buildSnackBar("製品の順番の見せ方を変更しました。"),
+      buildSnackBar("変更を保存しました。"),
     );
 
     setState(() {
