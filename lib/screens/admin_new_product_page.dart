@@ -538,7 +538,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             padding: EdgeInsets.all(0.0),
             icon: Icon(Icons.delete,
                 color: _productStockType != StockType.sizeOnly &&
-                        stockItem.color == ItemColor.blackKanji
+                        (stockItem.color == ItemColor.blackKanji ||
+                            stockItem.color == ItemColor.blackWithBlackBeads)
                     ? paletteGreyColor
                     : paletteBlackColor,
                 size: 22),
