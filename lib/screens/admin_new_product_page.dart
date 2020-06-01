@@ -494,7 +494,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             _buildDeleteStockItemButton(stockItem),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[_buildStockItemText(stockItem)],
+              children: <Widget>[
+                buildStockItemText(stockItem, _productStockType),
+              ],
             ),
           ],
         ),
@@ -592,45 +594,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         },
       ),
     ];
-  }
-
-  Widget _buildStockItemText(StockItem stockItem) {
-    Color _color = _productStockType == StockType.sizeOnly
-        ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
-
-    return Container(
-      width: 90,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _productStockType == StockType.colorOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemSize(stockItem.size),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-            _productStockType == StockType.sizeOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemColor(stockItem.color),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildStockTypeFormField() {

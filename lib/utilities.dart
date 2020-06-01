@@ -107,9 +107,6 @@ Widget buildStockItemText(StockItem stockItem, StockType stockType) {
           stockType == StockType.sizeOnly
               ? Container()
               : _buildStockItemColorDisplayText(stockItem, _color),
-          stockType == StockType.quantityOnly
-              ? Container()
-              : _buildStockItemPriceDisplayText(stockItem, _color),
         ],
       ),
     ),
@@ -131,18 +128,6 @@ Widget _buildStockItemSizeDisplayText(StockItem stockItem, Color _color) {
 Widget _buildStockItemColorDisplayText(StockItem stockItem, Color _color) {
   return Text(
     getDisplayTextForItemColor(stockItem.color),
-    textAlign: TextAlign.center,
-    style: TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-      color: _color,
-    ),
-  );
-}
-
-Widget _buildStockItemPriceDisplayText(StockItem stockItem, Color _color) {
-  return Text(
-    '¥' + stockItem.price.toString(),
     textAlign: TextAlign.center,
     style: TextStyle(
       fontSize: 14,
