@@ -27,6 +27,8 @@ enum ItemSize {
   mensLarge,
   mensMedium,
   mensSmall,
+  withLetters,
+  withoutLetters,
 }
 
 enum StockType {
@@ -153,6 +155,10 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
       return "メンズ XXL";
     case ItemSize.mens3xl:
       return "メンズ 3XL";
+    case ItemSize.withLetters:
+      return "文字あり";
+    case ItemSize.withoutLetters:
+      return "文字なし";
     default:
       return "";
   }
