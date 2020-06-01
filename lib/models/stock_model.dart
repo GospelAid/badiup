@@ -27,15 +27,8 @@ enum ItemSize {
   mensLarge,
   mensMedium,
   mensSmall,
-  singleItem,
-  fiveItemPack,
-  tenItemPack,
-  oneCup,
-  fiveCups,
-  tenCups,
-  twentyCups,
-  thirtyFiveCups,
-  seventyCups,
+  withLetters,
+  withoutLetters,
 }
 
 enum StockType {
@@ -162,24 +155,10 @@ String getDisplayTextForItemSize(ItemSize itemSize) {
       return "メンズ XXL";
     case ItemSize.mens3xl:
       return "メンズ 3XL";
-    case ItemSize.singleItem:
-      return "一個";
-    case ItemSize.fiveItemPack:
-      return "5個";
-    case ItemSize.tenItemPack:
-      return "贈答用箱入り10個";
-    case ItemSize.oneCup:
-      return "一杯";
-    case ItemSize.fiveCups:
-      return "5杯";
-    case ItemSize.tenCups:
-      return "10杯";
-    case ItemSize.twentyCups:
-      return "20杯";
-    case ItemSize.thirtyFiveCups:
-      return "35杯";
-    case ItemSize.seventyCups:
-      return "70杯";
+    case ItemSize.withLetters:
+      return "文字あり";
+    case ItemSize.withoutLetters:
+      return "文字なし";
     default:
       return "";
   }

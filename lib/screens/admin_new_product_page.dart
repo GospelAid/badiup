@@ -494,7 +494,9 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             _buildDeleteStockItemButton(stockItem),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[_buildStockItemText(stockItem)],
+              children: <Widget>[
+                buildStockItemText(stockItem, _productStockType),
+              ],
             ),
           ],
         ),
@@ -536,7 +538,8 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
             padding: EdgeInsets.all(0.0),
             icon: Icon(Icons.delete,
                 color: _productStockType != StockType.sizeOnly &&
-                        stockItem.color == ItemColor.blackKana
+                        (stockItem.color == ItemColor.blackKanji ||
+                            stockItem.color == ItemColor.blackWithBlackBeads)
                     ? paletteGreyColor
                     : paletteBlackColor,
                 size: 22),
@@ -592,45 +595,6 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
         },
       ),
     ];
-  }
-
-  Widget _buildStockItemText(StockItem stockItem) {
-    Color _color = _productStockType == StockType.sizeOnly
-        ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
-
-    return Container(
-      width: 90,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _productStockType == StockType.colorOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemSize(stockItem.size),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-            _productStockType == StockType.sizeOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemColor(stockItem.color),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildStockTypeFormField() {
@@ -1222,7 +1186,7 @@ class _AdminNewProductPageState extends State<AdminNewProductPage> {
       decoration: InputDecoration(
         labelText: 'タイトル',
       ),
-      maxLength: 20,
+      maxLength: 24,
       validator: (value) {
         if (value.isEmpty) {
           return 'タイトルが入力されていません';

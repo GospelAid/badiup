@@ -15,7 +15,7 @@ class StockSelector extends StatefulWidget {
 
 class _StockSelectorState extends State<StockSelector> {
   ItemSize _stockSize = ItemSize.mensSmall;
-  ItemColor _stockColor = ItemColor.blackKana;
+  ItemColor _stockColor = ItemColor.blackKanji;
   var _stockQuantityEditingController = TextEditingController();
 
   @override

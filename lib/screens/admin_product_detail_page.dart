@@ -4,6 +4,7 @@ import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
 import 'package:badiup/screens/admin_new_product_page.dart';
 import 'package:badiup/test_keys.dart';
+import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/product_detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +98,7 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildStockItemText(stockItem, product.stock.stockType)
+                buildStockItemText(stockItem, product.stock.stockType),
               ],
             ),
           ],
@@ -106,45 +107,6 @@ class _AdminProductDetailPageState extends State<AdminProductDetailPage> {
     });
 
     return _widgetList;
-  }
-
-  Widget _buildStockItemText(StockItem stockItem, StockType stockType) {
-    Color _color = stockType == StockType.sizeOnly
-        ? paletteGreyColor2
-        : getDisplayTextColorForItemColor(stockItem.color);
-
-    return Container(
-      width: 90,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            stockType == StockType.colorOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemSize(stockItem.size),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-            stockType == StockType.sizeOnly
-                ? Container()
-                : Text(
-                    getDisplayTextForItemColor(stockItem.color),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _color,
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildStockItemQuantity(StockItem stockItem) {

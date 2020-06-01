@@ -82,7 +82,7 @@ class _MainMenuState extends State<MainMenu> {
       )),
       leading: Icon(Icons.list, color: kPaletteWhite),
       title: Text(
-        '商品',
+        currentSignedInUser.isAdmin() ? '製品' : '商品',
         textAlign: TextAlign.justify,
         style: TextStyle(
           fontSize: 14,
