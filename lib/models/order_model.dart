@@ -18,6 +18,7 @@ class Order {
   final String notes;
   OrderStatus status;
   DateTime dispatchedDate;
+  String dispatchedBy;
   TrackingDetails trackingDetails;
   double totalPrice;
   final PaymentOption paymentMethod;
@@ -35,6 +36,7 @@ class Order {
     this.billingAddress,
     this.notes,
     this.dispatchedDate,
+    this.dispatchedBy,
     this.trackingDetails,
     this.totalPrice,
     this.paymentMethod,
@@ -66,6 +68,7 @@ class Order {
       'details': details,
       'orderId': orderId,
       'dispatchedDate': dispatchedDate,
+      'dispatchedBy': dispatchedBy,
       'trackingDetails':
           trackingDetails != null ? trackingDetails.toMap() : null,
       'totalPrice': totalPrice,
@@ -105,6 +108,7 @@ class Order {
         dispatchedDate = map['dispatchedDate'] != null
             ? map['dispatchedDate'].toDate()
             : null,
+        dispatchedBy = map['dispatchedBy'],
         totalPrice = map['totalPrice'] ?? 0,
         paymentMethod = PaymentOption.values[map['paymentMethod']];
 
