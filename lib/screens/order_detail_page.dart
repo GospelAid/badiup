@@ -292,6 +292,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       _order.trackingDetails = trackingDetails;
       _order.status = OrderStatus.dispatched;
       _order.dispatchedDate = DateTime.now().toUtc();
+      _order.dispatchedBy = currentSignedInUser.name;
 
       await Firestore.instance
           .collection(constants.DBCollections.orders)
@@ -835,43 +836,87 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           EdgeInsets.only(top: 12.0, left: 24.0, right: 24.0, bottom: 50.0),
       child: Column(
         children: <Widget>[
-          Container(
-            alignment: Alignment.center,
-            child: Text(
-              "配送方法",
-              style: TextStyle(
-                fontSize: 18,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          _buildShippingMethodTitle(),
           SizedBox(height: 25.0),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: SelectableText(
-              getDisplayTextForDeliveryMethod(
-                order.trackingDetails.deliveryMethod,
-              ),
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: SelectableText(
-              "追跡番号: " + order.trackingDetails.code,
-              style: TextStyle(
-                fontSize: 16,
-                color: paletteBlackColor,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          )
+          _buildShippingDeliveryMethod(order),
+          _buildShippingTrackingCode(order),
+          currentSignedInUser.isAdmin()
+              ? _buildDispatchedBy(order)
+              : Container(),
+          _buildDispatchDate(order),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDispatchedBy(Order order) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: SelectableText(
+        "発送した人: " + order.dispatchedBy,
+        style: TextStyle(
+          fontSize: 16,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDispatchDate(Order order) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: SelectableText(
+        "発送日: " + DateFormat('yyyy.MM.dd').format(order.dispatchedDate),
+        style: TextStyle(
+          fontSize: 16,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShippingTrackingCode(Order order) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: SelectableText(
+        "追跡番号: " + order.trackingDetails.code,
+        style: TextStyle(
+          fontSize: 16,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShippingDeliveryMethod(Order order) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: SelectableText(
+        getDisplayTextForDeliveryMethod(
+          order.trackingDetails.deliveryMethod,
+        ),
+        style: TextStyle(
+          fontSize: 16,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShippingMethodTitle() {
+    return Container(
+      alignment: Alignment.center,
+      child: Text(
+        "配送方法",
+        style: TextStyle(
+          fontSize: 18,
+          color: paletteBlackColor,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
