@@ -45,12 +45,26 @@ class ContactUsPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       child: ListView(
         children: <Widget>[
+          _buildStoreImage(),
+          SizedBox(height: 20.0),
           _buildStoreInfoTitle(),
           SizedBox(height: 20.0),
           _buildStoreInfoTable(),
           SizedBox(height: 20.0),
           _buildPrivacyPolicyLink(context)
         ],
+      ),
+    );
+  }
+
+  Widget _buildStoreImage() {
+    return Container(
+      height: 211.0,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/badi_store.jpg'),
+          fit: BoxFit.fitWidth,
+        ),
       ),
     );
   }
