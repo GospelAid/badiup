@@ -292,7 +292,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       _order.trackingDetails = trackingDetails;
       _order.status = OrderStatus.dispatched;
       _order.dispatchedDate = DateTime.now().toUtc();
-      _order.dispatchedBy = currentSignedInUser.name;
+      _order.dispatchedBy =
+          currentSignedInUser.name ?? currentSignedInUser.email;
 
       await Firestore.instance
           .collection(constants.DBCollections.orders)

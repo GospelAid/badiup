@@ -1,3 +1,4 @@
+import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -9,16 +10,15 @@ import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/user_model.dart';
 import 'package:badiup/models/user_setting_model.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final db = Firestore.instance;
 User currentSignedInUser = User();
 
-Future<String> signInWithGoogle() async {
+Future<bool> signInWithGoogle() async {
   final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
 
   if (googleSignInAccount == null) {
-    return null;
+    return false;
   }
 
   final GoogleSignInAuthentication googleSignInAuthentication =
@@ -29,12 +29,25 @@ Future<String> signInWithGoogle() async {
     idToken: googleSignInAuthentication.idToken,
   );
 
-  final FirebaseUser user = await _auth.signInWithCredential(credential);
+  AuthResult authResult =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+  if (authResult.user == null) {
+    return false;
+  }
+
+  await _addUserToDatabase(authResult);
+
+  return true;
+}
+
+Future _addUserToDatabase(AuthResult authResult) async {
+  final FirebaseUser user = authResult.user;
 
   assert(!user.isAnonymous);
   assert(await user.getIdToken() != null);
 
-  final FirebaseUser currentUser = await _auth.currentUser();
+  final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
   assert(user.uid == currentUser.uid);
 
   // check if user already exists
@@ -50,8 +63,35 @@ Future<String> signInWithGoogle() async {
     // user not exists, create a new user
     await addUserToFirestore(user: user);
   }
+}
 
-  return 'signInWithGoogle succeeded: $user';
+Future<bool> signInWithApple() async {
+  final AuthorizationResult result = await AppleSignIn.performRequests([
+    AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
+  ]);
+
+  if (result.status != AuthorizationStatus.authorized) {
+    return false;
+  }
+
+  final AppleIdCredential appleIdCredential = result.credential;
+
+  OAuthProvider oAuthProvider = new OAuthProvider(providerId: 'apple.com');
+  final AuthCredential credential = oAuthProvider.getCredential(
+    idToken: String.fromCharCodes(appleIdCredential.identityToken),
+    accessToken: String.fromCharCodes(appleIdCredential.authorizationCode),
+  );
+
+  final AuthResult authResult =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+  if (authResult.user == null) {
+    return false;
+  }
+
+  await _addUserToDatabase(authResult);
+
+  return true;
 }
 
 void signOutGoogle() async {
@@ -79,7 +119,7 @@ Future<void> addUserToFirestore({FirebaseUser user}) async {
   // add user to firestore, email as document ID
   currentSignedInUser = Customer(
     email: user.email,
-    name: user.displayName,
+    name: user.displayName ?? '',
     role: RoleType.customer, // add user as customer by default
     setting: UserSetting(pushNotifications: true, taxInclusive: true),
     shippingAddresses: List<Address>(),

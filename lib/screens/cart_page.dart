@@ -525,7 +525,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<Order> _getOrderRequest(Customer customer) async {
-    String _pushNotificationMessage = customer.name + " 様より";
+    String _pushNotificationMessage = customer.name ?? customer.email + " 様より";
 
     Order orderRequest = Order(
       orderId: Order.generateOrderId(),
