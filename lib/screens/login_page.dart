@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:apple_sign_in/apple_sign_in_button.dart';
 import 'package:badiup/colors.dart';
 import 'package:badiup/screens/admin_home_page.dart';
 import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,9 +16,40 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _loginInProgress = false;
+  bool _appleSignInSupported = false;
+
+  @override
+  void initState() {
+    if (Platform.isIOS) {
+      DeviceInfoPlugin().iosInfo.then((iosInfo) {
+        if (iosInfo.systemVersion.contains('13')) {
+          setState(() {
+            _appleSignInSupported = true;
+          });
+        }
+      });
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    var widgetList = <Widget>[
+      SizedBox(height: 85),
+      _buildBadiUpLogo(),
+      SizedBox(height: 32),
+    ];
+
+    if (_appleSignInSupported) {
+      widgetList.addAll(<Widget>[
+        _buildLoginWithAppleButton(context),
+        SizedBox(height: 16),
+      ]);
+    }
+
+    widgetList.add(_buildLoginWithGoogleButton(context));
+
     return Scaffold(
       body: _loginInProgress
           ? LinearProgressIndicator(
@@ -27,15 +62,23 @@ class _LoginPageState extends State<LoginPage> {
                 Container(decoration: _buildBackgroundDecoration(context)),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: 100),
-                    _buildBadiUpLogo(),
-                    SizedBox(height: 32),
-                    _buildLoginButton(context),
-                  ],
+                  children: widgetList,
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildLoginWithAppleButton(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.065,
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: AppleSignInButton(
+        style: ButtonStyle.black,
+        type: ButtonType.continueButton,
+        cornerRadius: 20,
+        onPressed: () => _tryLoginWithApple(context),
+      ),
     );
   }
 
@@ -61,27 +104,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context) {
+  Widget _buildLoginWithGoogleButton(BuildContext context) {
     return RaisedButton(
       key: Key(makeTestKeyString(TKUsers.user, TKScreens.login, "loginButton")),
-      onPressed: () => _doLogin(context),
-      color: paletteBlackColor,
+      onPressed: () => _tryLoginWithGoogle(context),
+      color: Colors.black,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       highlightElevation: 100,
-      child: _buildLoginButtonInternal(),
+      child: _buildLoginWithGoogleButtonInternal(),
     );
   }
 
-  void _doLogin(BuildContext context) async {
+  void _tryLoginWithGoogle(BuildContext context) async {
     setState(() {
       _loginInProgress = true;
     });
 
-    var result = await signInWithGoogle();
+    var signInSuccessful = await signInWithGoogle();
 
-    if (result != null) {
+    if (signInSuccessful) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
@@ -98,9 +141,35 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  Widget _buildLoginButtonInternal() {
+  void _tryLoginWithApple(BuildContext context) async {
+    setState(() {
+      _loginInProgress = true;
+    });
+
+    var signInSuccessful = await signInWithApple();
+
+    if (signInSuccessful) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return currentSignedInUser.isAdmin()
+                ? AdminHomePage(title: 'BADI UP')
+                : CustomerHomePage(title: 'BADI UP');
+          },
+        ),
+      );
+    }
+
+    setState(() {
+      _loginInProgress = false;
+    });
+  }
+
+  Widget _buildLoginWithGoogleButtonInternal() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      height: MediaQuery.of(context).size.height * 0.065,
+      width: MediaQuery.of(context).size.width * 0.62,
+      alignment: AlignmentDirectional.center,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -113,9 +182,9 @@ class _LoginPageState extends State<LoginPage> {
             child: Text(
               'Google でログイン',
               style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: paletteLightGreyColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: kPaletteWhite,
               ),
             ),
           ),
