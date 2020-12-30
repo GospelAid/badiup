@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:apple_sign_in/apple_sign_in_button.dart';
+import 'package:apple_sign_in/apple_sign_in_button.dart' as asb;
 import 'package:badiup/colors.dart';
 import 'package:badiup/screens/admin_home_page.dart';
 import 'package:badiup/screens/customer_home_page.dart';
@@ -73,9 +73,9 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.065,
       width: MediaQuery.of(context).size.width * 0.7,
-      child: AppleSignInButton(
-        style: ButtonStyle.black,
-        type: ButtonType.continueButton,
+      child: asb.AppleSignInButton(
+        style: asb.ButtonStyle.black,
+        type: asb.ButtonType.continueButton,
         cornerRadius: 20,
         onPressed: () => _tryLoginWithApple(context),
       ),
