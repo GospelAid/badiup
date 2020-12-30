@@ -153,29 +153,6 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
-  Widget _buildDrawerSettingsTile(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.settings, color: kPaletteWhite),
-      title: Text(
-        '設定',
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          color: kPaletteWhite,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SettingsPage(),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildDrawerContactUsTile(BuildContext context) {
     return ListTile(
       leading: Icon(Icons.store, color: kPaletteWhite),
