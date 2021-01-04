@@ -1,6 +1,7 @@
 import 'package:badiup/colors.dart';
 import 'package:badiup/constants.dart' as constants;
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/screens/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -134,5 +135,77 @@ Widget _buildStockItemColorDisplayText(StockItem stockItem, Color _color) {
       fontWeight: FontWeight.w600,
       color: _color,
     ),
+  );
+}
+
+Widget buildLoginRequiredDisplay(BuildContext context) {
+  return Center(
+    child: Container(
+      height: 200,
+      width: 300,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: kPaletteWhite,
+        borderRadius: BorderRadius.all(Radius.circular(6)),
+        boxShadow: [
+          BoxShadow(
+            color: paletteDialogShadowColor.withOpacity(0.10),
+            blurRadius: 30.0,
+            spreadRadius: 0.0,
+            offset: Offset(0.0, 30.0),
+          ),
+        ],
+      ),
+      child: buildLoginRequiredDisplayInternal(context),
+    ),
+  );
+}
+
+Widget buildLoginRequiredDisplayInternal(BuildContext context) {
+  return Padding(
+    padding: EdgeInsets.all(16),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "ログインしてください",
+          style: TextStyle(
+            color: paletteForegroundColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 16),
+        Text(
+          "お手数ですが先にログインしてください",
+          style: TextStyle(color: paletteBlackColor),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 16),
+        _buildLoginButton(context),
+      ],
+    ),
+  );
+}
+
+Widget _buildLoginButton(BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      FlatButton(
+        child: Text(
+          'ログイン',
+          style: TextStyle(color: paletteForegroundColor),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginPage(),
+            ),
+          );
+        },
+      ),
+    ],
   );
 }

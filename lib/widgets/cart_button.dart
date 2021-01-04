@@ -58,30 +58,28 @@ class CartButton extends StatelessWidget {
   }
 
   Widget _buildItemCountText() {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: Firestore.instance
-          .collection(constants.DBCollections.users)
-          .document(currentSignedInUser.email)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container();
-        }
+    var textStyle = TextStyle(color: kPaletteWhite, fontSize: 8);
 
-        var customer = Customer.fromSnapshot(snapshot.data);
-        int itemCount = (customer.cart == null)
-            ? 0
-            : customer.cart.items
-                .fold(0, (a, b) => a + (b.stockRequest?.quantity ?? 0));
+    return currentSignedInUser.isGuest
+        ? Text('0', style: textStyle)
+        : StreamBuilder<DocumentSnapshot>(
+            stream: Firestore.instance
+                .collection(constants.DBCollections.users)
+                .document(currentSignedInUser.email)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
 
-        return Text(
-          itemCount.toString(),
-          style: TextStyle(
-            color: kPaletteWhite,
-            fontSize: 8,
-          ),
-        );
-      },
-    );
+              var customer = Customer.fromSnapshot(snapshot.data);
+              int itemCount = (customer.cart == null)
+                  ? 0
+                  : customer.cart.items
+                      .fold(0, (a, b) => a + (b.stockRequest?.quantity ?? 0));
+
+              return Text(itemCount.toString(), style: textStyle);
+            },
+          );
   }
 }

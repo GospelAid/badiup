@@ -51,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     widgetList.add(_buildLoginWithGoogleButton(context));
 
     return Scaffold(
+      appBar: AppBar(),
       body: _loginInProgress
           ? LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(paletteForegroundColor),

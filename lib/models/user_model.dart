@@ -8,6 +8,8 @@ class User {
   final RoleType role;
   final UserSetting setting;
   final DateTime created;
+  // Setting isGuest to true by default. This will be overridden when the user logs in.
+  bool isGuest = true;
 
   User({
     this.email,
@@ -39,7 +41,8 @@ class User {
         name = map['name'],
         role = RoleType.values[map['role']],
         setting = UserSetting.fromMap(map['setting'].cast<String, dynamic>()),
-        created = map['created'].toDate();
+        created = map['created'].toDate(),
+        isGuest = false;
 
   User.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data);
 }

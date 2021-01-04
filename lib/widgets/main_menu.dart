@@ -7,7 +7,6 @@ import 'package:badiup/screens/customer_home_page.dart';
 import 'package:badiup/screens/customer_order_listing_page.dart';
 import 'package:badiup/screens/login_page.dart';
 import 'package:badiup/screens/privacy_policy_page.dart';
-import 'package:badiup/screens/settings_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/test_keys.dart';
 import 'package:flutter/material.dart';
@@ -312,7 +311,7 @@ class _MainMenuState extends State<MainMenu> {
   List<Widget> _buildDrawerHeaderAccountInfo(BuildContext context) {
     return <Widget>[
       Text(
-        currentSignedInUser.name,
+        currentSignedInUser.isGuest ? 'ゲスト' : currentSignedInUser.name,
         style: TextStyle(
           color: kPaletteWhite,
           fontWeight: FontWeight.bold,
@@ -320,7 +319,7 @@ class _MainMenuState extends State<MainMenu> {
         ),
       ),
       Text(
-        currentSignedInUser.email,
+        currentSignedInUser.isGuest ? '' : currentSignedInUser.email,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: kPaletteWhite,

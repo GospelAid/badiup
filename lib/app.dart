@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'screens/login_page.dart';
 import 'package:badiup/colors.dart';
 
 class BadiUpApp extends StatelessWidget {
@@ -16,17 +15,19 @@ class BadiUpApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _getAppTheme(),
       home: FutureBuilder<FirebaseUser>(
-          future: FirebaseAuth.instance.currentUser(),
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<FirebaseUser> snapshot,
-          ) {
-            if (snapshot.hasData) {
-              return _buildHomePage(snapshot);
-            }
+        future: FirebaseAuth.instance.currentUser(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<FirebaseUser> snapshot,
+        ) {
+          if (snapshot.hasData) {
+            return _buildHomePage(snapshot);
+          }
 
-            return LoginPage();
-          }),
+          // User is guest
+          return CustomerHomePage();
+        },
+      ),
     );
   }
 
@@ -50,7 +51,8 @@ class BadiUpApp extends StatelessWidget {
               ? AdminHomePage()
               : CustomerHomePage();
         } else {
-          return LoginPage();
+          // User is guest
+          return CustomerHomePage();
         }
       },
     );
