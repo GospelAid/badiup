@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'screens/login_page.dart';
 import 'package:badiup/colors.dart';
 
 class BadiUpApp extends StatelessWidget {
@@ -16,17 +15,19 @@ class BadiUpApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _getAppTheme(),
       home: FutureBuilder<FirebaseUser>(
-          future: FirebaseAuth.instance.currentUser(),
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<FirebaseUser> snapshot,
-          ) {
-            if (snapshot.hasData) {
-              return _buildHomePage(snapshot);
-            }
+        future: FirebaseAuth.instance.currentUser(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<FirebaseUser> snapshot,
+        ) {
+          if (snapshot.hasData) {
+            return _buildHomePage(snapshot);
+          }
 
-            return LoginPage();
-          }),
+          // User is guest
+          return CustomerHomePage();
+        },
+      ),
     );
   }
 
@@ -50,7 +51,8 @@ class BadiUpApp extends StatelessWidget {
               ? AdminHomePage()
               : CustomerHomePage();
         } else {
-          return LoginPage();
+          // User is guest
+          return CustomerHomePage();
         }
       },
     );
@@ -83,11 +85,11 @@ ThemeData _getAppTheme() {
 TextTheme _buildAppTextTheme(TextTheme base) {
   return base
       .copyWith(
-        headline: base.headline.copyWith(
+        headline5: base.headline5.copyWith(
           fontWeight: FontWeight.w500,
           color: kPaletteWhite,
         ),
-        title: base.title.copyWith(
+        headline6: base.headline6.copyWith(
           fontSize: 18.0,
           color: kPaletteWhite,
         ),
@@ -96,12 +98,12 @@ TextTheme _buildAppTextTheme(TextTheme base) {
           fontSize: 14.0,
           color: kPaletteWhite,
         ),
-        body1: base.body1.copyWith(
+        bodyText2: base.bodyText2.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 16.0,
           color: kPalettePurple,
         ),
-        body2: base.body2.copyWith(
+        bodyText1: base.bodyText1.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 16.0,
           color: kPalettePurple,

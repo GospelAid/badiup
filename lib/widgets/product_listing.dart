@@ -118,9 +118,10 @@ class _ProductListingState extends State<ProductListing> {
         ? 0
         : product.stock.items.fold(0, (a, b) => a + (b?.quantity ?? 0));
 
-    // Show only published products if current user is customer
+    // Show only published products if current user is customer or guest
     // Otherwise, show all products
-    if (currentSignedInUser.role == RoleType.customer) {
+    if (currentSignedInUser.isGuest ||
+        currentSignedInUser.role == RoleType.customer) {
       if (product.isPublished && _productQuantity > 0) {
         if (_categoryFilters.isEmpty ||
             _categoryFilters.contains(getDisplayText(product.category))) {

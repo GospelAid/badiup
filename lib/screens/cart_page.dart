@@ -127,27 +127,29 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildCartItemListing() {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: Firestore.instance
-          .collection(constants.DBCollections.users)
-          .document(currentSignedInUser.email)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return LinearProgressIndicator();
-        }
+    return currentSignedInUser.isGuest
+        ? buildLoginRequiredDisplay(context)
+        : StreamBuilder<DocumentSnapshot>(
+            stream: Firestore.instance
+                .collection(constants.DBCollections.users)
+                .document(currentSignedInUser.email)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return LinearProgressIndicator();
+              }
 
-        var customer = Customer.fromSnapshot(snapshot.data);
+              var customer = Customer.fromSnapshot(snapshot.data);
 
-        if (customer.cart == null ||
-            customer.cart.items == null ||
-            customer.cart.items.isEmpty) {
-          return _buildEmptyCart();
-        }
+              if (customer.cart == null ||
+                  customer.cart.items == null ||
+                  customer.cart.items.isEmpty) {
+                return _buildEmptyCart();
+              }
 
-        return _buildCartItemListingInternal(customer.cart);
-      },
-    );
+              return _buildCartItemListingInternal(customer.cart);
+            },
+          );
   }
 
   Widget _buildEmptyCart() {

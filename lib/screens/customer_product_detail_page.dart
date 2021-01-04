@@ -4,6 +4,7 @@ import 'package:badiup/models/cart_model.dart';
 import 'package:badiup/models/customer_model.dart';
 import 'package:badiup/models/product_model.dart';
 import 'package:badiup/models/stock_model.dart';
+import 'package:badiup/screens/login_page.dart';
 import 'package:badiup/sign_in.dart';
 import 'package:badiup/utilities.dart';
 import 'package:badiup/widgets/cart_button.dart';
@@ -48,13 +49,13 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         return Scaffold(
           key: _scaffoldKey,
           appBar: _buildAppBar(context, product),
-          body: _buildBody(product),
+          body: _buildBody(context, product),
         );
       },
     );
   }
 
-  Widget _buildBody(Product product) {
+  Widget _buildBody(BuildContext context, Product product) {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
@@ -68,7 +69,7 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
           height: 64,
           child: Row(
             children: <Widget>[
-              _buildAddToCartButton(product),
+              _buildAddToCartButton(context, product),
             ],
           ),
         ),
@@ -315,41 +316,75 @@ class _CustomerProductDetailPageState extends State<CustomerProductDetailPage> {
         .toList();
   }
 
-  Widget _buildAddToCartButton(Product product) {
+  Widget _buildAddToCartButton(BuildContext context, Product product) {
     return Expanded(
       child: GestureDetector(
         onTap: () async {
-          if (await _canAddToCart(product)) {
-            _addToCart();
-            _scaffoldKey.currentState.showSnackBar(
-              buildSnackBar("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
+          if (currentSignedInUser.isGuest) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ),
             );
           } else {
-            setState(() {
-              _showAddToCartFailedMessage = true;
-            });
+            if (await _canAddToCart(product)) {
+              _addToCart();
+              _scaffoldKey.currentState.showSnackBar(
+                buildSnackBar("商品をかごに追加しました。右上の買い物かごからご確認できます。"),
+              );
+            } else {
+              setState(() {
+                _showAddToCartFailedMessage = true;
+              });
+            }
           }
         },
-        child: Container(
-          height: 64,
-          color: paletteForegroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                Icons.add_circle_outline,
-                color: kPaletteWhite,
-              ),
-              Text(
-                " 商品をかごに追加",
-                style: TextStyle(
-                  color: kPaletteWhite,
-                  fontWeight: FontWeight.w600,
-                ),
-              )
-            ],
+        child: currentSignedInUser.isGuest
+            ? _buildLoginRequiredButtonText()
+            : _buildAddToCartButtonInternal(),
+      ),
+    );
+  }
+
+  Widget _buildLoginRequiredButtonText() {
+    return Container(
+      height: 64,
+      color: paletteForegroundColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            "購入ご希望の方はログインしてください",
+            style: TextStyle(
+              color: kPaletteWhite,
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddToCartButtonInternal() {
+    return Container(
+      height: 64,
+      color: paletteForegroundColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.add_circle_outline,
+            color: kPaletteWhite,
           ),
-        ),
+          Text(
+            " 商品をかごに追加",
+            style: TextStyle(
+              color: kPaletteWhite,
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        ],
       ),
     );
   }

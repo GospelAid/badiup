@@ -45,6 +45,12 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   @override
   void initState() {
     super.initState();
+    if (!currentSignedInUser.isGuest) {
+      _setupPushNotifications();
+    }
+  }
+
+  void _setupPushNotifications() {
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
         _saveDeviceToken();
